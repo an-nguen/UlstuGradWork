@@ -14,14 +14,14 @@ public sealed class UserController(IUserService service): ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] AddUserRequest request)
+    public async Task<IActionResult> CreateUser([FromBody] UserAddRequest request)
     {
         return Ok(await service.CreateUser(request));
     }
 
     [HttpPut]
     [Route("{id:guid}")]
-    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] AddUserRequest request)
+    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserAddRequest request)
     {
         return Ok(await service.UpdateUser(id, request));
     }

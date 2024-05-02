@@ -1,10 +1,13 @@
 ﻿using System.Reflection;
+using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
 using BookManager.Application.Persistence;
 using BookManager.Application.Persistence.FileSystem;
 using BookManager.Application.Services;
+using BookManager.Application.Validators;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -41,6 +44,8 @@ public static class DependencyInjection
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IIndexingService, IndexingService>();
 
+        services.AddScoped<IValidator<UserAddRequest>, AddUserRequestValidator>();
+        
         services.AddHostedService<IndexingHostedService>();
 
         return services;
