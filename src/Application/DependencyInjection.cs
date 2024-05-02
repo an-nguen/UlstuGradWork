@@ -36,7 +36,8 @@ public static class DependencyInjection
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
 
-        services.AddScoped<IBookDocumentService, BookDocumentService>();
+        services.AddScoped<IBookService, BookService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IIndexingService, IndexingService>();
 

@@ -2,9 +2,13 @@ namespace BookManager.Application.Common.Interfaces.Persistence;
 
 public interface IAppDbContext
 {
-    DbSet<BookDocument> BookDocuments { get; }
+    DbSet<Book> Books { get; }
 
-    DbSet<BookDocumentText> BookDocumentsTexts { get; }
+    DbSet<BookText> BookTexts { get; }
+    
+    DbSet<User> Users { get; }
+    
+    DbSet<BookUserStats> BookUserStatsSet { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

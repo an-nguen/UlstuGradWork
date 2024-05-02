@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookManager.Domain.Entities;
 
-public sealed class BookDocumentText
+public sealed class BookText
 {
     [Key] 
     public Guid Id { get; init; }

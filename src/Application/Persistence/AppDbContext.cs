@@ -2,23 +2,19 @@ namespace BookManager.Application.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
-    public DbSet<BookDocument> BookDocuments => Set<BookDocument>();
+    public DbSet<Book> Books => Set<Book>();
 
-    public DbSet<BookDocumentText> BookDocumentsTexts => Set<BookDocumentText>();
+    public DbSet<BookText> BookTexts => Set<BookText>();
 
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<BookUserStats> BookUserStatsSet => Set<BookUserStats>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<BookDocument>()
-            .HasIndex(b => b.FileHash);
-        modelBuilder.Entity<BookDocumentGroup>()
-            .HasMany(group => group.BookDocuments)
-            .WithOne(bookDocument => bookDocument.Group)
-            .HasForeignKey(bookDocument => bookDocument.GroupId)
-            .OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<BookDocumentGroup>()
-            .Property(group => group.CreatedAt)
-            .ValueGeneratedOnAdd();
-        modelBuilder.Entity<BookDocumentText>()
+        modelBuilder.Entity<BookUserStats>()
+            .HasKey(s => new {s.BookId, s.UserId});
+        modelBuilder.Entity<BookText>()
             .HasIndex(bdt => bdt.Text)
             .HasMethod("GIN")
             .IsTsVectorExpressionIndex("english");

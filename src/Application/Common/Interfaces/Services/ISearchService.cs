@@ -4,5 +4,5 @@ namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface ISearchService
 {
-    public IAsyncEnumerable<BookDocumentTextDto> TextSearch(string pattern);
+    public IAsyncEnumerable<BookTextDto> TextSearch(string pattern);
 }

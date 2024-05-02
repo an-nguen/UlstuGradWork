@@ -14,13 +14,13 @@ public sealed class IndexingService(ISender sender) : IIndexingService
 {
     public async Task IndexDocumentAsync(Guid bookDocumentId, CancellationToken cancellationToken)
     {
-        var document = await sender.Send(new GetBookDocumentByIdQuery(bookDocumentId), cancellationToken);
+        var document = await sender.Send(new GetBookByIdQuery(bookDocumentId), cancellationToken);
         if (document == null)
             throw new EntityNotFoundException();
         var documentTexts = ReadAllText(document.Filepath, document.FileType, document.Id);
-        await sender.Send(new AddDocumentTextsCommand
+        await sender.Send(new AddBookTexts
         {
-            DocumentTexts = documentTexts
+            Texts = documentTexts
         }, cancellationToken);
     }
 
@@ -29,24 +29,24 @@ public sealed class IndexingService(ISender sender) : IIndexingService
         return await sender.Send(new DeleteDocumentTextsCommand(bookDocumentId), cancellationToken);
     }
 
-    private static IEnumerable<BookDocumentText> ReadAllText(string filepath, DocumentFileType fileType, Guid bookId)
+    private static IEnumerable<BookText> ReadAllText(string filepath, BookFileType fileType, Guid bookId)
     {
         switch (fileType)
         {
-            case DocumentFileType.Pdf:
+            case BookFileType.Pdf:
                 var document = PdfDocument.Open(filepath);
-                return document.GetPages().Select(page => new BookDocumentText
+                return document.GetPages().Select(page => new BookText
                     {
                         BookDocumentId = bookId,
                         Text = page.Text,
                         PageNumber = page.Number
                     }
                 ).ToList().AsEnumerable();
-            case DocumentFileType.Epub:
+            case BookFileType.Epub:
                 var book = EpubReader.ReadBook(filepath);
                 var contents = book
                     .ReadingOrder
-                    .Select(textContent => new BookDocumentText
+                    .Select(textContent => new BookText
                     {
                         BookDocumentId = bookId,
                         Text = PrintTextContentFile(textContent),

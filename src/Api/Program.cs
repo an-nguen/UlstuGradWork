@@ -1,5 +1,4 @@
 using BookManager.Application;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -7,14 +6,23 @@ builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection(
 builder.Services.ConfigureDataPersistence(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddControllers();
-builder.Services.AddGrpc(o => o.EnableDetailedErrors = true);
-builder.Services.AddGrpcHealthChecks()
-    .AddCheck("All", () => HealthCheckResult.Healthy());
-builder.Services.AddGrpcReflection();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.MapDefaultControllerRoute();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
 app.Run();
 
 // For tests

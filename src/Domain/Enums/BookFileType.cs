@@ -1,8 +1,10 @@
 using BookManager.Domain.Exceptions;
+using Tapper;
 
 namespace BookManager.Domain.Enums;
 
-public enum DocumentFileType
+[TranspilationSource]
+public enum BookFileType
 {
     Pdf,
     Epub
@@ -10,11 +12,11 @@ public enum DocumentFileType
 
 public static class DocumentFileTypeUtils
 {
-    public static DocumentFileType GetFileType(string filename)
+    public static BookFileType GetFileType(string filename)
         => Path.GetExtension(filename).ToLower() switch
         {
-            ".pdf" => DocumentFileType.Pdf,
-            ".epub" => DocumentFileType.Epub,
+            ".pdf" => BookFileType.Pdf,
+            ".epub" => BookFileType.Epub,
             _ => throw new UnsupportedFileTypeException()
         };
 }

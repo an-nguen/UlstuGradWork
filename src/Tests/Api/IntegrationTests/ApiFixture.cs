@@ -1,5 +1,5 @@
 using BookManager.Application.Persistence;
-using Grpc.Net.Client;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using ServiceProviderServiceExtensions = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions;
 
@@ -8,15 +8,12 @@ namespace BookManager.Tests.Api.IntegrationTests;
 public class ApiFixture : IDisposable
 {
     private readonly WebTestAppFactory<Program> _factory;
-    private GrpcChannel? _channel;
 
     public ApiFixture()
     {
         _factory = new WebTestAppFactory<Program>();
         InitDatabase();
     }
-
-    public GrpcChannel Channel => _channel ??= CreateChannel();
 
     public void Dispose()
     {
@@ -25,28 +22,28 @@ public class ApiFixture : IDisposable
         _factory.Dispose();
     }
 
-    private void InitDatabase()
+    public HttpClient CreateClient()
     {
-        using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
-        var dbContext = ServiceProviderServiceExtensions.GetRequiredService<AppDbContext>(scope.ServiceProvider);
-        dbContext.Database.EnsureDeleted();
-        dbContext.Database.EnsureCreated();
+        return _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+        });
     }
 
     public void Cleanup()
     {
         using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var dbContext = ServiceProviderServiceExtensions.GetRequiredService<AppDbContext>(scope.ServiceProvider);
-        dbContext.BookDocuments.ExecuteDelete();
-        dbContext.BookDocumentsTexts.ExecuteDelete();
+        dbContext.Books.ExecuteDelete();
+        dbContext.BookTexts.ExecuteDelete();
     }
 
-    private GrpcChannel CreateChannel()
+    private void InitDatabase()
     {
-        return GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
-        {
-            HttpClient = _factory.CreateClient()
-        });
+        using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
+        var dbContext = ServiceProviderServiceExtensions.GetRequiredService<AppDbContext>(scope.ServiceProvider);
+        dbContext.Database.EnsureDeleted();
+        dbContext.Database.EnsureCreated();
     }
 }
 

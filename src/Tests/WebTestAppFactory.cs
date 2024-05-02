@@ -13,6 +13,8 @@ public class WebTestAppFactory<TProgram> : WebApplicationFactory<TProgram>
     {
         builder.ConfigureServices(services =>
         {
+            var assembly = typeof(Program).Assembly;
+            services.AddControllers().AddApplicationPart(assembly);
             RemoveAppDbContext(services);
             AddTestDbContext(services);
         });

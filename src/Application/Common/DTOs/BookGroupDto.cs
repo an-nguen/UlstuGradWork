@@ -1,14 +1,14 @@
 ﻿namespace BookManager.Application.Common.DTOs;
 
-public sealed record BookDocumentGroupDto
+public sealed record BookGroupDto
 {
     public Guid Id { get; init; }
     public required string Name { get; init; }
-    public ICollection<BookDocumentDto>? BookDocuments { get; init; } = null!;
+    public ICollection<BookDto>? BookDocuments { get; init; } = null!;
 
-    public BookDocumentGroup ToEntity()
+    public BookGroup ToEntity()
     {
-        var entity = new BookDocumentGroup
+        var entity = new BookGroup
         {
             Id = Id,
             Name = Name

@@ -1,6 +1,6 @@
 ﻿namespace BookManager.Application.Common.DTOs;
 
-public record BookDocumentTextDto
+public record BookTextDto
 {
     public required Guid BookDocumentId { get; init; }
 
@@ -11,9 +11,9 @@ public record BookDocumentTextDto
 
 public static class BookDocumentTextEntityExtensions
 {
-    public static BookDocumentTextDto ToDto(this BookDocumentText entity)
+    public static BookTextDto ToDto(this BookText entity)
     {
-        return new BookDocumentTextDto
+        return new BookTextDto
         {
             BookDocumentId = entity.BookDocumentId,
             Text = entity.Text,

@@ -13,5 +13,5 @@ public sealed record IndexingWorkItem(
     IndexingWorkItemOperationType OperationType,
     Guid BookDocumentId,
     string Filepath,
-    DocumentFileType FileType
+    BookFileType FileType
 );

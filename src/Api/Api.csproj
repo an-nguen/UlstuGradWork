@@ -10,27 +10,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.62.0"/>
-        <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.62.0"/>
-        <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.62.0"/>
+        <PackageReference Include="JsonModelBinder" Version="2.1.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Application\Application.csproj"/>
+        <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-        <None Remove="14467742-c7c3-4c1d-bcad-b85e84d27839-PDF32000_2008.pdf"/>
+        <InternalsVisibleTo Include="BookManager.Tests" />
     </ItemGroup>
-
+    
     <ItemGroup>
-        <Folder Include="Endpoints\Http\"/>
+      <Folder Include="UploadedDocs\" />
     </ItemGroup>
 
 </Project>

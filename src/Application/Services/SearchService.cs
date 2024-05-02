@@ -6,7 +6,7 @@ namespace BookManager.Application.Services;
 
 public sealed class SearchService(ISender sender) : ISearchService
 {
-    public IAsyncEnumerable<BookDocumentTextDto> TextSearch(string pattern) =>
+    public IAsyncEnumerable<BookTextDto> TextSearch(string pattern) =>
         sender.CreateStream(new SearchDocumentQuery(pattern))
             .Select(searchResult => searchResult.ToDto());
 }

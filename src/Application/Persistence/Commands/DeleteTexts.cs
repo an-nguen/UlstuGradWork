@@ -6,7 +6,7 @@ public sealed class DeleteDocumentTextsHandler(IAppDbContext dbContext): IReques
 {
     public async Task<int> Handle(DeleteDocumentTextsCommand request, CancellationToken cancellationToken)
     {
-        return await dbContext.BookDocumentsTexts.Where(text => text.BookDocumentId == request.BookDocumentId)
+        return await dbContext.BookTexts.Where(text => text.BookDocumentId == request.BookDocumentId)
             .ExecuteDeleteAsync(cancellationToken);
     }
 }

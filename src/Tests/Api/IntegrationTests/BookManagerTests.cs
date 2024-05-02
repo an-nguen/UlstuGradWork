@@ -1,148 +1,112 @@
-using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using Blake3;
+using BookManager.Application.Common.DTOs;
+using BookManager.Domain.Enums;
 using File = System.IO.File;
 
 namespace BookManager.Tests.Api.IntegrationTests;
 
-// [Collection("Api collection")]
-// public class BookManagerTests
-// {
-//     private readonly ApiFixture _apiFixture;
-//     private readonly Grpc.BookManager.BookManagerClient _client;
-//
-//     public BookManagerTests(ApiFixture fixture)
-//     {
-//         _apiFixture = fixture;
-//         _client = new Grpc.BookManager.BookManagerClient(_apiFixture.Channel);
-//     }
-//
-//     [Fact]
-//     public async Task GetBookDocumentsTest()
-//     {
-//         await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         await AddBookDocumentAsync(_client, Constants.AnotherTestFilepath);
-//         using var call = _client.GetBookDocuments(new Empty());
-//         var documents = await call.ResponseStream.ToListAsync();
-//         Assert.NotNull(documents);
-//         Assert.Equal(2, documents.Count);
-//         _apiFixture.Cleanup();
-//     }
-//
-//     [Fact]
-//     public async Task DownloadBookDocumentFileTest()
-//     {
-//         var bookReply = await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         Assert.NotEmpty(bookReply.Id);
-//         using var call = _client.DownloadBookDocumentFile(new BookFileDownloadRequest { Id = bookReply.Id });
-//         var hash = "";
-//         await using (var fileStream = File.Create(bookReply.Id + ".pdf"))
-//         {
-//             await foreach (var dataChunk in call.ResponseStream.ReadAllAsync())
-//             {
-//                 hash = dataChunk.Hash;
-//                 await fileStream.WriteAsync(dataChunk.Data.Memory);
-//             }
-//         }
-//
-//         Assert.Equal(FileUtils.ComputeHash(Constants.TestFilepath), hash);
-//     }
-//
-//     [Fact]
-//     public async Task AddBookDocumentTest()
-//     {
-//         var bookReply = await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         Assert.NotEmpty(bookReply.Id);
-//         _apiFixture.Cleanup();
-//     }
-//
-//     [Fact]
-//     public async Task UpdateBookDocumentDetailsTest()
-//     {
-//         const string titleText = "PDF Version 1.7 Specification";
-//         var added = await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         Assert.NotEmpty(added.Id);
-//
-//         var modified = await _client.UpdateBookDocumentDetailsAsync(new BookDocumentDetailsUpdateRequest
-//             {
-//                 Id = added.Id,
-//                 Title = titleText
-//             }
-//         );
-//         Assert.Equal(titleText, modified.Title);
-//         _apiFixture.Cleanup();
-//     }
-//
-//     [Fact]
-//     public async Task ReplaceBookDocumentFileTest()
-//     {
-//         var added = await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         Assert.NotEmpty(added.Id);
-//
-//         using var call = _client.ReplaceBookDocumentFile();
-//         const string anotherTestFile = Constants.AnotherTestFilepath;
-//         var fileInfo = new FileInfo(anotherTestFile);
-//         var hash = FileUtils.ComputeHash(anotherTestFile);
-//         await using var readStream = File.OpenRead(anotherTestFile);
-//         var buffer = new byte[Constants.BufferSize];
-//         int bytesRead;
-//         while ((bytesRead = readStream.Read(buffer, 0, (int)Constants.BufferSize)) > 0)
-//             await call.RequestStream.WriteAsync(new BookFileReplaceRequest
-//             {
-//                 Id = added.Id,
-//                 Metadata = new FileMetadata
-//                 {
-//                     Name = fileInfo.Name,
-//                     Size = fileInfo.Length,
-//                     Hash = hash,
-//                     Type = FileType.Pdf
-//                 },
-//                 Data = UnsafeByteOperations.UnsafeWrap(buffer.AsMemory(0, bytesRead))
-//             });
-//         await call.RequestStream.CompleteAsync();
-//         var modified = await call.ResponseAsync;
-//         Assert.Equal(hash, modified.FileHash);
-//         Assert.Equal(added.Title, modified.Title);
-//         _apiFixture.Cleanup();
-//     }
-//
-//     [Fact]
-//     public async Task RemoveBookDocumentTest()
-//     {
-//         var bookReply = await AddBookDocumentAsync(_client, Constants.TestFilepath);
-//         Assert.NotEmpty(bookReply.Id);
-//         var ex = await Record.ExceptionAsync(DeleteTest);
-//         Assert.Null(ex);
-//         _apiFixture.Cleanup();
-//         return;
-//
-//         Task DeleteTest()
-//         {
-//             return Task.Run(() => _client.RemoveBookDocumentAsync(new BookRemoveRequest { Id = bookReply.Id }));
-//         }
-//     }
-//
-//     public static async Task<BookReply> AddBookDocumentAsync(Grpc.BookManager.BookManagerClient client, string filepath)
-//     {
-//         using var call = client.AddBookDocumentFile();
-//         var fileInfo = new FileInfo(filepath);
-//         var hash = FileUtils.ComputeHash(fileInfo.FullName);
-//         await using var readStream = File.OpenRead(fileInfo.FullName);
-//         var buffer = new byte[Constants.BufferSize];
-//         int bytesRead;
-//         while ((bytesRead = readStream.Read(buffer, 0, (int)Constants.BufferSize)) > 0)
-//             await call.RequestStream.WriteAsync(new BookFileAddRequest
-//             {
-//                 FileMetadata = new FileMetadata
-//                 {
-//                     Name = fileInfo.Name,
-//                     Size = fileInfo.Length,
-//                     Hash = hash,
-//                     Type = FileType.Pdf
-//                 },
-//                 Data = UnsafeByteOperations.UnsafeWrap(buffer.AsMemory(0, bytesRead))
-//             });
-//         await call.RequestStream.CompleteAsync();
-//
-//         return await call.ResponseAsync;
-//     }
-// }
+[Collection("Api collection")]
+public class BookManagerTests(ApiFixture apiFixture)
+{
+    private readonly HttpClient _client = apiFixture.CreateClient();
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    [Fact]
+    public async Task GetBooks_ReturnsBookList()
+    {
+        await AddBookDocumentAsync(Constants.TestFilepath);
+        var response = await _client.GetAsync("/books?pageNumber=0&pageSize=10");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var books = await JsonSerializer.DeserializeAsync<IEnumerable<BookDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        Assert.NotNull(books);
+        Assert.NotEmpty(books);
+        apiFixture.Cleanup();
+    }
+
+    [Fact]
+    public async Task AddBook_ReturnsBook()
+    {
+        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var fileInfo = new FileInfo(Constants.TestFilepath);
+        Assert.Equal(fileInfo.Length, bookDto.FileMetadata.Size);
+        Assert.Equal(BookFileType.Pdf, bookDto.FileMetadata.Type);
+        Assert.Equal(Constants.TestFileTitle, bookDto.DocumentDetails.Title);
+        apiFixture.Cleanup();
+    }
+    
+    [Fact]
+    public async Task DownloadBook_ReturnsFile()
+    {
+        const string filenameOfTmp = "temp.pdf";
+        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var expectedHash = await GetHash(Constants.TestFilepath);
+        await using var stream = await _client.GetStreamAsync($"/books/download/{bookDto.DocumentDetails.Id}");
+        await using (var fs = new FileStream(filenameOfTmp, FileMode.Create))
+        {
+            await stream.CopyToAsync(fs);
+        }
+        Assert.Equal(expectedHash, await GetHash(filenameOfTmp));
+        File.Delete(filenameOfTmp);
+        apiFixture.Cleanup();
+    }
+
+    [Fact]
+    public async Task UpdateBookDetails_ReturnsBook()
+    {
+        const string expectedTitle = "Another title";
+        const string expectedDescription = "Some description text";
+        const string expectedIsbn = "isbn";
+        const string expectedPublisherName = "noname";
+        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        bookDto.DocumentDetails.Title = expectedTitle;
+        bookDto.DocumentDetails.Description = expectedDescription;
+        bookDto.DocumentDetails.Isbn = expectedIsbn;
+        bookDto.DocumentDetails.PublisherName = expectedPublisherName;
+        var response = await _client.PutAsync($"books/{bookDto.DocumentDetails.Id}", JsonContent.Create(bookDto.DocumentDetails));
+        var modifiedBookDto = await JsonSerializer.DeserializeAsync<BookDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        Assert.Equivalent(bookDto, modifiedBookDto);
+        apiFixture.Cleanup();
+    }
+
+    [Fact]
+    public async Task DeleteBook_ReturnsHttpStatusCodeOk()
+    {
+        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var response = await _client.DeleteAsync($"books/{bookDto.DocumentDetails.Id}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    private async Task<string> GetHash(string filePath)
+    {
+        var hasher = Hasher.New();
+        hasher.Update(await File.ReadAllBytesAsync(filePath));
+        return hasher.Finalize().ToString();
+    }
+
+    private async Task<BookDto> AddBookDocumentAsync(string filepath)
+    {
+        var formData = new MultipartFormDataContent();
+        var bookMetadata = new BookMetadataDto
+        {
+            Filename = Path.GetFileName(filepath),
+            FileType = BookFileType.Pdf,
+            FileSizeInBytes = new FileInfo(filepath).Length,
+            Title = "PDF Specification"
+        };
+        var binaryContent = new StreamContent(File.OpenRead(filepath));
+        formData.Add(JsonContent.Create(bookMetadata), "bookMetadata");
+        formData.Add(binaryContent, "file", Path.GetFileName(filepath));
+        var response = await _client.PostAsync("/books", formData);
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new Exception("Failed to add book!");
+        }
+        return await JsonSerializer.DeserializeAsync<BookDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+    }
+}
