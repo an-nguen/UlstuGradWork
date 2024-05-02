@@ -6,6 +6,7 @@ import {
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,11 +30,13 @@ import { TitlebarMenuComponent } from '@core/components/titlebar-menu-button/tit
 import { TitlebarWindowButtonComponent } from '@core/components/titlebar-window-button/titlebar-window-button.component';
 import { TitlebarComponent } from '@core/components/titlebar/titlebar.component';
 import { ToolbarComponent } from '@core/components/toolbar/toolbar.component';
+import { UserCreationDialogComponent } from '@core/components/user-creation-dialog/user-creation-dialog.component';
 import { BookEditDetailsComponent } from '@core/pages/book-edit-details/book-edit-details.component';
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
 import { UserLoginComponent } from '@core/pages/user-login/user-login.component';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
+import { DigitOnlyModule } from '@uiowa/digit-only';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
@@ -52,12 +55,14 @@ import { routes } from './app.routes';
     MainLayoutComponent,
     LibraryExplorerComponent,
     BookViewerComponent,
-    UserLoginComponent
+    UserLoginComponent,
+    UserCreationDialogComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     BrowserModule,
+    HttpClientModule,
     RouterOutlet,
     RouterLink,
     MatButtonModule,
@@ -73,6 +78,7 @@ import { routes } from './app.routes';
     CdkMenuBar,
     CdkMenuItem,
     CdkMenuTrigger,
+    DigitOnlyModule,
     IconButtonComponent,
     CdkMenuModule,
     NgxExtendedPdfViewerModule,

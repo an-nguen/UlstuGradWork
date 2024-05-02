@@ -13,5 +13,8 @@ export const CONSTANTS = {
     BOOKS: {
       PATH: '/books'
     }
+  },
+  REGEX_PATTERN: {
+    PIN_CODE: '^[0-9]{4,16}$'
   }
 };

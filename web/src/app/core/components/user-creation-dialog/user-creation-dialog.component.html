@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>Создание пользователя</h2>
+<mat-dialog-content [formGroup]="createUserForm">
+  <mat-form-field>
+    <mat-label>Имя пользователя</mat-label>
+    <input matInput formControlName="name" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>ПИН-код</mat-label>
+    <input matInput type="password" formControlName="pinCode" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="createUserForm.pristine || createUserForm.invalid"
+    (click)="create()"
+    inputmode="numeric"
+    minlength="4"
+    maxlength="16"
+    digitOnly
+  >
+    Создать
+  </button>
+  <button mat-flat-button color="accent" (click)="cancel()">Отмена</button>
+</mat-dialog-actions>
