@@ -3,12 +3,8 @@
 /* tslint:disable */
 import type { BookFileType } from './BookManager.Domain.Enums';
 
-/** Transpiled from BookManager.Application.Common.DTOs.AddUserRequest */
-export type AddUserRequest = {
-    /** Transpiled from string */
-    name: string;
-    /** Transpiled from string */
-    pinCode: string;
+/** Transpiled from BookManager.Application.Common.DTOs.BookDetailsUpdateDto */
+export type BookDetailsUpdateDto = {
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto */
@@ -61,8 +57,18 @@ export type BookMetadataDto = {
     publisherName?: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.UserAddRequest */
+export type UserAddRequest = {
+    /** Transpiled from string */
+    name: string;
+    /** Transpiled from string */
+    pinCode: string;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.UserDto */
 export type UserDto = {
+    /** Transpiled from System.Guid */
+    id: string;
     /** Transpiled from string */
     name: string;
 }
