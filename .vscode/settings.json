@@ -1,0 +1,8 @@
+{
+  "protoc": {
+    "options": ["--proto_path=${workspaceRoot}/src/Protos"]
+  },
+  "rust-analyzer.linkedProjects": [
+    "client/libmgr-desktop-app/src-tauri/Cargo.toml"
+  ]
+}

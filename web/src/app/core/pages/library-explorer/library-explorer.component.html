@@ -11,8 +11,7 @@
   [books]="books()"
   (openItemEvent)="openBook($event)"
   (editItemEvent)="editBookDetails($event)"
-  (shareItemEvent)="shareBook($event)"
-  (deleteItemsEvent)="deleteBooks($event)"
+  (deleteItemEvent)="deleteBook($event)"
 >
   <app-loading-spinner-overlay
     [loading]="loading()"

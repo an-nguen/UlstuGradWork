@@ -10,14 +10,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
-import {
-  BookDocumentService,
-  BookReply,
-} from '@core/interfaces/book-document-service';
-import { DeviceReply, DeviceService } from '@core/interfaces/device-service';
-import { WindowService } from '@core/interfaces/window-service';
-import { catchError, finalize, from, mergeMap, of, throwError } from 'rxjs';
-import { DeviceListDialogComponent } from '../../components/device-list-dialog/device-list-dialog.component';
+import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookService } from '@core/services/book.service';
+import { catchError, finalize, mergeMap, of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-library-explorer',
@@ -26,14 +21,16 @@ import { DeviceListDialogComponent } from '../../components/device-list-dialog/d
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryExplorerComponent implements OnInit {
+
   public loading = signal<boolean>(false);
 
-  public books = signal<BookReply[]>([]);
+  public books = signal<BookDto[]>([]);
+
+  public pageNumber = signal<number>(0);
+  public pageSize = signal<number>(10);
 
   constructor(
-    private readonly _bookDocumentService: BookDocumentService,
-    private readonly _deviceService: DeviceService,
-    private readonly _windowService: WindowService,
+    private readonly _bookService: BookService,
     private readonly _dialog: MatDialog,
     private readonly _router: Router,
     private readonly _route: ActivatedRoute,
@@ -47,7 +44,7 @@ export class LibraryExplorerComponent implements OnInit {
 
   public loadBookDocuments(): void {
     this.loading.set(true);
-    from(this._bookDocumentService.getBookDocuments())
+    this._bookService.getBooks(this.pageNumber(), this.pageSize())
       .pipe(
         catchError(err => {
           console.log(err);
@@ -62,64 +59,30 @@ export class LibraryExplorerComponent implements OnInit {
       });
   }
 
-  public async openSelectFileDialog(): Promise<void> {
-    const selectedFilepaths = await this._windowService.showOpenDialog();
-    if (selectedFilepaths.length === 0) return;
-    const added =
-      await this._bookDocumentService.addBookDocuments(selectedFilepaths);
-    this.books.update(books => [
-      ...books,
-      ...added,
-    ]);
+  public openSelectFileDialog(): void {
+
   }
 
-  public editBookDetails(book: BookReply): void {
-    this._router.navigate(['edit', book.id], { relativeTo: this._route });
+  public editBookDetails(book: BookDto): void {
+    this._router.navigate(['edit', book.documentDetails.id], { relativeTo: this._route });
   }
 
-  public async deleteBooks(bookDocuments: BookReply[]): Promise<void> {
+  public deleteBook(book: BookDto): void {
     const dialogRef = this._dialog.open(DeleteConfirmationDialogComponent);
     dialogRef.afterClosed()
       .pipe(
         mergeMap((isConfirmed: boolean) => {
           if (!isConfirmed) return of(null);
-          this.books.update((value) =>
-            value.filter((v) => !bookDocuments.includes(v))
-          );
-          return from(this._bookDocumentService.deleteBookDocuments(
-            bookDocuments.map((doc) => doc.id)
-          ));
+          this.books.update((value) => value.filter((v) => v.documentDetails.id !== book.documentDetails.id));
+          return this._bookService.deleteBook(book.documentDetails.id);
         }),
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
   }
 
-  public async shareBook(bookDocument: BookReply): Promise<void> {
-    const devices = await this._deviceService.getDeviceList();
-    const dialog = this._dialog.open(DeviceListDialogComponent, {
-      data: {
-        devices,
-      },
-    });
-    dialog
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((selectedDevice: DeviceReply) => {
-        if (!selectedDevice) return;
-        const request = {
-          bookId: bookDocument.id,
-          deviceId: selectedDevice.id,
-          pageNumber: 0,
-        };
-        this._bookDocumentService
-          .shareBook(request)
-          .then(() => console.log('Share book request'));
-      });
-  }
-
-  public async openBook(bookDocument: BookReply): Promise<void> {
-    await this._router.navigate(['viewer', bookDocument.id], {
+  public async openBook(book: BookDto): Promise<void> {
+    await this._router.navigate(['viewer', book.documentDetails.id], {
       relativeTo: this._route,
     });
   }

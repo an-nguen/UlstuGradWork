@@ -1,9 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   DestroyRef,
-  HostListener,
   OnDestroy,
   OnInit,
   signal,
@@ -13,12 +11,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BookDocumentService } from '@core/interfaces/book-document-service';
-import { TrackerService } from '@core/interfaces/tracker-service';
-import { WindowService } from '@core/interfaces/window-service';
-import { proto } from 'common';
+import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookService } from '@core/services/book.service';
 import { IPDFViewerApplication, NgxExtendedPdfViewerComponent, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, from, mergeMap, of, throwError } from 'rxjs';
+import { catchError, from, mergeMap, of, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-book-viewer',
@@ -35,7 +31,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
 
   public sidebarVisible = false;
 
-  private _currentBook?: proto.book_document.BookReply;
+  private _currentBook?: BookDto;
 
   private _page?: number;
 
@@ -43,13 +39,10 @@ export class BookViewerComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly _route: ActivatedRoute,
-    private readonly _service: BookDocumentService,
-    private readonly _windowService: WindowService,
-    private readonly _trackerService: TrackerService,
+    private readonly _service: BookService,
     private readonly _snackBar: MatSnackBar,
     private readonly _window: Window,
     private readonly _title: Title,
-    private readonly _cdr: ChangeDetectorRef,
     private destroyRef: DestroyRef
   ) { }
 
@@ -60,50 +53,10 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
-    this.logCloseAction();
-  }
-
-  @HostListener("window:beforeunload")
-  public logCloseAction(): void {
-    if (!this._currentBook) return;
-    this._trackerService.logUserAction({
-      bookId: this._currentBook.id,
-      pageNumber: this.page,
-      action: proto.tracker.UserAction.CLOSE,
-      payload: JSON.stringify({ zoom: this._zoom }),
-    });
-  }
-
-
-  @HostListener("window:focus")
-  public logFocusAction(): void {
-    if (!this._currentBook) return;
-    this._trackerService.logUserAction({
-      bookId: this._currentBook.id,
-      action: proto.tracker.UserAction.FOCUS,
-      pageNumber: this.page,
-    });
-  }
-
-  @HostListener("window:blur")
-  public logBlurAction(): void {
-    if (!this._currentBook) return;
-    this._trackerService.logUserAction({
-      bookId: this._currentBook.id,
-      action: proto.tracker.UserAction.BLUR,
-      pageNumber: this.page,
-    });
   }
 
   public set page(value: number | undefined) {
     this._page = value;
-    if (this._currentBook) {
-      this._trackerService.logUserAction({
-        pageNumber: value,
-        bookId: this._currentBook.id,
-        action: proto.tracker.UserAction.PAGE_CHANGE,
-      });
-    }
   }
 
   public set zoom(value: string | number | undefined) {
@@ -152,16 +105,11 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         mergeMap((params) => {
           const id = params.get('id');
           if (!id) return throwError(() => new Error('The book ID is not provided.'));
-          return from(this._service.getBookDocumentById(id));
+          return this._service.getBookById(id);
         }),
-        mergeMap((book) => {
+        tap((book) => {
           this._currentBook = book;
-          if (book.title) this._title.setTitle(book.title);
-          this._trackerService.logUserAction({
-            bookId: book.id,
-            action: proto.tracker.UserAction.OPEN,
-          });
-          return from(this._service.openBook(book.id));
+          if (book.documentDetails.title) this._title.setTitle(book.documentDetails.title);
         }),
         catchError((error: Error) => {
           console.error(error);
@@ -173,23 +121,13 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((fileData: Uint8Array) => {
-        this.documentSource.set(fileData);
-        this._setLastViewedPage(this._currentBook!.id);
-      });
+      .subscribe();
   }
 
   public copyText(): void {
     const selection = this._window.getSelection();
     if (!selection || !selection.toString()) return;
-    this._windowService.copyTextToClipboard(selection.toString());
     this._snackBar.open('Text copied!', undefined, { duration: 2000 });
-  }
-
-  private _setLastViewedPage(bookId: string): void {
-    this._trackerService.getLastViewedPage({ bookId }).then((response) => {
-      this.page = response.pageNumber;
-    });
   }
 
   private _dispatchEventBus(eventName: string, options: unknown | undefined = undefined): void {

@@ -1,0 +1,35 @@
+@use 'variables';
+@use 'mixins';
+
+$app-menu-min-width: 100px;
+$app-menu-item-height: 24px;
+
+button {
+  @include mixins.clear-button;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: variables.$titlebar-button-hover-color;
+  }
+
+  &.menu-button {
+    padding: 2px 8px;
+  }
+
+  &.menu-item {
+    padding: 4px;
+  }
+}
+
+
+
+.menu-container {
+  display: inline-flex;
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  flex-direction: column;
+  min-width: $app-menu-min-width;
+  min-height: $app-menu-item-height;
+}

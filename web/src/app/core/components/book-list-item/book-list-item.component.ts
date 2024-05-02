@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BookReply } from '@core/interfaces/book-document-service';
+import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 
 @Component({
   selector: 'app-book-list-item',
@@ -19,27 +19,24 @@ import { BookReply } from '@core/interfaces/book-document-service';
 export class BookListItemComponent {
   private readonly imageMimeType = 'data:image/jpg';
 
-  public bookItem = input.required<BookReply>();
+  public bookItem = input.required<BookDto>();
 
   public image = computed(() => {
     return this._domSanitizer.bypassSecurityTrustResourceUrl(
-      `${this.imageMimeType};base64,${this.bookItem().thumbnailBase64}`
+      `${this.imageMimeType};base64,${this.bookItem().documentDetails.thumbnail}`
     );
   });
 
-  constructor(private readonly _domSanitizer: DomSanitizer) {}
+  constructor(private readonly _domSanitizer: DomSanitizer) { }
 
   @Output()
-  public readonly shareEvent = new EventEmitter<BookReply>();
+  public readonly clickEvent = new EventEmitter<BookDto>();
 
   @Output()
-  public readonly clickEvent = new EventEmitter<BookReply>();
+  public readonly editEvent = new EventEmitter<BookDto>();
 
   @Output()
-  public readonly editEvent = new EventEmitter<BookReply>();
-
-  @Output()
-  public readonly deleteEvent = new EventEmitter<BookReply>();
+  public readonly deleteEvent = new EventEmitter<BookDto>();
 
   @HostListener('click')
   public handleClickEvent(): void {
@@ -54,10 +51,5 @@ export class BookListItemComponent {
   public handleDeleteEvent(event: MouseEvent): void {
     event.stopPropagation();
     this.deleteEvent.emit(this.bookItem());
-  }
-
-  public handleShareEvent(event: MouseEvent): void {
-    event.stopPropagation();
-    this.shareEvent.emit(this.bookItem());
   }
 }

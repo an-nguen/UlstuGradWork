@@ -1,0 +1,12 @@
+@use 'variables';
+
+:host {
+  height: variables.$titlebar-height;
+  user-select: none;
+  display: inline-flex;
+  justify-content: flex-end;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}

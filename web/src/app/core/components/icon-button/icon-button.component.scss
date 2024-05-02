@@ -1,0 +1,65 @@
+@use 'mixins';
+@use 'variables';
+
+$default-button-size: 24px;
+$default-button-icon-size: 16px;
+
+:host {
+  @include mixins.clear-button;
+
+  --button-size: #{$default-button-size};
+  --button-icon-size: #{$default-button-icon-size};
+  --margin-size: calc(var(--button-size) - var(--button-icon-size));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-color: inherit;
+  border-radius: 0.25em;
+  position: relative;
+
+  min-width: var(--button-icon-size);
+  min-height: var(--button-icon-size);
+
+  .mat-icon {
+    font-size: var(--button-icon-size) !important;
+    width: var(--button-icon-size);
+    height: var(--button-icon-size);
+    margin-top: var(--margin-size);
+    margin-left: var(--margin-size);
+    margin-bottom: var(--margin-size);
+  }
+
+  .text {
+    margin-right: var(--margin-size);
+  }
+
+  .hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: variables.$app-button-bg-color-hover;
+    opacity: 0;
+    &:hover {
+      opacity: variables.$app-button-opacity-hover;
+    }
+  }
+
+  &[disabled] {
+    cursor: default;
+    .hover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: none;
+      opacity: 0;
+      &:hover {
+        opacity: none;
+      }
+    }
+  }
+}

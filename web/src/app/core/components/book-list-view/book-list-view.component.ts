@@ -5,7 +5,7 @@ import {
   input,
   Output,
 } from '@angular/core';
-import { BookReply } from '@core/interfaces/book-document-service';
+import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 
 @Component({
   selector: 'app-book-list-view',
@@ -15,32 +15,25 @@ import { BookReply } from '@core/interfaces/book-document-service';
 })
 export class BookListViewComponent {
   @Output()
-  public readonly openItemEvent = new EventEmitter<BookReply>();
+  public readonly openItemEvent = new EventEmitter<BookDto>();
 
   @Output()
-  public readonly shareItemEvent = new EventEmitter<BookReply>();
+  public readonly editItemEvent = new EventEmitter<BookDto>();
 
   @Output()
-  public readonly editItemEvent = new EventEmitter<BookReply>();
+  public readonly deleteItemEvent = new EventEmitter<BookDto>();
 
-  @Output()
-  public readonly deleteItemsEvent = new EventEmitter<BookReply[]>();
+  public books = input.required<BookDto[]>();
 
-  public books = input.required<BookReply[]>();
-
-  public handleOpenItemEvent(book: BookReply): void {
+  public handleOpenItemEvent(book: BookDto): void {
     this.openItemEvent.emit(book);
   }
 
-  public handleShareItemEvent(book: BookReply): void {
-    this.shareItemEvent.emit(book);
+  public handleDeleteItemEvent(book: BookDto): void {
+    this.deleteItemEvent.emit(book);
   }
 
-  public handleDeleteItemEvent(book: BookReply): void {
-    this.deleteItemsEvent.emit([book]);
-  }
-
-  public handleEditItemEvent(book: BookReply) {
+  public handleEditItemEvent(book: BookDto) {
     this.editItemEvent.emit(book);
   }
 }
