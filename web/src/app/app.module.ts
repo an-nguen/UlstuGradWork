@@ -32,7 +32,7 @@ import { ToolbarComponent } from '@core/components/toolbar/toolbar.component';
 import { BookEditDetailsComponent } from '@core/pages/book-edit-details/book-edit-details.component';
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
-import { UserSelectionComponent } from '@core/pages/user-selection/user-selection.component';
+import { UserLoginComponent } from '@core/pages/user-login/user-login.component';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { AppComponent } from './app.component';
@@ -52,7 +52,7 @@ import { routes } from './app.routes';
     MainLayoutComponent,
     LibraryExplorerComponent,
     BookViewerComponent,
-    UserSelectionComponent
+    UserLoginComponent
   ],
   imports: [
     CommonModule,

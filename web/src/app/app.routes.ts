@@ -3,12 +3,12 @@ import { CONSTANTS } from '@core/constants';
 import { BookEditDetailsComponent } from '@core/pages/book-edit-details/book-edit-details.component';
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
-import { UserSelectionComponent } from '@core/pages/user-selection/user-selection.component';
+import { UserLoginComponent } from '@core/pages/user-login/user-login.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: UserSelectionComponent,
+    component: UserLoginComponent,
   },
   {
     path: CONSTANTS.URL_PATHS.NO_CONNECTION,
