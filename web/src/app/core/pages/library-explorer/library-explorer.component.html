@@ -1,0 +1,20 @@
+<app-toolbar>
+  <button
+    app-icon-button
+    matTooltip="Add books"
+    (click)="openSelectFileDialog()"
+  >
+    add
+  </button>
+</app-toolbar>
+<app-book-list-view
+  [books]="books()"
+  (openItemEvent)="openBook($event)"
+  (editItemEvent)="editBookDetails($event)"
+  (shareItemEvent)="shareBook($event)"
+  (deleteItemsEvent)="deleteBooks($event)"
+>
+  <app-loading-spinner-overlay
+    [loading]="loading()"
+  ></app-loading-spinner-overlay>
+</app-book-list-view>

@@ -1,0 +1,16 @@
+<mat-action-list>
+  @for (book of books(); track $index) {
+    <button mat-list-item (click)="handleOpenItemEvent(book)">
+      <app-book-list-item
+        [bookItem]="book"
+        (shareEvent)="handleShareItemEvent(book)"
+        (editEvent)="handleEditItemEvent(book)"
+        (deleteEvent)="handleDeleteItemEvent(book)"
+        [matTooltip]="book.title ?? ''"
+        matTooltipPosition="above"
+      >
+      </app-book-list-item>
+    </button>
+  }
+</mat-action-list>
+<ng-content></ng-content>

@@ -1,0 +1,46 @@
+<div class="thumbnail-container">
+  <img [src]="image()" alt="No image" />
+</div>
+<div class="details-container">
+  <div class="property-item">
+    <span class="name">Title</span>
+    <span class="value">{{ bookItem().title || '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Description</span>
+    <span class="value">{{ bookItem().description || '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">ISBN</span>
+    <span class="value">{{ bookItem().isbn || '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Publisher Name</span>
+    <span class="value">{{ bookItem().publisherName || '-' }}</span>
+  </div>
+
+  <div class="property-item">
+    <span class="name">Total time</span>
+    <span class="value">{{ '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Today</span>
+    <span class="value">{{ '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Last access</span>
+    <span class="value">{{ '-' }}</span>
+  </div>
+</div>
+<div class="spacer"></div>
+<div class="actions">
+  <button mat-icon-button (click)="handleShareEvent($event)">
+    <mat-icon>share</mat-icon>
+  </button>
+  <button mat-icon-button (click)="handleEditEvent($event)">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-icon-button (click)="handleDeleteEvent($event)">
+    <mat-icon>delete</mat-icon>
+  </button>
+</div>

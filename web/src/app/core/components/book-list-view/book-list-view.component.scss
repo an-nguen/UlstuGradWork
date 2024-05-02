@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin: 1em;
+  font: inherit;
+  color: inherit;
+  height: auto;
+  overflow: auto;
+  position: relative;
+}
+
+.mdc-list-item {
+  padding: 0.5em;
+  height: auto !important;
+}

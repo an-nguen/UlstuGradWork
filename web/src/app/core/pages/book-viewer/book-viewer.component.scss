@@ -1,0 +1,117 @@
+@use 'variables';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+input.page-selector {
+  width: 4em;
+}
+
+ngx-extended-pdf-viewer {
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+}
+
+.page-navigation-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75em;
+}
+
+.page-input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+}
+
+#viewer-container {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+#custom-toolbar {
+  display: inline-flex;
+  flex: 1;
+  flex-direction: row;
+  height: 36px;
+  width: 100%;
+  padding: 0 0.5em;
+
+  div {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    gap: 0.25em;
+    align-items: center;
+
+    &.mid {
+      justify-content: center;
+    }
+
+    &.right {
+      justify-content: flex-end;
+    }
+  }
+}
+
+.context-menu {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 100px;
+  background-color: #ffffff;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+
+  button {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    user-select: none;
+    min-width: 64px;
+    line-height: 36px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-grow: 1;
+
+    &:hover {
+      background-color: rgb(208, 208, 208);
+    }
+  }
+}
+
+.hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: variables.$app-button-bg-color-hover;
+  opacity: 0;
+  &:hover {
+    opacity: variables.$app-button-opacity-hover;
+  }
+}
+
+.btn {
+  &:hover {
+    background-color: rgba(
+      variables.$app-button-bg-color-hover,
+      variables.$app-button-opacity-hover
+    );
+  }
+}

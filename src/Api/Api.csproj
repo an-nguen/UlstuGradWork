@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>ce9c7aa1-1484-4085-82b6-63471b051f5b</UserSecretsId>
+        <RootNamespace>BookManager.Api</RootNamespace>
+        <AssemblyName>BookManager.Api</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.62.0"/>
+        <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.62.0"/>
+        <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.62.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Application\Application.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="14467742-c7c3-4c1d-bcad-b85e84d27839-PDF32000_2008.pdf"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Endpoints\Http\"/>
+    </ItemGroup>
+
+</Project>
