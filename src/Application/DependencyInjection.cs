@@ -44,7 +44,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IIndexingService, IndexingService>();
 
-        services.AddScoped<IValidator<UserAddRequest>, AddUserRequestValidator>();
+        services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
         
         services.AddHostedService<IndexingHostedService>();
 
