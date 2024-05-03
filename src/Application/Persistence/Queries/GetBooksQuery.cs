@@ -7,6 +7,9 @@ public sealed class GetBooksHandler(IAppDbContext dbContext)
 {
     public IAsyncEnumerable<Book> Handle(GetBooksQuery request, CancellationToken cancellationToken)
     {
-        return dbContext.Books.Skip(request.PageNumber * request.PageSize).Take(request.PageSize).AsAsyncEnumerable();
+        return dbContext.Books.OrderBy(b => b.Title)
+            .Skip(request.PageNumber * request.PageSize)
+            .Take(request.PageSize)
+            .AsAsyncEnumerable();
     }
 }

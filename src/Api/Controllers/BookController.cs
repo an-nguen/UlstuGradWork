@@ -1,5 +1,6 @@
 using BookManager.Application.Common.DTOs;
 using BrunoZell.ModelBinding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
@@ -9,6 +10,7 @@ namespace BookManager.Api.Controllers;
 public class BookController(IBookService service) : ControllerBase
 {
     [HttpGet]
+    [Authorize]
     public IAsyncEnumerable<BookDto> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize) 
         => service.GetPage(pageNumber, pageSize);
 
@@ -23,6 +25,7 @@ public class BookController(IBookService service) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
     {
         return await service.AddBookAsync(file.OpenReadStream(), bookMetadata);
@@ -30,6 +33,7 @@ public class BookController(IBookService service) : ControllerBase
 
     [HttpPut]
     [Route("{id:guid}")]
+    [Authorize]
     public async Task<BookDto> UpdateBookDetails(Guid id, [FromBody] BookDto.Details details)
     {
         return await service.UpdateBookDetailsAsync(id, details);
@@ -37,6 +41,7 @@ public class BookController(IBookService service) : ControllerBase
 
     [HttpDelete]
     [Route("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> DeleteBook(Guid id)
     {
         await service.DeleteBookAsync(id);

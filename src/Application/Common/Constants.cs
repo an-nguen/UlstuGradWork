@@ -2,25 +2,24 @@ namespace BookManager.Application.Common;
 
 public static class Constants
 {
-    public static readonly string[] SupportedDocumentFileExtensions = [".pdf", ".epub"];
-
-    public const string HostnameRegex =
-        @"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"; 
-
-    public static class PropertyName
-    {
-        public const string ConnectionString = "Main";
-        public const string DbPassword = "DbPassword";
-        public const string PreSharedKey = "PreSharedKey";
-    }
-
     public static class Default
     {
         public const string DirectoryPath = "./";
 
+        public const int IndexingQueueCapacity = 2;
+        
         // 256 MiB in Bytes
         public const long MaxFileSize = 268435456L;
-        
-        public const int IndexingQueueCapacity = 2;
+
+        // JWT options
+        public const string Issuer = "https://localhost:7013";
+        public const string Audience = "http://localhost:4200";
+        public const uint AccessTokenLifetimeInMinutes = 5;
+        public const uint RefreshTokenLifetimeInMinutes = 60;
+    }
+    
+    public static class KeyedServiceNames
+    {
+        public const string DefaultJsonWebKey = "DefaultJsonWebKey";
     }
 }

@@ -8,6 +8,7 @@ using BookManager.Application.Persistence.FileSystem;
 using BookManager.Application.Services;
 using BookManager.Application.Validators;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -29,7 +30,16 @@ public static class DependencyInjection
             options.UseNpgsql(connection, o => o.UseNodaTime())
                 .UseSnakeCaseNamingConvention());
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
-
+        services.AddIdentityCore<User>(options =>
+        {
+            options.Password.RequireLowercase = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireDigit = true;
+            options.Password.RequireNonAlphanumeric = false;
+        })
+        .AddRoles<IdentityRole<Guid>>()
+        .AddEntityFrameworkStores<AppDbContext>();
+        
         return services;
     }
 
@@ -43,9 +53,9 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IIndexingService, IndexingService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
-        
         services.AddHostedService<IndexingHostedService>();
 
         return services;

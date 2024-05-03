@@ -4,7 +4,7 @@ namespace BookManager.Domain.Entities;
 
 public sealed class BookUserStats
 {
-    public Guid UserId { get; init; }
+    public string UserId { get; init; } = null!;
     
     public Guid BookId { get; init; }
     

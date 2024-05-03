@@ -483,4 +483,8 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
+# Uploaded books
 /UploadedDocs
+
+# JWK
+jwk.json
