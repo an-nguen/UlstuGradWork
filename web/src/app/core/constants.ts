@@ -3,15 +3,28 @@ export const CONSTANTS = {
     DESKTOP_FRAMEWORK_ERROR:
       'This application is intended for work in desktop frameworks.',
   },
-  URL_PATHS: {
+  ENDPOINTS: {
+    EXPLORER: '',
+    AUTH: {
+      PATH: 'auth',
+      SIGN_IN: 'sign-in'
+    },
     NO_CONNECTION: 'no-connection',
-    EXPLORER: 'explorer',
     VIEWER: 'viewer/:id',
     EDIT_DETAILS: 'edit/:id'
   },
   SERVER_URL: {
     BOOKS: {
-      PATH: '/books'
+      PATH: 'books'
+    },
+    AUTH: {
+      PATH: 'auth',
+      SIGN_IN: 'sign-in',
+      SIGN_OUT: 'sign-out',
+      REFRESH_TOKEN: 'refresh-token'
+    },
+    USERS: {
+      PATH: 'users'
     }
   },
   REGEX_PATTERN: {

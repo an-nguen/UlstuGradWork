@@ -4,12 +4,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { CONSTANTS } from '@core/constants';
 
 @Component({
-  selector: 'app-user-creation-dialog',
-  templateUrl: './user-creation-dialog.component.html',
-  styleUrl: './user-creation-dialog.component.scss',
+  selector: 'app-user-registration-dialog',
+  templateUrl: './user-registration-dialog.component.html',
+  styleUrl: './user-registration-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UserCreationDialogComponent {
+export class UserRegistrationDialogComponent {
 
   public createUserForm = this._fb.group({
     name: this._fb.control('', [Validators.required]),
@@ -17,7 +17,7 @@ export class UserCreationDialogComponent {
   });
 
   constructor(
-    private readonly _dialogRef: MatDialogRef<UserCreationDialogComponent>,
+    private readonly _dialogRef: MatDialogRef<UserRegistrationDialogComponent>,
     private readonly _fb: NonNullableFormBuilder
   ) { }
 

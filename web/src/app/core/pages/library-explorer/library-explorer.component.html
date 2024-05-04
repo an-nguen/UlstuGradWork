@@ -1,11 +1,8 @@
 <app-toolbar>
-  <button
-    app-icon-button
-    matTooltip="Add books"
-    (click)="openSelectFileDialog()"
-  >
+  <button app-icon-button matTooltip="Add books" (click)="fileInput.click()">
     add
   </button>
+  <input #fileInput type="file" class="file-input" />
 </app-toolbar>
 <app-book-list-view
   [books]="books()"

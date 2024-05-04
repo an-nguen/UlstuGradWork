@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookManager.Api.Controllers;
 
 [ApiController]
-[Route("/users")]
+[Route("users")]
 public sealed class UserController(IUserService service): ControllerBase
 {
     [HttpGet]

@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment.development';
 })
 export class BookService {
 
-  private readonly _url: string = `${environment.baseUrl}/books`;
+  private readonly _url: string = `${environment.BASE_URL}/books`;
 
   constructor(
     private readonly _httpClient: HttpClient

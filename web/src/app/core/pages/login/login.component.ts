@@ -1,22 +1,25 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { UserCreationDialogComponent } from '@core/components/user-creation-dialog/user-creation-dialog.component';
+import { UserRegistrationDialogComponent } from '@core/components/user-registration-dialog/user-registration-dialog.component';
 import { CONSTANTS } from '@core/constants';
 import { UserAddRequest, UserDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { AuthService } from '@core/services/auth.service';
 import { UserService } from '@core/services/user.service';
-import { NEVER, catchError, mergeMap, throwError } from 'rxjs';
+import { AuthState } from '@core/stores/auth.state';
+import { NEVER, Observable, catchError, mergeMap, throwError } from 'rxjs';
 
 @Component({
-  selector: 'app-user-login',
-  templateUrl: './user-login.component.html',
-  styleUrl: './user-login.component.scss',
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UserLoginComponent implements OnInit {
+export class LoginComponent implements OnInit {
 
   public users = signal<UserDto[]>([]);
 
@@ -27,6 +30,8 @@ export class UserLoginComponent implements OnInit {
 
   constructor(
     private readonly _service: UserService,
+    private readonly _authState: AuthState,
+    private readonly _authService: AuthService,
     private readonly _snackBar: MatSnackBar,
     private readonly _dialog: MatDialog,
     private readonly _fb: NonNullableFormBuilder,
@@ -35,6 +40,9 @@ export class UserLoginComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
+    if (this._authState.isSignedIn()) {
+      this._routeToMainPage();
+    }
     this.loadUsers();
   }
 
@@ -50,11 +58,29 @@ export class UserLoginComponent implements OnInit {
   }
 
   public login(): void {
-    this._router.navigate([CONSTANTS.URL_PATHS.EXPLORER]);
+    const values = this.loginForm.value;
+    const username = values.selectedUser?.name;
+    const password = values.pinCode;
+
+    if (this.loginForm.invalid) {
+      this._snackBar.open('The username or password field is empty!', 'OK');
+      return;
+    }
+
+    if (!!username && !!password) {
+      this._authService
+        .signIn(username, password)
+        .pipe(
+          catchError((err) => this._handleSignInError(err))
+        )
+        .subscribe(() => {
+          this._routeToMainPage();
+        });
+    }
   }
 
   public createUser(): void {
-    const dialogRef = this._dialog.open(UserCreationDialogComponent);
+    const dialogRef = this._dialog.open(UserRegistrationDialogComponent);
     dialogRef.afterClosed()
       .pipe(
         mergeMap((newUser: UserAddRequest | undefined) => {
@@ -73,5 +99,21 @@ export class UserLoginComponent implements OnInit {
         this.loadUsers();
       });
   }
+
+  private _routeToMainPage() {
+    this._router.navigate([CONSTANTS.ENDPOINTS.EXPLORER]);
+  }
+
+  private _handleSignInError(err: unknown): Observable<never> {
+    if (err instanceof HttpErrorResponse && err.status === 401) {
+      const errorMessage = (err.error as Record<string, string>)['message'];
+      this.loginForm.setErrors({
+        invalidUsernameOrPassword: errorMessage,
+      });
+      this._snackBar.open(errorMessage, 'OK');
+    }
+    return throwError(() => err);
+  }
+
 
 }

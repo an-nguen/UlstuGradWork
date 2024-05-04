@@ -1,4 +1,5 @@
-﻿using BookManager.Application.Common.DTOs;
+﻿using BookManager.Application.Common;
+using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
@@ -18,11 +19,9 @@ public class AuthenticationController(
         var authenticationResponse = await service.SignIn(request);
         if (authenticationResponse.RefreshToken != null)
         {
-            Response.Cookies.Append("refresh_token", authenticationResponse.RefreshToken, new CookieOptions
+            Response.Cookies.Append(Constants.RefreshTokenCookieKey, authenticationResponse.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
             });
         }
         return authenticationResponse.Status switch
@@ -37,7 +36,7 @@ public class AuthenticationController(
     [Route("refresh-token")]
     public async Task<IActionResult> RefreshToken()
     {
-        var refreshToken = Request.Cookies["refresh_token"];
+        var refreshToken = Request.Cookies[Constants.RefreshTokenCookieKey];
         if (refreshToken == null) return Unauthorized();
         var response = await service.RefreshToken(refreshToken);
         return response.Status switch
@@ -46,5 +45,13 @@ public class AuthenticationController(
             AuthenticationStatus.Success => Ok(response),
             _ => Unauthorized()
         };
+    }
+
+    [HttpPost]
+    [Route("sign-out")]
+    public new IActionResult SignOut()
+    {
+        Response.Cookies.Delete(Constants.RefreshTokenCookieKey);
+        return Ok();
     }
 }

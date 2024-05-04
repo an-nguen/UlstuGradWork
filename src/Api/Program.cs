@@ -13,7 +13,14 @@ builder.Services.AddEndpointsApiExplorer()
     .AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy => policy.WithOrigins("http://localhost:4200").WithHeaders("content-type"));
+    options.AddDefaultPolicy(policy => policy
+        .WithOrigins(
+            "https://localhost:4200",
+            "http://localhost:4200"
+            )
+        .AllowAnyHeader()
+        .AllowCredentials()
+    );
 });
 builder.AddTokenBasedSecurity();
 
@@ -25,7 +32,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseCors();
 app.UseAuthentication();

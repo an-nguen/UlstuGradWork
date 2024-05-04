@@ -17,9 +17,6 @@ public static class Constants
         public const uint AccessTokenLifetimeInMinutes = 5;
         public const uint RefreshTokenLifetimeInMinutes = 60;
     }
-    
-    public static class KeyedServiceNames
-    {
-        public const string DefaultJsonWebKey = "DefaultJsonWebKey";
-    }
+
+    public const string RefreshTokenCookieKey = "refresh_token";
 }

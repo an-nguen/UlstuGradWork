@@ -3,6 +3,28 @@
 /* tslint:disable */
 import type { BookFileType } from './BookManager.Domain.Enums';
 
+/** Transpiled from BookManager.Application.Common.DTOs.AuthenticationRequestDto */
+export type AuthenticationRequestDto = {
+    /** Transpiled from string */
+    name: string;
+    /** Transpiled from string */
+    pinCode: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.AuthenticationResponseDto */
+export type AuthenticationResponseDto = {
+    /** Transpiled from BookManager.Application.Common.DTOs.AuthenticationStatus */
+    status: AuthenticationStatus;
+    /** Transpiled from string? */
+    accessToken?: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.AuthenticationStatus */
+export enum AuthenticationStatus {
+    Failed = 0,
+    Success = 1,
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.BookDetailsUpdateDto */
 export type BookDetailsUpdateDto = {
 }

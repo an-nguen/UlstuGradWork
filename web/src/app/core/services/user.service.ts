@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment.development';
   providedIn: 'root'
 })
 export class UserService {
-  private readonly _url: string = `${environment.baseUrl}/users`;
+  private readonly _url: string = `${environment.BASE_URL}/users`;
 
   constructor(
     private readonly _httpClient: HttpClient
