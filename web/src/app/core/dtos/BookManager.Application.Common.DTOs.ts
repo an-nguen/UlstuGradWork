@@ -9,7 +9,7 @@ export type AuthenticationRequestDto = {
     name: string;
     /** Transpiled from string */
     pinCode: string;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.AuthenticationResponseDto */
 export type AuthenticationResponseDto = {
@@ -17,7 +17,7 @@ export type AuthenticationResponseDto = {
     status: AuthenticationStatus;
     /** Transpiled from string? */
     accessToken?: string;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.AuthenticationStatus */
 export enum AuthenticationStatus {
@@ -27,7 +27,7 @@ export enum AuthenticationStatus {
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDetailsUpdateDto */
 export type BookDetailsUpdateDto = {
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto */
 export type BookDto = {
@@ -35,7 +35,7 @@ export type BookDto = {
     documentDetails: Details;
     /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */
     fileMetadata: BookFileMetadata;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.Details */
 export type Details = {
@@ -51,7 +51,7 @@ export type Details = {
     publisherName?: string;
     /** Transpiled from byte[]? */
     thumbnail?: string;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */
 export type BookFileMetadata = {
@@ -59,7 +59,7 @@ export type BookFileMetadata = {
     type: BookFileType;
     /** Transpiled from long */
     size: number;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookMetadataDto */
 export type BookMetadataDto = {
@@ -77,7 +77,7 @@ export type BookMetadataDto = {
     description?: string;
     /** Transpiled from string? */
     publisherName?: string;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.UserAddRequest */
 export type UserAddRequest = {
@@ -85,7 +85,7 @@ export type UserAddRequest = {
     name: string;
     /** Transpiled from string */
     pinCode: string;
-}
+};
 
 /** Transpiled from BookManager.Application.Common.DTOs.UserDto */
 export type UserDto = {

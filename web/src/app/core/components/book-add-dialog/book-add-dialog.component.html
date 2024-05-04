@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>Добавление книги</h2>
+<div mat-dialog-content class="book-add-form" [formGroup]="bookForm">
+  <mat-form-field>
+    <mat-label>Название книги</mat-label>
+    <input matInput type="text" formControlName="title" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Описание</mat-label>
+    <textarea matInput type="text" formControlName="description"></textarea>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>ISBN (Международный стандартный книжный номер)</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="isbn"
+      placeholder="0123456789"
+      matTooltip="Должен содержать 10-значное или 13-значное число"
+      digitOnly
+    />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Издатель книги</mat-label>
+    <input
+      matInput
+      type="text"
+      placeholder="Рога и копыта"
+      formControlName="publisherName"
+    />
+  </mat-form-field>
+  <div>
+    <button mat-flat-button color="accent" (click)="bookFileInput.click()">
+      Выбрать файл книги
+    </button>
+    <span class="file-name">
+      {{ bookFileName | async }}
+    </span>
+    <input
+      #bookFileInput
+      class="file-input"
+      type="file"
+      accept="application/pdf"
+      (change)="setFileInForm($event)"
+    />
+  </div>
+</div>
+<mat-dialog-actions>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="bookForm.invalid"
+    (click)="addBook()"
+  >
+    Добавить
+  </button>
+  <button mat-flat-button color="warn" (click)="close()">Закрыть</button>
+</mat-dialog-actions>

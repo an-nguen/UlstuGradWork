@@ -45,6 +45,7 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { Observable } from 'rxjs';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
+import { BookAddDialogComponent } from '@core/components/book-add-dialog/book-add-dialog.component';
 
 function initAppFactory(authService: AuthService): () => Observable<any> {
   return () => {
@@ -55,6 +56,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
 @NgModule({
   declarations: [
     AppComponent,
+    BookAddDialogComponent,
     BookListItemComponent,
     BookListViewComponent,
     BookEditDetailsComponent,

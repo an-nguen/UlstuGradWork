@@ -9,10 +9,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BookAddDialogComponent, BookAddDialogFormData } from '@core/components/book-add-dialog/book-add-dialog.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { CONSTANTS } from '@core/constants';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { catchError, finalize, mergeMap, of, throwError } from 'rxjs';
+import { NEVER, catchError, finalize, mergeMap, of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-library-explorer',
@@ -52,15 +54,28 @@ export class LibraryExplorerComponent implements OnInit {
           return throwError(() => err);
         }),
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this._destroyRef),
       )
       .subscribe((books) => {
         this.books.set(books);
       });
   }
 
-  public openSelectFileDialog(): void {
+  public openBookAddDialog(): void {
+    this._dialog.open(BookAddDialogComponent, { minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH_PX })
+      .afterClosed()
+      .pipe(
+        mergeMap(
+          (data: BookAddDialogFormData | undefined) => {
+            if (!data) return NEVER;
 
+            return this._bookService.addBook(data.bookMetadata, data.file);
+          }
+        ),
+        takeUntilDestroyed(this._destroyRef))
+      .subscribe((book) => {
+        this.books.update(books => [...books, book]);
+        this._snackBar.open(`Добавлена новая книга ${book.documentDetails.title}`, 'OK', { duration: 3000 });
+      });
   }
 
   public editBookDetails(book: BookDto): void {
