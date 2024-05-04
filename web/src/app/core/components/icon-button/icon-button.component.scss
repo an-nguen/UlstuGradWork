@@ -32,6 +32,7 @@ $default-button-icon-size: 16px;
 
   .text {
     margin-right: var(--margin-size);
+    font-size: var(--button-icon-size);
   }
 
   .hover-overlay {

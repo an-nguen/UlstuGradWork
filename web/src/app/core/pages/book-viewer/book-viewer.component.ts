@@ -53,7 +53,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.subscribeToParamMap();
     if (this._authState.accessToken) {
-      this.bearerToken = this._authState.accessToken;
+      this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
     pdfDefaultOptions.externalLinkTarget = 2;
     pdfDefaultOptions.enableScripting = false;

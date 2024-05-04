@@ -1,7 +1,11 @@
 <app-toolbar>
   <button app-icon-button matTooltip="Add books" (click)="openBookAddDialog()">
     add
+    <span text>Добавить книгу</span>
   </button>
+  <div>
+    <input type="text" [formControl]="search" />
+  </div>
 </app-toolbar>
 <app-book-list-view
   [books]="books()"

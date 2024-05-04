@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,6 +31,8 @@ export class LibraryExplorerComponent implements OnInit {
 
   public pageNumber = signal<number>(0);
   public pageSize = signal<number>(10);
+
+  public search = new FormControl<string | null>(null);
 
   constructor(
     private readonly _bookService: BookService,
