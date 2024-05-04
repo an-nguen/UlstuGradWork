@@ -44,7 +44,7 @@ export class BookService {
     return this._httpClient.delete<void>(`${this._url}/${id}`);
   }
 
-  public getBookDownloadUrl(id: string): string {
-    return `${this._url}/download/${id}`;
+  public getBookDownloadUrl(id: string): URL {
+    return new URL(`${this._url}/download/${id}`);
   }
 }

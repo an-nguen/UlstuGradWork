@@ -13,8 +13,9 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
+import { AuthState } from '@core/stores/auth.state';
 import { IPDFViewerApplication, NgxExtendedPdfViewerComponent, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, from, mergeMap, of, tap, throwError } from 'rxjs';
+import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-book-viewer',
@@ -27,7 +28,9 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
 
-  public documentSource = signal<ArrayBuffer | Uint8Array>(new ArrayBuffer(0));
+  public bearerToken?: string;
+
+  public documentSource = signal<ArrayBuffer | Uint8Array | URL>(new ArrayBuffer(0));
 
   public sidebarVisible = false;
 
@@ -41,6 +44,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     private readonly _route: ActivatedRoute,
     private readonly _service: BookService,
     private readonly _snackBar: MatSnackBar,
+    private readonly _authState: AuthState,
     private readonly _window: Window,
     private readonly _title: Title,
     private destroyRef: DestroyRef
@@ -48,6 +52,9 @@ export class BookViewerComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this.subscribeToParamMap();
+    if (this._authState.accessToken) {
+      this.bearerToken = this._authState.accessToken;
+    }
     pdfDefaultOptions.externalLinkTarget = 2;
     pdfDefaultOptions.enableScripting = false;
   }
@@ -105,6 +112,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         mergeMap((params) => {
           const id = params.get('id');
           if (!id) return throwError(() => new Error('The book ID is not provided.'));
+          this.documentSource.set(this._service.getBookDownloadUrl(id));
           return this._service.getBookById(id);
         }),
         tap((book) => {

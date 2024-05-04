@@ -21,6 +21,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { RouterLink, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
+import { BookAddDialogComponent } from '@core/components/book-add-dialog/book-add-dialog.component';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
@@ -45,7 +46,6 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { Observable } from 'rxjs';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
-import { BookAddDialogComponent } from '@core/components/book-add-dialog/book-add-dialog.component';
 
 function initAppFactory(authService: AuthService): () => Observable<any> {
   return () => {
@@ -102,6 +102,10 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
       useFactory: initAppFactory,
       deps: [AuthService],
       multi: true,
+    },
+    {
+      provide: Window,
+      useValue: window
     },
     provideRouter(
       routes,
