@@ -1,13 +1,15 @@
 using BookManager.Application.Common.DTOs;
+using BookManager.Domain.Entities;
 using BrunoZell.ModelBinding;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("books")]
-public class BookController(IBookService service) : ControllerBase
+public class BookController(IBookService service, UserManager<User> userManager) : ControllerBase
 {
     [HttpGet]
     [Authorize]
@@ -15,12 +17,15 @@ public class BookController(IBookService service) : ControllerBase
         => service.GetPage(pageNumber, pageSize);
 
     [HttpGet]
+    [Authorize]
     [Route("download/{id:guid}")]
     public async Task<IActionResult> DownloadBook(Guid id)
     {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return BadRequest();
         var bookDto = await service.GetByIdAsync(id);
         if (bookDto == null) return NotFound();
-        var stream = await service.DownloadBookFileStreamAsync(id);
+        var stream = await service.DownloadBookFileStreamAsync(id, user);
         return File(stream, bookDto.GetContentType(), true);
     }
 

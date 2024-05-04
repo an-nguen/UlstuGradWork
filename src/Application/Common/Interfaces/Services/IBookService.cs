@@ -12,7 +12,7 @@ public interface IBookService
 
     public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDto.Details details);
 
-    public Task<FileStream> DownloadBookFileStreamAsync(Guid id);
+    public Task<FileStream> DownloadBookFileStreamAsync(Guid id, User user);
     
     public Task DeleteBookAsync(Guid id);
 }

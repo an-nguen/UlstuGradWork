@@ -71,9 +71,10 @@ public sealed class BookService(
         return (await sender.Send(new UpdateBookCommand(found))).ToDto();
     }
 
-    public async Task<FileStream> DownloadBookFileStreamAsync(Guid id)
+    public async Task<FileStream> DownloadBookFileStreamAsync(Guid id, User user)
     {
         var book = await sender.Send(new GetBookByIdQuery(id));
+        await sender.Send(new UpdateBookAccessTimeCommand(id, user.Id));
         return new FileStream(book.Filepath, FileMode.Open);
     }
 

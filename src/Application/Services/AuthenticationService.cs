@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
-using BookManager.Application.Common.Config;
+﻿using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace BookManager.Application.Services;
 
@@ -17,7 +17,7 @@ public class AuthenticationService(
     : IAuthenticationService
 {
     private readonly JwtTokenOptions _jwtOptions = options.Value;
-    private readonly JsonWebTokenHandler _tokenHandler = new JsonWebTokenHandler();
+    private readonly JsonWebTokenHandler _tokenHandler = new();
 
     public async Task<AuthenticationResponseDto> SignIn(AuthenticationRequestDto request)
     {
@@ -41,9 +41,9 @@ public class AuthenticationService(
     {
         var token = _tokenHandler.ReadJsonWebToken(refreshTokenString);
         var validationResult = await _tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
-        if (!validationResult.IsValid || validationResult.Claims[ClaimTypes.NameIdentifier] is not string userName) 
+        if (!validationResult.IsValid || validationResult.Claims[JwtRegisteredClaimNames.Sub] is not string userId) 
             return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
-        var user = await userManager.FindByNameAsync(userName);
+        var user = await userManager.FindByIdAsync(userId);
         if (user == null) return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
         return new AuthenticationResponseDto
         {
@@ -57,7 +57,8 @@ public class AuthenticationService(
         var credentials = new SigningCredentials(jsonWebKey, SecurityAlgorithms.EcdsaSha256Signature);
         var claims = new Dictionary<string, object>
         {
-            [ClaimTypes.NameIdentifier] = user.UserName!,
+            [JwtRegisteredClaimNames.Name] = user.UserName!,
+            [JwtRegisteredClaimNames.Sub] = user.Id,
         };
         var descriptor = new SecurityTokenDescriptor
         {
@@ -67,11 +68,6 @@ public class AuthenticationService(
             Expires = DateTime.Now.AddMinutes(lifetimeInMinutes),
             SigningCredentials = credentials
         };
-        // _jwtOptions.Issuer,
-        // _jwtOptions.Audience,
-        // claims,
-        // expires: DateTime.Now.AddMinutes(lifetimeInMinutes),
-        // signingCredentials: credentials
         return _tokenHandler.CreateToken(descriptor);
     }
 }
