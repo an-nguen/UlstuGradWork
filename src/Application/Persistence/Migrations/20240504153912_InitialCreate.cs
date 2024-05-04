@@ -89,12 +89,11 @@ namespace BookManager.Application.Persistence.Migrations
                 name: "book_user_stats_set",
                 columns: table => new
                 {
-                    user_id = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     book_id = table.Column<Guid>(type: "uuid", nullable: false),
                     recent_access = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
                     total_reading_time = table.Column<long>(type: "bigint", nullable: false),
-                    last_page = table.Column<int>(type: "integer", nullable: true),
-                    user_id1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    last_page = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -106,10 +105,11 @@ namespace BookManager.Application.Persistence.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_book_user_stats_set_users_user_id1",
-                        column: x => x.user_id1,
+                        name: "fk_book_user_stats_set_users_user_id",
+                        column: x => x.user_id,
                         principalTable: "users",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -181,9 +181,9 @@ namespace BookManager.Application.Persistence.Migrations
                 .Annotation("Npgsql:TsVectorConfig", "english");
 
             migrationBuilder.CreateIndex(
-                name: "ix_book_user_stats_set_user_id1",
+                name: "ix_book_user_stats_set_user_id",
                 table: "book_user_stats_set",
-                column: "user_id1");
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_claims_user_id",

@@ -113,8 +113,8 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("book_id");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.Property<int?>("LastPage")
@@ -129,15 +129,11 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("total_reading_time");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id1");
-
                     b.HasKey("BookId", "UserId")
                         .HasName("pk_book_user_stats_set");
 
-                    b.HasIndex("UserId1")
-                        .HasDatabaseName("ix_book_user_stats_set_user_id1");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_book_user_stats_set_user_id");
 
                     b.ToTable("book_user_stats_set", (string)null);
                 });
@@ -339,8 +335,10 @@ namespace BookManager.Application.Persistence.Migrations
 
                     b.HasOne("BookManager.Domain.Entities.User", null)
                         .WithMany("Stats")
-                        .HasForeignKey("UserId1")
-                        .HasConstraintName("fk_book_user_stats_set_users_user_id1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_book_user_stats_set_users_user_id");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
