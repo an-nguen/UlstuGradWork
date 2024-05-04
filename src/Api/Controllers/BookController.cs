@@ -24,6 +24,16 @@ public class BookController(IBookService service) : ControllerBase
         return File(stream, bookDto.GetContentType(), true);
     }
 
+    [HttpGet]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> GetBookById(Guid id)
+    {
+        var bookDto = await service.GetByIdAsync(id);
+        if (bookDto == null)
+            return NotFound();
+        return Ok(bookDto);
+    }
+
     [HttpPost]
     [Authorize]
     public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
