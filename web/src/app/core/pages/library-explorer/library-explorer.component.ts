@@ -3,7 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
-  signal,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
@@ -15,7 +15,7 @@ import { DeleteConfirmationDialogComponent } from '@core/components/delete-confi
 import { CONSTANTS } from '@core/constants';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { NEVER, catchError, finalize, mergeMap, of, throwError } from 'rxjs';
+import { NEVER, catchError, debounceTime, finalize, mergeMap, of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-library-explorer',
@@ -25,12 +25,15 @@ import { NEVER, catchError, finalize, mergeMap, of, throwError } from 'rxjs';
 })
 export class LibraryExplorerComponent implements OnInit {
 
+  public readonly pageSizeOptions = [5, 10, 25];
+
   public loading = signal<boolean>(false);
 
   public books = signal<BookDto[]>([]);
 
-  public pageNumber = signal<number>(0);
-  public pageSize = signal<number>(10);
+  public pageNumber = signal<number>(1);
+  public pageCount = signal<number>(0);
+  public _pageSize = this.pageSizeOptions[0];
 
   public search = new FormControl<string | null>(null);
 
@@ -44,23 +47,16 @@ export class LibraryExplorerComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    this.loadBookDocuments();
+    this._loadBookDocuments();
   }
 
-  public loadBookDocuments(): void {
-    this.loading.set(true);
-    this._bookService.getBooks(this.pageNumber(), this.pageSize())
-      .pipe(
-        catchError(err => {
-          console.log(err);
-          this._snackBar.open(`Error: ${err}`, 'OK');
-          return throwError(() => err);
-        }),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe((books) => {
-        this.books.set(books);
-      });
+  public set pageSize(value: number) {
+    this._pageSize = value;
+    this._loadBookDocuments();
+  }
+
+  public get pageSize(): number {
+    return this._pageSize;
   }
 
   public openBookAddDialog(): void {
@@ -76,7 +72,7 @@ export class LibraryExplorerComponent implements OnInit {
         ),
         takeUntilDestroyed(this._destroyRef))
       .subscribe((book) => {
-        this.books.update(books => [...books, book]);
+        this._loadBookDocuments();
         this._snackBar.open(`Добавлена новая книга ${book.documentDetails.title}`, 'OK', { duration: 3000 });
       });
   }
@@ -103,5 +99,51 @@ export class LibraryExplorerComponent implements OnInit {
     await this._router.navigate(['viewer', book.documentDetails.id], {
       relativeTo: this._route,
     });
+  }
+
+  public goToPrevPage(): void {
+    const previousPage = this.pageNumber() - 1;
+    if (previousPage < 0 || previousPage > this.pageCount()) {
+      return;
+    }
+
+    this.pageNumber.set(previousPage);
+    this._loadBookDocuments();
+  }
+
+  public goToNextPage(): void {
+    const nextPage = this.pageNumber() + 1;
+    if (nextPage < 0 || nextPage > this.pageCount()) {
+      return;
+    }
+
+    this.pageNumber.set(nextPage);
+    this._loadBookDocuments();
+  }
+
+  private _subscribeToSearchChanges(): void {
+    this.search.valueChanges.pipe(
+      debounceTime(500),
+      takeUntilDestroyed(this._destroyRef)
+    ).subscribe((value) => {
+
+    });
+  }
+
+  private _loadBookDocuments(): void {
+    this.loading.set(true);
+    this._bookService.getPage(this.pageNumber(), this._pageSize)
+      .pipe(
+        catchError(err => {
+          console.log(err);
+          this._snackBar.open(`Error: ${err}`, 'OK');
+          return throwError(() => err);
+        }),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe((books) => {
+        this.books.set(books.items);
+        this.pageCount.set(books.pageCount);
+      });
   }
 }

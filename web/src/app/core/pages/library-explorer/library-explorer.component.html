@@ -1,19 +1,57 @@
-<app-toolbar>
-  <button app-icon-button matTooltip="Add books" (click)="openBookAddDialog()">
-    add
-    <span text>Добавить книгу</span>
+<div class="toolbar">
+  <button mat-icon-button matTooltip="Add books" (click)="openBookAddDialog()">
+    <mat-icon>add</mat-icon>
   </button>
-  <div>
-    <input type="text" [formControl]="search" />
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Поиск</mat-label>
+    <input matInput type="text" [formControl]="search" />
+  </mat-form-field>
+</div>
+<div class="main">
+  <div class="nav-panel">
+    <mat-nav-list>
+      <mat-list-item>Все книги</mat-list-item>
+    </mat-nav-list>
   </div>
-</app-toolbar>
-<app-book-list-view
-  [books]="books()"
-  (openItemEvent)="openBook($event)"
-  (editItemEvent)="editBookDetails($event)"
-  (deleteItemEvent)="deleteBook($event)"
->
-  <app-loading-spinner-overlay
-    [loading]="loading()"
-  ></app-loading-spinner-overlay>
-</app-book-list-view>
+  <div class="book-list-viewer">
+    <app-book-list-view
+      [books]="books()"
+      (openItemEvent)="openBook($event)"
+      (editItemEvent)="editBookDetails($event)"
+      (deleteItemEvent)="deleteBook($event)"
+    >
+      <app-loading-spinner-overlay
+        [loading]="loading()"
+      ></app-loading-spinner-overlay>
+    </app-book-list-view>
+
+    <div class="page-control-panel">
+      <div>
+        <span>Кол-во строк</span>
+        <mat-select [(value)]="pageSize">
+          @for (option of pageSizeOptions; track $index) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+          }
+        </mat-select>
+      </div>
+      <div class="page-navigation">
+        <button
+          mat-mini-fab
+          [disabled]="pageNumber() <= 1"
+          (click)="goToPrevPage()"
+        >
+          <mat-icon>navigate_before</mat-icon>
+        </button>
+        <span>Страница {{ pageNumber() }} / {{ pageCount() }}</span>
+        <button
+          mat-mini-fab
+          [disabled]="pageNumber() >= pageCount()"
+          (click)="goToNextPage()"
+        >
+          <mat-icon>navigate_next</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

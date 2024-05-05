@@ -1,15 +1,13 @@
 ﻿using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
 using BookManager.Application.Common.Interfaces.Services;
-using BookManager.Application.Persistence.Commands;
-using BookManager.Application.Persistence.Queries;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 
 namespace BookManager.Application.Services;
 
 public sealed class UserService(
-    ISender sender, 
+    IAppDbContext dbContext,
     IValidator<UserAddRequest> userAddRequestValidator, 
     UserManager<User> userManager, 
     IPasswordHasher<User> passwordHasher)
@@ -17,7 +15,7 @@ public sealed class UserService(
 {
     public IAsyncEnumerable<UserDto> GetAllUsers()
     {
-        return sender.CreateStream(new GetUsersQuery()).Select(entity => entity.ToDto());
+        return dbContext.Users.Select(u => u.ToDto()).AsAsyncEnumerable();
     }
 
     public async Task<UserDto> CreateUser(UserAddRequest request)
@@ -42,10 +40,9 @@ public sealed class UserService(
     {
         var validationResult = await userAddRequestValidator.ValidateAsync(request);
         if (!validationResult.IsValid) throw new ArgumentException("Invalid request", nameof(request));
-        var foundUser = await sender.Send(new GetUserByIdQuery(id)) ?? throw new EntityNotFoundException();
-        foundUser.UserName = request.Name;
+        var foundUser = await dbContext.Users.FindAsync([id]);
+        if (foundUser == null || string.IsNullOrEmpty(foundUser.UserName)) throw new EntityNotFoundException();
         foundUser.PasswordHash = passwordHasher.HashPassword(foundUser, request.PinCode);
-       
         var identityResult = await userManager.UpdateAsync(foundUser);
         if (!identityResult.Succeeded)
             throw new UserUpdateException("Failed to update user account.");
@@ -56,6 +53,8 @@ public sealed class UserService(
 
     public async Task DeleteUser(Guid id)
     {
-        await sender.Send(new DeleteUserCommand(id));
+        var found = await dbContext.Users.FindAsync([id]) ?? throw new EntityNotFoundException();
+        dbContext.Users.Remove(found);
+        await dbContext.SaveChangesAsync();
     }
 }

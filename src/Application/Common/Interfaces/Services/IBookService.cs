@@ -1,10 +1,11 @@
+using System.Linq.Expressions;
 using BookManager.Application.Common.DTOs;
 
 namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface IBookService
 {
-    public IAsyncEnumerable<BookDto> GetPage(int pageNumber, int pageSize);
+    public Task<PageDto<BookDto>> GetPageAsync(int pageNumber, int pageSize, Expression<Func<Book, bool>>? predicate = null);
 
     public Task<BookDto?> GetByIdAsync(Guid bookId);
 

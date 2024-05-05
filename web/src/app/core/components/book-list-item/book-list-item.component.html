@@ -1,37 +1,37 @@
 <div class="thumbnail-container">
   <img [src]="image()" alt="No image" />
 </div>
-<div class="details-container">
-  <div class="property-item">
-    <span class="name">Title</span>
-    <span class="value">{{ bookItem().documentDetails.title || '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Description</span>
-    <span class="value">{{
-      bookItem().documentDetails.description || '-'
-    }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">ISBN</span>
-    <span class="value">{{ bookItem().documentDetails.isbn || '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Publisher Name</span>
-    <span class="value">{{
-      bookItem().documentDetails.publisherName || '-'
-    }}</span>
-  </div>
+<div>
+  <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
+  <div class="details-container">
+    <div class="property-item">
+      <span class="name">Описание</span>
+      <span class="value">{{
+        bookItem().documentDetails.description || '-'
+      }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">ISBN</span>
+      <span class="value">{{ bookItem().documentDetails.isbn || '-' }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">Издатель</span>
+      <span class="value">{{
+        bookItem().documentDetails.publisherName || '-'
+      }}</span>
+    </div>
 
-  <div class="property-item">
-    <span class="name">Total time</span>
-    <span class="value">{{ '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Last access</span>
-    <span class="value">{{ '-' }}</span>
+    <div class="property-item">
+      <span class="name">Общее время</span>
+      <span class="value">{{ '-' }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">Посл. время открытия</span>
+      <span class="value">{{ '-' }}</span>
+    </div>
   </div>
 </div>
+
 <div class="spacer"></div>
 <div class="actions">
   <button mat-icon-button (click)="handleEditEvent($event)">

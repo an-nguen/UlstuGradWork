@@ -9,12 +9,16 @@ namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("books")]
-public class BookController(IBookService service, UserManager<User> userManager) : ControllerBase
+public class BookController(
+    IBookService service, 
+    ISearchService searchService,
+    UserManager<User> userManager) 
+    : ControllerBase
 {
     [HttpGet]
     [Authorize]
-    public IAsyncEnumerable<BookDto> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize) 
-        => service.GetPage(pageNumber, pageSize);
+    public Task<PageDto<BookDto>> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize) 
+        => service.GetPageAsync(pageNumber, pageSize);
 
     [HttpGet]
     [Authorize]
@@ -30,6 +34,7 @@ public class BookController(IBookService service, UserManager<User> userManager)
     }
 
     [HttpGet]
+    [Authorize]
     [Route("{id:guid}")]
     public async Task<IActionResult> GetBookById(Guid id)
     {
@@ -40,6 +45,20 @@ public class BookController(IBookService service, UserManager<User> userManager)
     }
 
     [HttpPost]
+    [Route("search")]
+    public Task<PageDto<BookDto>> Search([FromBody] SearchRequestDto request)
+    {
+        return searchService.SearchByBookDetailsAsync(request);
+    }
+    
+    [HttpPost]
+    [Route("full-text-search")]
+    public Task<PageDto<BookTextDto>> Search([FromBody] TextSearchRequestDto request)
+    {
+        return searchService.SearchByBookTexts(request);
+    }
+    
+    [HttpPost]
     [Authorize]
     public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
     {
@@ -47,16 +66,16 @@ public class BookController(IBookService service, UserManager<User> userManager)
     }
 
     [HttpPut]
-    [Route("{id:guid}")]
     [Authorize]
+    [Route("{id:guid}")]
     public async Task<BookDto> UpdateBookDetails(Guid id, [FromBody] BookDto.Details details)
     {
         return await service.UpdateBookDetailsAsync(id, details);
     }
 
     [HttpDelete]
-    [Route("{id:guid}")]
     [Authorize]
+    [Route("{id:guid}")]
     public async Task<IActionResult> DeleteBook(Guid id)
     {
         await service.DeleteBookAsync(id);

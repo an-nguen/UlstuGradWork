@@ -1,0 +1,1 @@
+﻿tapper --project .\src\Application\Application.csproj --output .\web\src\app\core\dtos --assemblies true

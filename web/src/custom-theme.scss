@@ -1,50 +1,40 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
+@use '@angular/material-experimental' as matx;
 // Plus imports for other components in your app.
 @use './assets/themes/titlebar-theme.component' as titlebar;
 @use './assets/themes/toolbar-theme.component' as toolbar;
 @use './assets/themes/book-viewer-theme.component' as viewer;
 @use './assets/themes/book-list-item-theme.component' as bookListItem;
+@use './assets/themes/library-explorer-theme.component' as libraryExplorer;
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat.core();
-
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$libmgr-desktop-app-primary: mat.define-palette(mat.$indigo-palette, A100);
-$libmgr-desktop-app-accent: mat.define-palette(
-  mat.$blue-palette,
-  A200,
-  A100,
-  A400
-);
-
-// The warn palette is optional (defaults to red).
-$libmgr-desktop-app-warn: mat.define-palette(mat.$red-palette);
-
-// Create the theme object. A theme consists of configurations for individual
-// theming systems such as "color" or "typography".
-$libmgr-desktop-app-theme: mat.define-light-theme(
+$theme: matx.define-theme(
   (
     color: (
-      primary: $libmgr-desktop-app-primary,
-      accent: $libmgr-desktop-app-accent,
-      warn: $libmgr-desktop-app-warn,
+      theme-type: light,
+      primary: matx.$m3-azure-palette,
     ),
-    typography: mat.define-typography-config(),
-    density: 0,
+    typography: (
+      bold-weight: 900,
+    ),
+    density: (
+      scale: -1,
+    ),
   )
 );
+
+@include mat.core();
+@include matx.color-variants-back-compat($theme);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include mat.all-component-themes($libmgr-desktop-app-theme);
-@include titlebar.theme($libmgr-desktop-app-theme);
-@include toolbar.theme($libmgr-desktop-app-theme);
-@include viewer.theme($libmgr-desktop-app-theme);
-@include bookListItem.theme($libmgr-desktop-app-theme);
+:root {
+  @include mat.all-component-themes($theme);
+  @include titlebar.theme($theme);
+  @include toolbar.theme($theme);
+  @include viewer.theme($theme);
+  @include bookListItem.theme($theme);
+  @include libraryExplorer.theme($theme);
+}

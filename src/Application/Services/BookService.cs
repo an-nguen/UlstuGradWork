@@ -1,14 +1,14 @@
+using System.Linq.Expressions;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
 using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
-using BookManager.Application.Persistence.Commands;
-using BookManager.Application.Persistence.Queries;
 using BookManager.Domain.Enums;
 using BookManager.Domain.Exceptions;
 using Docnet.Core;
 using Docnet.Core.Models;
+using NodaTime;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -18,20 +18,42 @@ using VersOne.Epub;
 namespace BookManager.Application.Services;
 
 public sealed class BookService(
-    ISender sender,
+    IAppDbContext dbContext,
     IFileStorage fileStorage,
     IIndexingTaskQueue indexingTaskQueue) : IBookService
 {
     private IIndexingTaskQueue IndexingTaskQueue { get; } = indexingTaskQueue;
 
-    public IAsyncEnumerable<BookDto> GetPage(int pageNumber, int pageSize)
+    public async Task<PageDto<BookDto>> GetPageAsync(
+        int pageNumber,
+        int pageSize,
+        Expression<Func<Book, bool>>? predicate = null)
     {
-        return sender.CreateStream(new GetBooksQuery(pageNumber, pageSize)).Select(b => b.ToDto());
+        var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(pageNumber);
+        var query = dbContext.Books.AsQueryable();
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+        var totalItemCount = await query.CountAsync();
+        query = query.OrderBy(b => b.Title)
+            .Skip((normalizedPageNumber - 1) * pageSize)
+            .Take(pageSize);
+        var pageCount = PageDto<BookDto>.CountPage(totalItemCount, pageSize);
+        var items = await query.Select(b => b.ToDto()).ToListAsync();
+        return PageDto<BookDto>.Builder.Create()
+            .SetPageNumber(normalizedPageNumber)
+            .SetPageSize(items.Count)
+            .SetTotalItemCount(totalItemCount)
+            .SetPageCount(pageCount)
+            .SetItems(items)
+            .Build();
     }
 
     public async Task<BookDto?> GetByIdAsync(Guid bookId)
     {
-        return (await sender.Send(new GetBookByIdQuery(bookId))).ToDto();
+        var book = await dbContext.Books.FindAsync([bookId]);
+        return book?.ToDto();
     }
 
     public async Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata)
@@ -40,8 +62,7 @@ public sealed class BookService(
         var filename = $"{id}-{bookMetadata.Filename}";
         var fileInfo = await fileStorage.SaveFileAsync(filename, fileStream);
         var extractedTitle = GetDocumentTitleFromFile(fileInfo.FullName);
-
-        var document = await sender.Send(new AddBookCommand(new Book
+        var book = new Book
         {
             Id = id,
             Filepath = fileInfo.FullName,
@@ -49,7 +70,10 @@ public sealed class BookService(
             FileType = BookFileType.Pdf,
             Title = string.IsNullOrEmpty(bookMetadata.Title) ? extractedTitle : bookMetadata.Title,
             Thumbnail = GetThumbnailPreview(fileInfo.FullName)
-        }));
+        };
+        var entry = dbContext.Books.Add(book);
+        await dbContext.SaveChangesAsync();
+        var document = entry.Entity;
         await IndexingTaskQueue.QueueAsync(
             new IndexingWorkItem(
                 IndexingWorkItemOperationType.Created,
@@ -63,24 +87,29 @@ public sealed class BookService(
 
     public async Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDto.Details details)
     {
-        var found = await sender.Send(new GetBookByIdQuery(id)) ?? throw new EntityNotFoundException();
+        var found = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
         found.Description = details.Description;
         found.Title = details.Title;
         found.PublisherName = details.PublisherName;
         found.Isbn = details.Isbn;
-        return (await sender.Send(new UpdateBookCommand(found))).ToDto();
+        var updatedEntityEntry = dbContext.Books.Update(found);
+        await dbContext.SaveChangesAsync();
+        return updatedEntityEntry.Entity.ToDto();
     }
 
     public async Task<FileStream> DownloadBookFileStreamAsync(Guid id, User user)
     {
-        var book = await sender.Send(new GetBookByIdQuery(id));
-        await sender.Send(new UpdateBookAccessTimeCommand(id, user.Id));
+        var book = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
+        await UpdateBookAccessTime(id, user.Id);
         return new FileStream(book.Filepath, FileMode.Open);
     }
 
     public async Task DeleteBookAsync(Guid id)
     {
-        await sender.Send(new DeleteBookCommand(id));
+        var document = await dbContext.Books.FindAsync([id])
+                       ?? throw new EntityNotFoundException();
+        dbContext.Books.Remove(document);
+        await dbContext.SaveChangesAsync();
         await IndexingTaskQueue.QueueAsync(
             new IndexingWorkItem(
                 IndexingWorkItemOperationType.Deleted,
@@ -89,6 +118,22 @@ public sealed class BookService(
                 BookFileType.Pdf
             )
         );
+    }
+
+    private async Task UpdateBookAccessTime(Guid bookId, Guid userId)
+    {
+        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
+        if (found != null)
+            found.RecentAccess = SystemClock.Instance.GetCurrentInstant();
+        else
+            dbContext.BookUserStatsSet.Add(new BookUserStats
+            {
+                BookId = bookId,
+                UserId = userId,
+                RecentAccess = SystemClock.Instance.GetCurrentInstant()
+            });
+
+        await dbContext.SaveChangesAsync();
     }
 
     private static string GetDocumentTitleFromFile(string filepath)

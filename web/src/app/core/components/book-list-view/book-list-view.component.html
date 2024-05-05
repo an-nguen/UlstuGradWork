@@ -1,4 +1,4 @@
-<mat-action-list>
+<mat-action-list id="book-list">
   @for (book of books(); track $index) {
   <button mat-list-item (click)="handleOpenItemEvent(book)">
     <app-book-list-item

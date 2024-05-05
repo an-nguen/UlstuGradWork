@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookDto, BookMetadataDto, Details } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDto, BookMetadataDto, Details, PageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
@@ -15,8 +15,8 @@ export class BookService {
     private readonly _httpClient: HttpClient
   ) { }
 
-  public getBooks(pageNumber: number, pageSize: number): Observable<BookDto[]> {
-    return this._httpClient.get<BookDto[]>(this._url, { params: { pageNumber, pageSize } });
+  public getPage(pageNumber: number, pageSize: number): Observable<PageDto<BookDto>> {
+    return this._httpClient.get<PageDto<BookDto>>(this._url, { params: { pageNumber, pageSize } });
   }
 
   public getBookById(id: string): Observable<BookDto> {

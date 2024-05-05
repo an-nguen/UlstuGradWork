@@ -8,8 +8,52 @@
   width: 100%;
   overflow: hidden;
   position: relative;
+  padding: 1em;
+  box-sizing: border-box;
 }
 
 .file-input {
   display: none;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  flex-direction: row;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+.book-list-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-panel {
+  min-width: 160px;
+  border-radius: 1em;
+  padding: 1em 0;
+}
+
+.page-control-panel {
+  display: flex;
+  padding: 0.5em;
+  margin: 0.5em;
+  border-radius: 1em;
+  gap: 1em;
+  align-items: center;
+  justify-content: end;
+
+  .page-navigation {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+  }
 }

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { getBookFileType } from '@core/book-file-type';
 import { BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { getBookFileType } from '@core/dtos/book-file-type';
 import { map } from 'rxjs';
 
 export interface BookAddDialogFormData {

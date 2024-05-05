@@ -2,6 +2,6 @@
 
 public interface IIndexingService
 {
-    Task IndexDocumentAsync(Guid bookDocumentId, CancellationToken cancellationToken);
+    Task IndexDocumentAsync(Guid bookId, CancellationToken cancellationToken);
     Task<int> DeleteDocumentTextsAsync(Guid bookDocumentId, CancellationToken cancellationToken);
 }

@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using BookManager.Application.Common.Exceptions;
 using BookManager.Application.Common.Interfaces.Services;
-using BookManager.Application.Persistence.Commands;
-using BookManager.Application.Persistence.Queries;
 using BookManager.Domain.Enums;
 using HtmlAgilityPack;
 using UglyToad.PdfPig;
@@ -10,23 +8,22 @@ using VersOne.Epub;
 
 namespace BookManager.Application.Indexing;
 
-public sealed class IndexingService(ISender sender) : IIndexingService
+public sealed class IndexingService(IAppDbContext dbContext) : IIndexingService
 {
-    public async Task IndexDocumentAsync(Guid bookDocumentId, CancellationToken cancellationToken)
+    public async Task IndexDocumentAsync(Guid bookId, CancellationToken cancellationToken)
     {
-        var document = await sender.Send(new GetBookByIdQuery(bookDocumentId), cancellationToken);
+        var document = await dbContext.Books.FindAsync([bookId], cancellationToken);
         if (document == null)
             throw new EntityNotFoundException();
         var documentTexts = ReadAllText(document.Filepath, document.FileType, document.Id);
-        await sender.Send(new AddBookTexts
-        {
-            Texts = documentTexts
-        }, cancellationToken);
+        dbContext.BookTexts.AddRange(documentTexts);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<int> DeleteDocumentTextsAsync(Guid bookDocumentId, CancellationToken cancellationToken)
     {
-        return await sender.Send(new DeleteDocumentTextsCommand(bookDocumentId), cancellationToken);
+        return await dbContext.BookTexts.Where(text => text.BookDocumentId == bookDocumentId)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
     private static IEnumerable<BookText> ReadAllText(string filepath, BookFileType fileType, Guid bookId)

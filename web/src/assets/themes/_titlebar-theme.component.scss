@@ -1,24 +1,9 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
 
-@mixin color($theme) {
+@mixin theme($theme) {
   app-titlebar {
     background-color: mat.get-theme-color($theme, primary, 100);
-  }
-}
-
-@mixin typography($theme) {
-  app-titlebar {
-    font: mat.get-theme-typography($theme, body-1);
-  }
-}
-
-@mixin theme($theme) {
-  @if mat.theme-has($theme, color) {
-    @include color($theme);
-  }
-
-  @if mat.theme-has($theme, typography) {
-    @include typography($theme);
+    font: mat.get-theme-typography($theme, body-small);
   }
 }
