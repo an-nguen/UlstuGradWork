@@ -7,9 +7,9 @@ public static class Constants
         public const string DirectoryPath = "./";
 
         public const int IndexingQueueCapacity = 2;
-        
+
         // 256 MiB in Bytes
-        public const long MaxFileSize = 268435456L;
+        public const long MaxFileSize = 268_435_456L;
 
         // JWT options
         public const string Issuer = "https://localhost:7013";

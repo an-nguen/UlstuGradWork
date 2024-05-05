@@ -1,5 +1,6 @@
 using BookManager.Api.Extensions;
 using BookManager.Application;
+using BookManager.Application.Common;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -24,6 +25,10 @@ builder.Services.AddCors(options =>
     );
 });
 builder.AddTokenBasedSecurity();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = Constants.Default.MaxFileSize;
+});
 
 var app = builder.Build();
 
