@@ -4,7 +4,7 @@
         {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
-            // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
+            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
             "name": ".NET Core Launch (web)",
             "type": "coreclr",
             "request": "launch",
@@ -30,21 +30,6 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Tauri Development Debug",
-            "cargo": {
-              "args": [
-                "build",
-                "--manifest-path=./client/libmgr-desktop-app/src-tauri/Cargo.toml",
-                "--no-default-features"
-              ]
-            },
-            "cwd": "${workspaceFolder}/client/libmgr-desktop-app",
-            // task for the `beforeDevCommand` if used, must be configured in `.vscode/tasks.json`
-            "preLaunchTask": "ui:dev"
-          },
+        }
     ]
 }
