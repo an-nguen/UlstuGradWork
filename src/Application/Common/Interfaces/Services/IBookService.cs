@@ -13,7 +13,9 @@ public interface IBookService
 
     public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDto.Details details);
 
-    public Task<FileStream> DownloadBookFileStreamAsync(Guid id, User user);
+    public Task<FileStream> GetBookFileStreamAsync(Guid id, User user);
+
+    public Task<FileStream?> GetBookCoverImageFileStream(Guid bookId);
     
     public Task DeleteBookAsync(Guid id);
 }

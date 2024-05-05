@@ -49,8 +49,8 @@ export type Details = {
     description?: string;
     /** Transpiled from string? */
     publisherName?: string;
-    /** Transpiled from byte[]? */
-    thumbnail?: string;
+    /** Transpiled from string? */
+    thumbnailUrl?: string;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */

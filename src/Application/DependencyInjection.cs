@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchService, SearchService>();
         services.AddScoped<IIndexingService, IndexingService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IBookFileHandler, PdfBookFileHandler>();
 
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
         services.AddHostedService<IndexingHostedService>();

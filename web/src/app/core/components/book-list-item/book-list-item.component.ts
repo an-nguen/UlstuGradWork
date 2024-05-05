@@ -17,13 +17,11 @@ import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListItemComponent {
-  private readonly imageMimeType = 'data:image/jpg';
-
   public bookItem = input.required<BookDto>();
 
   public image = computed(() => {
     return this._domSanitizer.bypassSecurityTrustResourceUrl(
-      `${this.imageMimeType};base64,${this.bookItem().documentDetails.thumbnail}`
+      `${this.bookItem().documentDetails.thumbnailUrl}`
     );
   });
 

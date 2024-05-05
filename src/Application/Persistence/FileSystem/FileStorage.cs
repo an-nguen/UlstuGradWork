@@ -19,6 +19,12 @@ public sealed class FileStorage : IFileStorage, IDisposable
         InitDirectory();
     }
 
+    public FileStream GetFileStream(string filename)
+    {
+        var filepath = Path.Combine(_options.DirectoryPath, filename);
+        return File.OpenRead(filepath);
+    }
+
     public async IAsyncEnumerable<byte[]> ReadFileAsync(string filename)
     {
         await using var stream = File.OpenRead(filename);
@@ -27,13 +33,13 @@ public sealed class FileStorage : IFileStorage, IDisposable
         {
             yield return pool.Memory.ToArray();
         }
-        
     }
 
     public string GetFileHash(string filename)
     {
+        var filepath = Path.Combine(_options.DirectoryPath, filename);
         _hasher.Reset();
-        _hasher.Update(File.ReadAllBytes(filename));
+        _hasher.Update(File.ReadAllBytes(filepath));
         return _hasher.Finalize().ToString();
     }
 

@@ -20,10 +20,10 @@ public sealed record BookDto
             Isbn = DocumentDetails.Isbn,
             PublisherName = DocumentDetails.PublisherName,
             Title = DocumentDetails.Title,
-            Filepath = string.Empty,
+            Filename = string.Empty,
             FileType = FileMetadata.Type,
             FileSize = FileMetadata.Size,
-            Thumbnail = DocumentDetails.Thumbnail
+            ThumbnailFilename = string.Empty
         };
     }
 
@@ -45,7 +45,7 @@ public sealed record BookDto
         public string? Isbn { get; set; }
         public string? Description { get; set; }
         public string? PublisherName { get; set; }
-        public byte[]? Thumbnail { get; init; }
+        public string? ThumbnailUrl { get; set; }
     }
 
     [TranspilationSource]
@@ -70,7 +70,7 @@ public static class BookDocumentEntityExtensions
                 Isbn = entity.Isbn,
                 PublisherName = entity.PublisherName,
                 Title = entity.Title,
-                Thumbnail = entity.Thumbnail
+                ThumbnailUrl = string.Empty
             },
             FileMetadata = new BookDto.BookFileMetadata
             {

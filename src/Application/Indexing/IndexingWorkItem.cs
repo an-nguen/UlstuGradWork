@@ -1,6 +1,4 @@
-﻿using BookManager.Domain.Enums;
-
-namespace BookManager.Application.Indexing;
+﻿namespace BookManager.Application.Indexing;
 
 public enum IndexingWorkItemOperationType
 {
@@ -11,7 +9,5 @@ public enum IndexingWorkItemOperationType
 
 public sealed record IndexingWorkItem(
     IndexingWorkItemOperationType OperationType,
-    Guid BookDocumentId,
-    string Filepath,
-    BookFileType FileType
+    Guid BookDocumentId
 );

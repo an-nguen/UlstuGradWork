@@ -1,0 +1,1 @@
+﻿dotnet ef database drop -s .\src\Api -p .\src\Application

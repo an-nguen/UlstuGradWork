@@ -43,11 +43,10 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("file_type");
 
-                    b.Property<string>("Filepath")
+                    b.Property<string>("Filename")
                         .IsRequired()
-                        .HasMaxLength(4096)
-                        .HasColumnType("character varying(4096)")
-                        .HasColumnName("filepath");
+                        .HasColumnType("text")
+                        .HasColumnName("filename");
 
                     b.Property<string>("Isbn")
                         .HasMaxLength(256)
@@ -59,9 +58,13 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("publisher_name");
 
-                    b.Property<byte[]>("Thumbnail")
-                        .HasColumnType("bytea")
-                        .HasColumnName("thumbnail");
+                    b.Property<string[]>("Tags")
+                        .HasColumnType("text[]")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("ThumbnailFilename")
+                        .HasColumnType("text")
+                        .HasColumnName("thumbnail_filename");
 
                     b.Property<string>("Title")
                         .HasMaxLength(256)

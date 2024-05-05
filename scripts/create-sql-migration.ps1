@@ -1,0 +1,1 @@
+﻿dotnet ef migrations script

@@ -17,8 +17,16 @@ public class BookController(
 {
     [HttpGet]
     [Authorize]
-    public Task<PageDto<BookDto>> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize) 
-        => service.GetPageAsync(pageNumber, pageSize);
+    public async Task<PageDto<BookDto>> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var page = await service.GetPageAsync(pageNumber, pageSize);
+        foreach (var item in page.Items)
+        {
+            item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);
+        }
+
+        return page;
+    }
 
     [HttpGet]
     [Authorize]
@@ -29,8 +37,17 @@ public class BookController(
         if (user == null) return BadRequest();
         var bookDto = await service.GetByIdAsync(id);
         if (bookDto == null) return NotFound();
-        var stream = await service.DownloadBookFileStreamAsync(id, user);
+        var stream = await service.GetBookFileStreamAsync(id, user);
         return File(stream, bookDto.GetContentType(), true);
+    }
+
+    [HttpGet]
+    [Route("cover/{id:guid}")]
+    public async Task<IActionResult> GetBookCover(Guid id)
+    {
+        var imageStream = await service.GetBookCoverImageFileStream(id);
+        if (imageStream == null) return Ok(null);
+        return File(imageStream, "image/jpeg");
     }
 
     [HttpGet]
@@ -80,5 +97,10 @@ public class BookController(
     {
         await service.DeleteBookAsync(id);
         return Ok();
+    }
+
+    private string GetImageUrl(Guid id)
+    {
+        return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/books/cover/{id}";
     }
 }

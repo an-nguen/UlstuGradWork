@@ -27,6 +27,8 @@ builder.AddTokenBasedSecurity();
 
 var app = builder.Build();
 
+app.DbMigrate();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

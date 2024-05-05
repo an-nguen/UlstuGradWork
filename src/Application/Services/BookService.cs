@@ -5,21 +5,14 @@ using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
 using BookManager.Domain.Enums;
-using BookManager.Domain.Exceptions;
-using Docnet.Core;
-using Docnet.Core.Models;
 using NodaTime;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using UglyToad.PdfPig;
-using VersOne.Epub;
 
 namespace BookManager.Application.Services;
 
 public sealed class BookService(
     IAppDbContext dbContext,
     IFileStorage fileStorage,
+    IEnumerable<IBookFileHandler> bookFileHandlers,
     IIndexingTaskQueue indexingTaskQueue) : IBookService
 {
     private IIndexingTaskQueue IndexingTaskQueue { get; } = indexingTaskQueue;
@@ -62,14 +55,16 @@ public sealed class BookService(
         var filename = $"{id}-{bookMetadata.Filename}";
         var fileInfo = await fileStorage.SaveFileAsync(filename, fileStream);
         var extractedTitle = GetDocumentTitleFromFile(fileInfo.FullName);
+        var thumbnailImage = await SaveThumbnailImage(fileInfo.FullName, filename);
         var book = new Book
         {
             Id = id,
-            Filepath = fileInfo.FullName,
+            Filename = fileInfo.Name,
             FileSize = fileInfo.Length,
             FileType = BookFileType.Pdf,
-            Title = string.IsNullOrEmpty(bookMetadata.Title) ? extractedTitle : bookMetadata.Title,
-            Thumbnail = GetThumbnailPreview(fileInfo.FullName)
+            Title = !string.IsNullOrEmpty(bookMetadata.Title) ? bookMetadata.Title 
+                : string.IsNullOrEmpty(extractedTitle) ? bookMetadata.Filename : extractedTitle,
+            ThumbnailFilename = thumbnailImage
         };
         var entry = dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
@@ -77,9 +72,7 @@ public sealed class BookService(
         await IndexingTaskQueue.QueueAsync(
             new IndexingWorkItem(
                 IndexingWorkItemOperationType.Created,
-                document.Id,
-                document.Filepath,
-                document.FileType
+                document.Id
             )
         );
         return document.ToDto();
@@ -97,11 +90,17 @@ public sealed class BookService(
         return updatedEntityEntry.Entity.ToDto();
     }
 
-    public async Task<FileStream> DownloadBookFileStreamAsync(Guid id, User user)
+    public async Task<FileStream> GetBookFileStreamAsync(Guid id, User user)
     {
         var book = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
         await UpdateBookAccessTime(id, user.Id);
-        return new FileStream(book.Filepath, FileMode.Open);
+        return fileStorage.GetFileStream(book.Filename);
+    }
+
+    public async Task<FileStream?> GetBookCoverImageFileStream(Guid bookId)
+    {
+        var book = await dbContext.Books.FindAsync([bookId]) ?? throw new EntityNotFoundException();
+        return book.ThumbnailFilename == null ? null : fileStorage.GetFileStream(book.ThumbnailFilename);
     }
 
     public async Task DeleteBookAsync(Guid id)
@@ -110,14 +109,7 @@ public sealed class BookService(
                        ?? throw new EntityNotFoundException();
         dbContext.Books.Remove(document);
         await dbContext.SaveChangesAsync();
-        await IndexingTaskQueue.QueueAsync(
-            new IndexingWorkItem(
-                IndexingWorkItemOperationType.Deleted,
-                id,
-                "",
-                BookFileType.Pdf
-            )
-        );
+        await IndexingTaskQueue.QueueAsync(new IndexingWorkItem(IndexingWorkItemOperationType.Deleted, id));
     }
 
     private async Task UpdateBookAccessTime(Guid bookId, Guid userId)
@@ -136,53 +128,34 @@ public sealed class BookService(
         await dbContext.SaveChangesAsync();
     }
 
-    private static string GetDocumentTitleFromFile(string filepath)
+    private string? GetDocumentTitleFromFile(string bookFilepath)
     {
-        switch (DocumentFileTypeUtils.GetFileType(filepath))
+        var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
+        var bookFileStream = fileStorage.GetFileStream(bookFilepath);
+        foreach (var bookFileHandler in bookFileHandlers)
         {
-            case BookFileType.Pdf:
-                using (var document = PdfDocument.Open(filepath))
-                {
-                    return string.IsNullOrEmpty(document.Information.Title)
-                        ? Path.GetFileNameWithoutExtension(filepath)
-                        : document.Information.Title;
-                }
-            case BookFileType.Epub:
-                using (var document = EpubReader.OpenBook(filepath))
-                {
-                    return string.IsNullOrEmpty(document.Title)
-                        ? Path.GetFileNameWithoutExtension(filepath)
-                        : document.Title;
-                }
-            default:
-                throw new UnsupportedFileTypeException();
+            if (bookFileHandler.FileType != fileType) continue;
+            return bookFileHandler.GetBookTitle(bookFileStream);
         }
+
+        return null;
     }
 
-    private static byte[]? GetThumbnailPreview(string filepath)
+    private async Task<string?> SaveThumbnailImage(string bookFilepath, string imageFilenameWithoutExt)
     {
-        switch (DocumentFileTypeUtils.GetFileType(filepath))
+        var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
+        foreach (var bookFileHandler in bookFileHandlers)
         {
-            case BookFileType.Pdf:
-                using (var docReader = DocLib.Instance.GetDocReader(
-                           filepath,
-                           new PageDimensions(480, 640))
-                      )
-                {
-                    using var pageReader = docReader.GetPageReader(0);
-                    var rawBytes = pageReader.GetImage();
-                    var width = pageReader.GetPageWidth();
-                    var height = pageReader.GetPageHeight();
-                    using var stream = new MemoryStream();
-                    if (rawBytes == null) return null;
-                    var image = Image.LoadPixelData<Bgra32>(rawBytes, width, height);
-                    image.Mutate(x => x.BackgroundColor(Color.White));
-                    image.SaveAsJpeg(stream);
-                    return stream.ToArray();
-                }
-            case BookFileType.Epub:
-            default:
-                return null;
+            if (bookFileHandler.FileType != fileType) continue;
+            var stream = fileStorage.GetFileStream(bookFilepath);
+            var rawImage = bookFileHandler.GetPreviewImage(stream);
+            if (rawImage == null) return null;
+            var imageStream = await bookFileHandler.GetJpegImageAsync(rawImage);
+            var fileInfo = await fileStorage.SaveFileAsync($"{imageFilenameWithoutExt}.jpg", imageStream);
+            return fileInfo.Name;
         }
+
+        return null;
     }
+    
 }

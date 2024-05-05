@@ -32,14 +32,15 @@ namespace BookManager.Application.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    filepath = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: false),
                     file_type = table.Column<int>(type: "integer", nullable: false),
+                    filename = table.Column<string>(type: "text", nullable: false),
                     file_size = table.Column<long>(type: "bigint", nullable: false),
                     title = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     isbn = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     description = table.Column<string>(type: "character varying(16384)", maxLength: 16384, nullable: true),
                     publisher_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    thumbnail = table.Column<byte[]>(type: "bytea", nullable: true)
+                    tags = table.Column<string[]>(type: "text[]", nullable: true),
+                    thumbnail_filename = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
