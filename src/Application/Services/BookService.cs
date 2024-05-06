@@ -20,13 +20,19 @@ public sealed class BookService(
     public async Task<PageDto<BookDto>> GetPageAsync(
         int pageNumber,
         int pageSize,
-        Expression<Func<Book, bool>>? predicate = null)
+        Expression<Func<Book, bool>>? predicate = null,
+        User? user = null)
     {
         var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(pageNumber);
         var query = dbContext.Books.AsQueryable();
         if (predicate != null)
         {
             query = query.Where(predicate);
+        }
+
+        if (user != null)
+        {
+            query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id));
         }
         var totalItemCount = await query.CountAsync();
         query = query.OrderBy(b => b.Title)

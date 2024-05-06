@@ -19,7 +19,8 @@ public class BookController(
     [Authorize]
     public async Task<PageDto<BookDto>> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var page = await service.GetPageAsync(pageNumber, pageSize);
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        var page = await service.GetPageAsync(pageNumber, pageSize, null, user);
         foreach (var item in page.Items)
         {
             item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);

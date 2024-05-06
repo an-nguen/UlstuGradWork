@@ -32,5 +32,6 @@ export const CONSTANTS = {
   },
   REGEX_PATTERN: {
     PIN_CODE: '^[0-9]{4,16}$'
-  }
+  },
+  PAGE_SIZE: 10,
 };

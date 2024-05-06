@@ -14,8 +14,9 @@ import { BookAddDialogComponent, BookAddDialogFormData } from '@core/components/
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CONSTANTS } from '@core/constants';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
-import { NEVER, catchError, debounceTime, finalize, mergeMap, of, throwError } from 'rxjs';
+import { NEVER, debounceTime, finalize, mergeMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-library-explorer',
@@ -25,7 +26,7 @@ import { NEVER, catchError, debounceTime, finalize, mergeMap, of, throwError } f
 })
 export class LibraryExplorerComponent implements OnInit {
 
-  public readonly pageSizeOptions = [5, 10, 25];
+  protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
 
   public loading = signal<boolean>(false);
 
@@ -33,12 +34,14 @@ export class LibraryExplorerComponent implements OnInit {
 
   public pageNumber = signal<number>(1);
   public pageCount = signal<number>(0);
-  public _pageSize = this.pageSizeOptions[0];
 
   public search = new FormControl<string | null>(null);
 
+  public isSidenavOpened = false;
+
   constructor(
     private readonly _bookService: BookService,
+    private readonly _authService: AuthService,
     private readonly _dialog: MatDialog,
     private readonly _router: Router,
     private readonly _route: ActivatedRoute,
@@ -48,15 +51,6 @@ export class LibraryExplorerComponent implements OnInit {
 
   public ngOnInit(): void {
     this._loadBookDocuments();
-  }
-
-  public set pageSize(value: number) {
-    this._pageSize = value;
-    this._loadBookDocuments();
-  }
-
-  public get pageSize(): number {
-    return this._pageSize;
   }
 
   public openBookAddDialog(): void {
@@ -121,6 +115,18 @@ export class LibraryExplorerComponent implements OnInit {
     this._loadBookDocuments();
   }
 
+  public toggleSidenav(): void {
+    this.isSidenavOpened = !this.isSidenavOpened;
+  }
+
+  public signOut(): void {
+    this._authService.signOut()
+      .subscribe(() => {
+        this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
+        this._router.navigate([CONSTANTS.ENDPOINTS.AUTH.PATH, CONSTANTS.ENDPOINTS.AUTH.SIGN_IN]);
+      });
+  }
+
   private _subscribeToSearchChanges(): void {
     this.search.valueChanges.pipe(
       debounceTime(500),
@@ -132,13 +138,8 @@ export class LibraryExplorerComponent implements OnInit {
 
   private _loadBookDocuments(): void {
     this.loading.set(true);
-    this._bookService.getPage(this.pageNumber(), this._pageSize)
+    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE)
       .pipe(
-        catchError(err => {
-          console.log(err);
-          this._snackBar.open(`Error: ${err}`, 'OK');
-          return throwError(() => err);
-        }),
         finalize(() => this.loading.set(false)),
       )
       .subscribe((books) => {
@@ -146,4 +147,5 @@ export class LibraryExplorerComponent implements OnInit {
         this.pageCount.set(books.pageCount);
       });
   }
+
 }

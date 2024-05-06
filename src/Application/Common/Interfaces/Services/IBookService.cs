@@ -5,7 +5,12 @@ namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface IBookService
 {
-    public Task<PageDto<BookDto>> GetPageAsync(int pageNumber, int pageSize, Expression<Func<Book, bool>>? predicate = null);
+    public Task<PageDto<BookDto>> GetPageAsync(
+        int pageNumber,
+        int pageSize,
+        Expression<Func<Book, bool>>? predicate = null,
+        User? user = null
+        );
 
     public Task<BookDto?> GetByIdAsync(Guid bookId);
 
@@ -16,6 +21,6 @@ public interface IBookService
     public Task<FileStream> GetBookFileStreamAsync(Guid id, User user);
 
     public Task<FileStream?> GetBookCoverImageFileStream(Guid bookId);
-    
+
     public Task DeleteBookAsync(Guid id);
 }

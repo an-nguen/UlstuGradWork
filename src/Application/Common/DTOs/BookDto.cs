@@ -10,6 +10,8 @@ public sealed record BookDto
     public required Details DocumentDetails { get; init; }
 
     public required BookFileMetadata FileMetadata { get; init; }
+    
+    public UserStats? Stats { get; init; }
 
     public Book ToEntity()
     {
@@ -47,6 +49,13 @@ public sealed record BookDto
         public string? PublisherName { get; set; }
         public string? ThumbnailUrl { get; set; }
     }
+    
+    [TranspilationSource]
+    public class UserStats
+    {
+        public long TotalReadingTime { get; set; }
+        public DateTimeOffset? RecentAccessTime { get; set; }
+    }
 
     [TranspilationSource]
     public record BookFileMetadata
@@ -61,6 +70,7 @@ public static class BookDocumentEntityExtensions
 {
     public static BookDto ToDto(this Book entity)
     {
+        var stats = entity.Stats.Any() ? entity.Stats.FirstOrDefault() : null;
         return new BookDto
         {
             DocumentDetails = new BookDto.Details
@@ -76,7 +86,12 @@ public static class BookDocumentEntityExtensions
             {
                 Size = entity.FileSize,
                 Type = entity.FileType
-            }
+            },
+            Stats = stats != null ? new BookDto.UserStats
+            {
+                TotalReadingTime = stats.TotalReadingTime,
+                RecentAccessTime = stats.RecentAccess.ToDateTimeOffset()
+            } : null
         };
     }
 }

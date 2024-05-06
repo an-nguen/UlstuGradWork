@@ -8,7 +8,6 @@
   width: 100%;
   overflow: hidden;
   position: relative;
-  padding: 1em;
   box-sizing: border-box;
 }
 
@@ -21,12 +20,25 @@
   gap: 1em;
   align-items: center;
   flex-direction: row;
+  div {
+    padding: 0.5em 1em;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5em;
+  }
+
+  .right-section {
+    justify-content: end;
+  }
 }
 
 .main {
   display: flex;
   flex: 1;
   flex-direction: row;
+  width: 100%;
 }
 
 .book-list-viewer {
@@ -55,5 +67,12 @@
     flex-direction: row;
     gap: 1em;
     align-items: center;
+    padding: 1em;
   }
+}
+
+.mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }

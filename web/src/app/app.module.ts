@@ -1,3 +1,4 @@
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import {
   CdkMenu,
   CdkMenuBar,
@@ -16,7 +17,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -86,6 +89,9 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     MatCheckboxModule,
     MatDialogModule,
     MatTooltipModule,
+    MatSidenavModule,
+    MatMenuModule,
+    ClipboardModule,
     CdkMenu,
     CdkMenuBar,
     CdkMenuItem,

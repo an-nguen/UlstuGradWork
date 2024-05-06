@@ -1,20 +1,39 @@
-<div class="toolbar">
-  <button mat-icon-button matTooltip="Add books" (click)="openBookAddDialog()">
-    <mat-icon>add</mat-icon>
-  </button>
+<div class="toolbar mat-primary">
+  <div class="left-section">
+    <button mat-icon-button (click)="toggleSidenav()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <button mat-flat-button (click)="openBookAddDialog()">
+      <mat-icon>add</mat-icon>
+      Добавить
+    </button>
+  </div>
 
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Поиск</mat-label>
-    <input matInput type="text" [formControl]="search" />
-  </mat-form-field>
+  <div class="right-section">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Поиск</mat-label>
+      <input matInput type="text" [formControl]="search" />
+    </mat-form-field>
+    <button mat-icon-button [matMenuTriggerFor]="additionalActionsMenu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #additionalActionsMenu>
+      <button mat-menu-item (click)="signOut()">
+        <mat-icon>logout</mat-icon>
+        Выйти
+      </button>
+    </mat-menu>
+  </div>
 </div>
-<div class="main">
-  <div class="nav-panel">
+<mat-drawer-container class="main">
+  <mat-drawer [(opened)]="isSidenavOpened">
     <mat-nav-list>
       <mat-list-item>Все книги</mat-list-item>
+      <mat-list-item>Недавние</mat-list-item>
+      <mat-list-item>По жанру</mat-list-item>
     </mat-nav-list>
-  </div>
-  <div class="book-list-viewer">
+  </mat-drawer>
+  <mat-drawer-content>
     <app-book-list-view
       [books]="books()"
       (openItemEvent)="openBook($event)"
@@ -27,14 +46,6 @@
     </app-book-list-view>
 
     <div class="page-control-panel">
-      <div>
-        <span>Кол-во строк</span>
-        <mat-select [(value)]="pageSize">
-          @for (option of pageSizeOptions; track $index) {
-          <mat-option [value]="option">{{ option }}</mat-option>
-          }
-        </mat-select>
-      </div>
       <div class="page-navigation">
         <button
           mat-mini-fab
@@ -53,5 +64,5 @@
         </button>
       </div>
     </div>
-  </div>
-</div>
+  </mat-drawer-content>
+</mat-drawer-container>

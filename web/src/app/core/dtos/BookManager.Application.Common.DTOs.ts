@@ -35,6 +35,8 @@ export type BookDto = {
     documentDetails: Details;
     /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */
     fileMetadata: BookFileMetadata;
+    /** Transpiled from BookManager.Application.Common.DTOs.BookDto.UserStats? */
+    stats?: UserStats;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.Details */
@@ -51,6 +53,14 @@ export type Details = {
     publisherName?: string;
     /** Transpiled from string? */
     thumbnailUrl?: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.BookDto.UserStats */
+export type UserStats = {
+    /** Transpiled from long */
+    totalReadingTime: number;
+    /** Transpiled from System.DateTimeOffset */
+    recentAccessTime?: (Date | string);
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */

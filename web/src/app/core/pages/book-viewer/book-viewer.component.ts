@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -47,6 +48,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     private readonly _authState: AuthState,
     private readonly _window: Window,
     private readonly _title: Title,
+    private readonly _clipboard: Clipboard,
     private destroyRef: DestroyRef
   ) { }
 
@@ -135,7 +137,8 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public copyText(): void {
     const selection = this._window.getSelection();
     if (!selection || !selection.toString()) return;
-    this._snackBar.open('Text copied!', undefined, { duration: 2000 });
+    this._clipboard.copy(selection.toString());
+    this._snackBar.open('Текст скопирован!', undefined, { duration: 2000 });
   }
 
   private _dispatchEventBus(eventName: string, options: unknown | undefined = undefined): void {

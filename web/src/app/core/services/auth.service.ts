@@ -4,7 +4,7 @@ import { CONSTANTS } from '@core/constants';
 import { AuthenticationResponseDto, AuthenticationStatus } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AUTH_HTTP_CLIENT } from '@core/providers/auth-http-client';
 import { AuthState } from '@core/stores/auth.state';
-import { BehaviorSubject, Observable, catchError, map, of } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -75,7 +75,9 @@ export class AuthService {
       {
         withCredentials: true,
       }
-    );
+    ).pipe(tap(() => {
+      this.clearAccessToken();
+    }));
   }
 
   public clearAccessToken(): void {

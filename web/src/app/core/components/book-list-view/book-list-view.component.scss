@@ -10,7 +10,14 @@
   position: relative;
 }
 
+#book-list {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+
 .mdc-list-item {
-  padding: 0.5em;
+  border-radius: 2em;
+  padding: 1em;
   height: auto !important;
 }
