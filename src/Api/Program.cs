@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
     );
 });
 builder.AddTokenBasedSecurity();
+builder.AddYandexCloudSdk();
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = Constants.Default.MaxFileSize;

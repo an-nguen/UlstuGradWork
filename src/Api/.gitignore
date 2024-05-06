@@ -488,3 +488,6 @@ $RECYCLE.BIN/
 
 # JWK
 jwk.json
+
+# Keys
+*.pem
