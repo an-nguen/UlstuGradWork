@@ -1,5 +1,8 @@
-﻿namespace BookManager.Application.Common.DTOs;
+﻿using Tapper;
 
+namespace BookManager.Application.Common.DTOs;
+
+[TranspilationSource]
 public sealed record TranslationRequestDto
 {
     public string? SourceLanguage { get; init; }
@@ -7,6 +10,7 @@ public sealed record TranslationRequestDto
     public string SourceText { get; init; } = string.Empty;
 }
 
+[TranspilationSource]
 public sealed record TranslationResponseDto
 {
     public string TargetLanguage { get; init; } = string.Empty;

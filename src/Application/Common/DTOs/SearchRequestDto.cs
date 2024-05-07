@@ -1,5 +1,8 @@
-﻿namespace BookManager.Application.Common.DTOs;
+﻿using Tapper;
 
+namespace BookManager.Application.Common.DTOs;
+
+[TranspilationSource]
 public sealed class SearchRequestDto
 {
     public int PageSize { get; set; }
