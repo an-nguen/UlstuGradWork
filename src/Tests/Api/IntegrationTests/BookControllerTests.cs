@@ -9,9 +9,9 @@ using File = System.IO.File;
 namespace BookManager.Tests.Api.IntegrationTests;
 
 [Collection("Api collection")]
-public class BookManagerTests(ApiFixture apiFixture)
+public class BookControllerTests(ApiFixture apiFixture)
 {
-    private readonly HttpClient _client = apiFixture.CreateClient();
+    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient();
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -21,11 +21,11 @@ public class BookManagerTests(ApiFixture apiFixture)
     public async Task GetBooks_ReturnsBookList()
     {
         await AddBookDocumentAsync(Constants.TestFilepath);
-        var response = await _client.GetAsync("/books?pageNumber=0&pageSize=10");
+        var response = await _client.GetAsync("/books?pageNumber=1&pageSize=10");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var books = await JsonSerializer.DeserializeAsync<IEnumerable<BookDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var books = await JsonSerializer.DeserializeAsync<PageDto<BookDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
         Assert.NotNull(books);
-        Assert.NotEmpty(books);
+        Assert.NotEmpty(books.Items);
         apiFixture.Cleanup();
     }
 

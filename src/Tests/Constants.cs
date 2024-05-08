@@ -6,5 +6,7 @@ public static class Constants
     public const string TestFilepath = "../../../Assets/PDF32000_2008.pdf";
     public const string TestFileTitle = "PDF Specification";
     public const string AnotherTestFilepath = "../../../Assets/Free_Test_Data_10M.pdf";
+    public const string UserName = "SomeUser";
+    public const string UserPinCode = "1234";
     public const long BufferSize = 1048576; // 1 MiB
 }
