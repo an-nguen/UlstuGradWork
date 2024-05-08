@@ -2,18 +2,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { getBookFileType } from '@core/book-file-type';
 import { BookAddDialogComponent, BookAddDialogFormData } from '@core/components/book-add-dialog/book-add-dialog.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CONSTANTS } from '@core/constants';
-import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDto, BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
 import { NEVER, debounceTime, finalize, mergeMap, of } from 'rxjs';
@@ -27,6 +30,8 @@ import { NEVER, debounceTime, finalize, mergeMap, of } from 'rxjs';
 export class LibraryExplorerComponent implements OnInit {
 
   protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
+
+  public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
   public loading = signal<boolean>(false);
 
@@ -53,15 +58,33 @@ export class LibraryExplorerComponent implements OnInit {
     this._loadBookDocuments();
   }
 
-  public openBookAddDialog(): void {
+  public onFileInputChange(e: Event) {
+    if (!this.fileInputElement()?.nativeElement.files || !this.fileInputElement()?.nativeElement.files?.length) {
+      return;
+    }
+    const files = this.fileInputElement()!.nativeElement.files!;
+    const file = files[0];
+    if (!file || !(file instanceof File)) {
+      return;
+    }
+
+    this.openBookAddDialog(file);
+  }
+
+  public openBookAddDialog(file: File): void {
     this._dialog.open(BookAddDialogComponent, { minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH_PX })
       .afterClosed()
       .pipe(
         mergeMap(
           (data: BookAddDialogFormData | undefined) => {
             if (!data) return NEVER;
-
-            return this._bookService.addBook(data.bookMetadata, data.file);
+            const bookMetadata: BookMetadataDto = {
+              ...data.bookMetadata,
+              filename: file.name,
+              fileSizeInBytes: file.size,
+              fileType: getBookFileType(file.type),
+            };
+            return this._bookService.addBook(bookMetadata, file);
           }
         ),
         takeUntilDestroyed(this._destroyRef))

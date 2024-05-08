@@ -28,21 +28,6 @@
       formControlName="publisherName"
     />
   </mat-form-field>
-  <div>
-    <button mat-flat-button color="accent" (click)="bookFileInput.click()">
-      Выбрать файл книги
-    </button>
-    <span class="file-name">
-      {{ bookFileName | async }}
-    </span>
-    <input
-      #bookFileInput
-      class="file-input"
-      type="file"
-      accept="application/pdf"
-      (change)="setFileInForm($event)"
-    />
-  </div>
 </div>
 <mat-dialog-actions>
   <button

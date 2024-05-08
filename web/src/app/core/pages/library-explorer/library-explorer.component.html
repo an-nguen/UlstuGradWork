@@ -3,10 +3,17 @@
     <button mat-icon-button (click)="toggleSidenav()">
       <mat-icon>menu</mat-icon>
     </button>
-    <button mat-flat-button (click)="openBookAddDialog()">
+    <button mat-flat-button (click)="bookFileInput.click()">
       <mat-icon>add</mat-icon>
       Добавить
     </button>
+    <input
+      #bookFileInput
+      class="book-file-input"
+      type="file"
+      accept="application/pdf"
+      (change)="onFileInputChange($event)"
+    />
   </div>
 
   <div class="right-section">
