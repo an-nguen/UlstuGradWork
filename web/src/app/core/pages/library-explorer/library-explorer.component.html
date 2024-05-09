@@ -44,7 +44,7 @@
     <app-book-list-view
       [books]="books()"
       (openItemEvent)="openBook($event)"
-      (editItemEvent)="editBookDetails($event)"
+      (editItemEvent)="editBook($event)"
       (deleteItemEvent)="deleteBook($event)"
     >
       <app-loading-spinner-overlay

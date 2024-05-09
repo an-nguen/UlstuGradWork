@@ -27,6 +27,14 @@ export enum AuthenticationStatus {
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDetailsUpdateDto */
 export type BookDetailsUpdateDto = {
+    /** Transpiled from string? */
+    title?: string;
+    /** Transpiled from string? */
+    description?: string;
+    /** Transpiled from string? */
+    isbn?: string;
+    /** Transpiled from string? */
+    publisherName?: string;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto */
@@ -89,6 +97,18 @@ export type BookMetadataDto = {
     publisherName?: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.DetectLanguageRequestDto */
+export type DetectLanguageRequestDto = {
+    /** Transpiled from string */
+    text: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.DetectLanguageResponseDto */
+export type DetectLanguageResponseDto = {
+    /** Transpiled from string */
+    detectedLanguageCode: string;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.PageDto<T> */
 export type PageDto<T> = {
     /** Transpiled from System.Collections.Generic.IEnumerable<T> */
@@ -101,6 +121,38 @@ export type PageDto<T> = {
     pageCount: number;
     /** Transpiled from int */
     totalItemCount: number;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.SearchRequestDto */
+export type SearchRequestDto = {
+    /** Transpiled from int */
+    pageSize: number;
+    /** Transpiled from int */
+    pageNumber: number;
+    /** Transpiled from string? */
+    title?: string;
+    /** Transpiled from string? */
+    isbn?: string;
+    /** Transpiled from string? */
+    publisherName?: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TranslationRequestDto */
+export type TranslationRequestDto = {
+    /** Transpiled from string? */
+    sourceLanguage?: string;
+    /** Transpiled from string */
+    targetLanguage: string;
+    /** Transpiled from string */
+    sourceText: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TranslationResponseDto */
+export type TranslationResponseDto = {
+    /** Transpiled from string */
+    targetLanguage: string;
+    /** Transpiled from string */
+    translatedText: string;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.UserAddRequest */

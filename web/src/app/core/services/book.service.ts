@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookDto, BookMetadataDto, Details, PageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDetailsUpdateDto, BookDto, BookMetadataDto, PageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
@@ -35,7 +35,7 @@ export class BookService {
 
   public updateBookDetails(
     id: string,
-    details: Details
+    details: BookDetailsUpdateDto
   ): Observable<BookDto> {
     return this._httpClient.put<BookDto>(`${this._url}/${id}`, details);
   }

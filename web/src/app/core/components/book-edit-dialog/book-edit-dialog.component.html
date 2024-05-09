@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Добавление книги</h2>
+<h2 mat-dialog-title>{{ dialogTitle() }}</h2>
 <div mat-dialog-content class="book-add-form" [formGroup]="bookForm">
   <mat-form-field>
     <mat-label>Название книги</mat-label>
@@ -34,9 +34,9 @@
     mat-flat-button
     color="primary"
     [disabled]="bookForm.invalid"
-    (click)="addBook()"
+    (click)="saveBook()"
   >
-    Добавить
+    Сохранить
   </button>
   <button mat-flat-button color="warn" (click)="close()">Закрыть</button>
 </mat-dialog-actions>

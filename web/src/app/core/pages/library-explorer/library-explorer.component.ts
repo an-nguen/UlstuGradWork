@@ -13,13 +13,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getBookFileType } from '@core/book-file-type';
-import { BookAddDialogComponent, BookAddDialogFormData } from '@core/components/book-add-dialog/book-add-dialog.component';
+import { BookEditDialogComponent, BookEditDialogData } from '@core/components/book-edit-dialog/book-edit-dialog.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CONSTANTS } from '@core/constants';
-import { BookDto, BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDetailsUpdateDto, BookDto, BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
-import { NEVER, debounceTime, finalize, mergeMap, of } from 'rxjs';
+import { debounceTime, finalize, mergeMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-library-explorer',
@@ -62,6 +62,7 @@ export class LibraryExplorerComponent implements OnInit {
     if (!this.fileInputElement()?.nativeElement.files || !this.fileInputElement()?.nativeElement.files?.length) {
       return;
     }
+
     const files = this.fileInputElement()!.nativeElement.files!;
     const file = files[0];
     if (!file || !(file instanceof File)) {
@@ -72,14 +73,15 @@ export class LibraryExplorerComponent implements OnInit {
   }
 
   public openBookAddDialog(file: File): void {
-    this._dialog.open(BookAddDialogComponent, { minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH_PX })
+    this._dialog.open(BookEditDialogComponent, { minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH_PX })
       .afterClosed()
       .pipe(
         mergeMap(
-          (data: BookAddDialogFormData | undefined) => {
-            if (!data) return NEVER;
+          (data: BookEditDialogData | undefined) => {
+            this.loading.set(true);
+            if (!data) return of(null);
             const bookMetadata: BookMetadataDto = {
-              ...data.bookMetadata,
+              ...data.bookDetails,
               filename: file.name,
               fileSizeInBytes: file.size,
               fileType: getBookFileType(file.type),
@@ -87,15 +89,55 @@ export class LibraryExplorerComponent implements OnInit {
             return this._bookService.addBook(bookMetadata, file);
           }
         ),
+        finalize(() => {
+          this.fileInputElement()!.nativeElement.value = '';
+          this.loading.set(false);
+        }),
         takeUntilDestroyed(this._destroyRef))
       .subscribe((book) => {
+        if (!book) return;
         this._loadBookDocuments();
-        this._snackBar.open(`Добавлена новая книга ${book.documentDetails.title}`, 'OK', { duration: 3000 });
+        this._snackBar.open(`Добавлена новая книга "${book.documentDetails.title}"`, 'OK', { duration: 3000 });
       });
   }
 
-  public editBookDetails(book: BookDto): void {
-    this._router.navigate(['edit', book.documentDetails.id], { relativeTo: this._route });
+  public editBook(book: BookDto): void {
+    const details = book.documentDetails;
+    const data: BookEditDialogData = {
+      mode: 'update',
+      bookDetails: {
+        title: details.title,
+        description: details.description,
+        isbn: details.isbn,
+        publisherName: details.publisherName
+      }
+    };
+    this._dialog.open(BookEditDialogComponent, { data })
+      .afterClosed()
+      .pipe(
+        mergeMap((dialogReturnData: BookEditDialogData) => {
+          this.loading.set(true);
+          if (!dialogReturnData) return of(null);
+          const modifiedDetails = dialogReturnData.bookDetails;
+          const request: BookDetailsUpdateDto = {
+            title: modifiedDetails.title,
+            isbn: modifiedDetails.isbn,
+            description: modifiedDetails.description,
+            publisherName: modifiedDetails.publisherName
+          };
+          return this._bookService.updateBookDetails(book.documentDetails.id, request);
+        }),
+        finalize(() => {
+          this.fileInputElement()!.nativeElement.value = '';
+          this.loading.set(false);
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe((book) => {
+        if (!book) return;
+        this._loadBookDocuments();
+        this._snackBar.open(`Обновлены данные о книге "${book.documentDetails.title}"`, 'OK', { duration: 3000 });
+      });
   }
 
   public deleteBook(book: BookDto): void {

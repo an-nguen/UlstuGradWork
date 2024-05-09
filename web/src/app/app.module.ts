@@ -24,7 +24,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { RouterLink, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
-import { BookAddDialogComponent } from '@core/components/book-add-dialog/book-add-dialog.component';
+import { BookEditDialogComponent } from '@core/components/book-edit-dialog/book-edit-dialog.component';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
@@ -37,7 +37,6 @@ import { ToolbarComponent } from '@core/components/toolbar/toolbar.component';
 import { UserRegistrationDialogComponent } from '@core/components/user-registration-dialog/user-registration-dialog.component';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
-import { BookEditDetailsComponent } from '@core/pages/book-edit-details/book-edit-details.component';
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
 import { LoginComponent } from '@core/pages/login/login.component';
@@ -59,10 +58,9 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
 @NgModule({
   declarations: [
     AppComponent,
-    BookAddDialogComponent,
+    BookEditDialogComponent,
     BookListItemComponent,
     BookListViewComponent,
-    BookEditDetailsComponent,
     DeleteConfirmationDialogComponent,
     ToolbarComponent,
     TitlebarComponent,
