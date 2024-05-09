@@ -31,6 +31,12 @@ export class LibraryExplorerComponent implements OnInit {
 
   protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
 
+  public readonly SORT_OPTIONS = [
+    { value: 'title', name: 'По названию' },
+    { value: 'isbn', name: 'По ISBN' },
+    { value: 'recentAccess', name: 'По посл. открытию' }
+  ];
+
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
   public loading = signal<boolean>(false);
@@ -58,11 +64,7 @@ export class LibraryExplorerComponent implements OnInit {
     this._loadBookDocuments();
   }
 
-  public onFileInputChange(e: Event) {
-    if (!this.fileInputElement()?.nativeElement.files || !this.fileInputElement()?.nativeElement.files?.length) {
-      return;
-    }
-
+  public onFileInputChange() {
     const files = this.fileInputElement()!.nativeElement.files!;
     const file = files[0];
     if (!file || !(file instanceof File)) {
@@ -90,7 +92,7 @@ export class LibraryExplorerComponent implements OnInit {
           }
         ),
         finalize(() => {
-          this.fileInputElement()!.nativeElement.value = '';
+          this._resetFileInput();
           this.loading.set(false);
         }),
         takeUntilDestroyed(this._destroyRef))
@@ -128,7 +130,7 @@ export class LibraryExplorerComponent implements OnInit {
           return this._bookService.updateBookDetails(book.documentDetails.id, request);
         }),
         finalize(() => {
-          this.fileInputElement()!.nativeElement.value = '';
+          this._resetFileInput();
           this.loading.set(false);
         }),
         takeUntilDestroyed(this._destroyRef)
@@ -211,6 +213,10 @@ export class LibraryExplorerComponent implements OnInit {
         this.books.set(books.items);
         this.pageCount.set(books.pageCount);
       });
+  }
+
+  private _resetFileInput(): void {
+    this.fileInputElement()!.nativeElement.value = '';
   }
 
 }

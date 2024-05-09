@@ -7,13 +7,25 @@
       <mat-icon>add</mat-icon>
       Добавить
     </button>
+    <button mat-icon-button [matMenuTriggerFor]="sortMenu">
+      <mat-icon>sort</mat-icon>
+    </button>
     <input
       #bookFileInput
       class="book-file-input"
       type="file"
       accept="application/pdf"
-      (change)="onFileInputChange($event)"
+      (change)="onFileInputChange()"
     />
+    <mat-menu #sortMenu>
+      <mat-selection-list [multiple]="false">
+        @for (option of SORT_OPTIONS; track $index) {
+        <mat-list-option [value]="option.value">
+          {{ option.name }}
+        </mat-list-option>
+        }
+      </mat-selection-list>
+    </mat-menu>
   </div>
 
   <div class="right-section">

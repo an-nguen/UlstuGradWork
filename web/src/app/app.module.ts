@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -87,6 +88,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     MatCheckboxModule,
     MatDialogModule,
     MatTooltipModule,
+    MatRadioModule,
     MatSidenavModule,
     MatMenuModule,
     ClipboardModule,
