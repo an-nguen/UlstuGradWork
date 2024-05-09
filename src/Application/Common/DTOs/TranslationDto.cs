@@ -13,6 +13,7 @@ public sealed record TranslationRequestDto
 [TranspilationSource]
 public sealed record TranslationResponseDto
 {
+    public string? DetectedSourceLanguage { get; init; }
     public string TargetLanguage { get; init; } = string.Empty;
     public string TranslatedText { get; init; } = string.Empty;
 }

@@ -1,5 +1,6 @@
 ﻿using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using Yandex.Cloud;
 using Yandex.Cloud.Ai.Translate.V2;
 
@@ -20,14 +21,21 @@ public class YTranslationService(Sdk sdk) : ITranslationService
     
     public async Task<TranslationResponseDto> TranslateAsync(TranslationRequestDto request)
     {
-        var response = await _client.TranslateAsync(new TranslateRequest
+        var translationRequest = new TranslateRequest
         {
-            FolderId = "b1gufe1qhoee0datf38t",
             TargetLanguageCode = request.TargetLanguage,
             Texts = { request.SourceText }
-        });
+        };
+        if (request.SourceLanguage != null) translationRequest.SourceLanguageCode = request.SourceLanguage;
+        var response = await _client.TranslateAsync(translationRequest);
+        if (response.Translations.IsNullOrEmpty())
+        {
+            throw new Exception("Failed to translate text");
+        }
         var dto = new TranslationResponseDto
         {
+            DetectedSourceLanguage = response.Translations[0].DetectedLanguageCode,
+            TargetLanguage = request.TargetLanguage,
             TranslatedText = string.Join('\n', response.Translations.Select(t => t.Text))
         };
         return dto;
