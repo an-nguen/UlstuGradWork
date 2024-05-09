@@ -17,10 +17,15 @@ public class BookController(
 {
     [HttpGet]
     [Authorize]
-    public async Task<PageDto<BookDto>> GetBooks([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<PageDto<BookDto>> GetBooks(
+        [FromQuery] int pageNumber, 
+        [FromQuery] int pageSize,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] SortOrder sortOrder = SortOrder.Asc
+        )
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
-        var page = await service.GetPageAsync(pageNumber, pageSize, null, user);
+        var page = await service.GetPageAsync(new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder, User: user));
         foreach (var item in page.Items)
         {
             item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);

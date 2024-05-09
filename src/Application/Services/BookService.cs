@@ -17,28 +17,31 @@ public sealed class BookService(
 {
     private IIndexingTaskQueue IndexingTaskQueue { get; } = indexingTaskQueue;
 
-    public async Task<PageDto<BookDto>> GetPageAsync(
-        int pageNumber,
-        int pageSize,
-        Expression<Func<Book, bool>>? predicate = null,
-        User? user = null)
+    private static readonly Dictionary<string, Expression<Func<Book, object>>> BookAvailableSortOptions = new()
     {
-        var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(pageNumber);
-        var query = dbContext.Books.AsQueryable();
-        if (predicate != null)
-        {
-            query = query.Where(predicate);
-        }
+        ["title"] = b => b.Title!,
+        ["isbn"] = b => b.Isbn!,
+        ["recent_access"] = b => b.Stats.SingleOrDefault()!.RecentAccess
+    };
 
-        if (user != null)
-        {
-            query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id));
-        }
+    public async Task<PageDto<BookDto>> GetPageAsync(PageRequestDto request)
+    {
+        var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(request.PageNumber);
+        var query = dbContext.Books.AsQueryable();
+        
+        if (request.Predicate != null)
+            query = query.Where(request.Predicate);
+        if (request.User != null)
+            query = query.Include(b => b.Stats.Where(u => u.UserId == request.User.Id));
+        
         var totalItemCount = await query.CountAsync();
-        query = query.OrderBy(b => b.Title)
-            .Skip((normalizedPageNumber - 1) * pageSize)
-            .Take(pageSize);
-        var pageCount = PageDto<BookDto>.CountPage(totalItemCount, pageSize);
+        var orderExpr = request.SortBy != null && BookAvailableSortOptions.TryGetValue(request.SortBy, out var expr)
+            ? expr
+            : BookAvailableSortOptions["recent_access"];
+        query = request.SortOrder == SortOrder.Desc ? query.OrderByDescending(orderExpr) : query.OrderBy(orderExpr);
+        query = query.Skip((normalizedPageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+        var pageCount = PageDto<BookDto>.CountPage(totalItemCount, request.PageSize);
         var items = await query.Select(b => b.ToDto()).ToListAsync();
         return PageDto<BookDto>.Builder.Create()
             .SetPageNumber(normalizedPageNumber)
