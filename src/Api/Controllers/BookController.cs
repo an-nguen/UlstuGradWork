@@ -86,7 +86,7 @@ public class BookController(
     [HttpPut]
     [Authorize]
     [Route("{id:guid}")]
-    public async Task<BookDto> UpdateBookDetails(Guid id, [FromBody] BookDto.Details details)
+    public async Task<BookDto> UpdateBookDetails(Guid id, [FromBody] BookDetailsUpdateDto details)
     {
         return await service.UpdateBookDetailsAsync(id, details);
     }

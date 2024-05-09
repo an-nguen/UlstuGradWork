@@ -16,7 +16,7 @@ public interface IBookService
 
     public Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata);
 
-    public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDto.Details details);
+    public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details);
 
     public Task<FileStream> GetBookFileStreamAsync(Guid id, User user);
 

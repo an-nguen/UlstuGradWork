@@ -84,7 +84,7 @@ public sealed class BookService(
         return document.ToDto();
     }
 
-    public async Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDto.Details details)
+    public async Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details)
     {
         var found = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
         found.Description = details.Description;
