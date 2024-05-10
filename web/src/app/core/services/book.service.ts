@@ -21,9 +21,9 @@ export class BookService {
     sortBy?: string,
     sortOrder?: SortOrder)
     : Observable<PageDto<BookDto>> {
-    const queryParams = new HttpParams({ fromObject: { pageNumber, pageSize } });
-    if (sortBy) queryParams.append('sortBy', sortBy);
-    if (sortOrder) queryParams.append('sortOrder', sortOrder);
+    let queryParams = new HttpParams({ fromObject: { pageNumber, pageSize } });
+    if (sortBy) queryParams = queryParams.append('sortBy', sortBy);
+    if (sortOrder) queryParams = queryParams.append('sortOrder', sortOrder);
     return this._httpClient.get<PageDto<BookDto>>(this._url, { params: queryParams });
   }
 

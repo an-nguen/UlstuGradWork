@@ -7,9 +7,6 @@
       <mat-icon>add</mat-icon>
       Добавить
     </button>
-    <button mat-icon-button [matMenuTriggerFor]="sortMenu">
-      <mat-icon>sort</mat-icon>
-    </button>
     <input
       #bookFileInput
       class="book-file-input"
@@ -17,15 +14,11 @@
       accept="application/pdf"
       (change)="onFileInputChange()"
     />
-    <mat-menu #sortMenu>
-      <mat-radio-group [(ngModel)]="selectedSortOption">
-        @for (option of SORT_OPTIONS; track $index) {
-        <mat-radio-button [value]="option">
-          {{ option.name }}
-        </mat-radio-button>
-        }
-      </mat-radio-group>
-    </mat-menu>
+    <app-sort-menu
+      [(sortOption)]="selectedSortOption"
+      [sortOptions]="SORT_OPTIONS"
+    >
+    </app-sort-menu>
   </div>
 
   <div class="right-section">

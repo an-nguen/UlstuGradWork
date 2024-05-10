@@ -10,22 +10,18 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSelectionListChange } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getBookFileType } from '@core/book-file-type';
 import { BookEditDialogComponent, BookEditDialogData } from '@core/components/book-edit-dialog/book-edit-dialog.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { SortOption } from '@core/components/sort-menu/sort-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { BookDetailsUpdateDto, BookDto, BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
 import { debounceTime, finalize, mergeMap, of } from 'rxjs';
 
-interface SortOption {
-  value: string,
-  name: string;
-}
 
 @Component({
   selector: 'app-library-explorer',
@@ -47,7 +43,7 @@ export class LibraryExplorerComponent implements OnInit {
 
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
-  public selectedSortOption = this.DEFAULT_SORT_OPTION;
+  private _selectedSortOption = this.DEFAULT_SORT_OPTION;
 
   public loading = signal<boolean>(false);
 
@@ -74,6 +70,15 @@ export class LibraryExplorerComponent implements OnInit {
     this._loadBookDocuments();
   }
 
+  public get selectedSortOption(): SortOption {
+    return this._selectedSortOption;
+  }
+
+  public set selectedSortOption(value: SortOption) {
+    this._selectedSortOption = value;
+    this._loadBookDocuments();
+  }
+
   public onFileInputChange() {
     const files = this.fileInputElement()!.nativeElement.files!;
     const file = files[0];
@@ -82,10 +87,6 @@ export class LibraryExplorerComponent implements OnInit {
     }
 
     this.openBookAddDialog(file);
-  }
-
-  public setSortOption(e: MatSelectionListChange) {
-    this.selectedSortOption = e.options[0].value ?? this.DEFAULT_SORT_OPTION;
   }
 
   public openBookAddDialog(file: File): void {
@@ -219,7 +220,7 @@ export class LibraryExplorerComponent implements OnInit {
 
   private _loadBookDocuments(): void {
     this.loading.set(true);
-    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE)
+    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE, this.selectedSortOption.value)
       .pipe(
         finalize(() => this.loading.set(false)),
       )

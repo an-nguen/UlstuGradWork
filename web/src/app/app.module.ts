@@ -9,7 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -31,6 +31,7 @@ import { BookListViewComponent } from '@core/components/book-list-view/book-list
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { IconButtonComponent } from '@core/components/icon-button/icon-button.component';
 import { MainLayoutComponent } from '@core/components/main-layout/main-layout.component';
+import { SortMenuComponent } from '@core/components/sort-menu/sort-menu.component';
 import { TitlebarMenuComponent } from '@core/components/titlebar-menu-button/titlebar-menu.component';
 import { TitlebarWindowButtonComponent } from '@core/components/titlebar-window-button/titlebar-window-button.component';
 import { TitlebarComponent } from '@core/components/titlebar/titlebar.component';
@@ -72,9 +73,11 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     BookViewerComponent,
     LoginComponent,
     UserRegistrationDialogComponent,
+    SortMenuComponent,
   ],
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     BrowserModule,
     RouterOutlet,

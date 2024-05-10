@@ -15,6 +15,12 @@
   display: none;
 }
 
+.sort-menu-radio-group {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
 .toolbar {
   display: flex;
   gap: 1em;
