@@ -25,7 +25,7 @@ public class BookController(
         )
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
-        var page = await service.GetPageAsync(new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder, User: user));
+        var page = await service.GetPageAsync(new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder), null, user);
         foreach (var item in page.Items)
         {
             item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);

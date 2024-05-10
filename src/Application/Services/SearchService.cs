@@ -19,10 +19,9 @@ public sealed class SearchService(IAppDbContext dbContext, IBookService bookServ
 
         var request = new PageRequestDto(
             searchRequest.PageNumber,
-            searchRequest.PageSize,
-            Predicate: predicate
+            searchRequest.PageSize
             );
-        return await bookService.GetPageAsync(request);
+        return await bookService.GetPageAsync(request, predicate);
     }
 
     public async Task<PageDto<BookTextDto>> SearchByBookTexts(TextSearchRequestDto request)

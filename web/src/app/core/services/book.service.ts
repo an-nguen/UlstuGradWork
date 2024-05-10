@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookDetailsUpdateDto, BookDto, BookMetadataDto, PageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDetailsUpdateDto, BookDto, BookMetadataDto, PageDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
@@ -15,8 +15,16 @@ export class BookService {
     private readonly _httpClient: HttpClient
   ) { }
 
-  public getPage(pageNumber: number, pageSize: number): Observable<PageDto<BookDto>> {
-    return this._httpClient.get<PageDto<BookDto>>(this._url, { params: { pageNumber, pageSize } });
+  public getPage(
+    pageNumber: number,
+    pageSize: number,
+    sortBy?: string,
+    sortOrder?: SortOrder)
+    : Observable<PageDto<BookDto>> {
+    const queryParams = new HttpParams({ fromObject: { pageNumber, pageSize } });
+    if (sortBy) queryParams.append('sortBy', sortBy);
+    if (sortOrder) queryParams.append('sortOrder', sortOrder);
+    return this._httpClient.get<PageDto<BookDto>>(this._url, { params: queryParams });
   }
 
   public getBookById(id: string): Observable<BookDto> {

@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSelectionListChange } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getBookFileType } from '@core/book-file-type';
@@ -21,6 +22,11 @@ import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
 import { debounceTime, finalize, mergeMap, of } from 'rxjs';
 
+interface SortOption {
+  value: string,
+  name: string;
+}
+
 @Component({
   selector: 'app-library-explorer',
   templateUrl: './library-explorer.component.html',
@@ -31,13 +37,17 @@ export class LibraryExplorerComponent implements OnInit {
 
   protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
 
-  public readonly SORT_OPTIONS = [
+  protected readonly DEFAULT_SORT_OPTION = { value: 'recent_access', name: 'По посл. открытию' };
+
+  public readonly SORT_OPTIONS: SortOption[] = [
     { value: 'title', name: 'По названию' },
     { value: 'isbn', name: 'По ISBN' },
-    { value: 'recentAccess', name: 'По посл. открытию' }
+    this.DEFAULT_SORT_OPTION
   ];
 
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
+
+  public selectedSortOption = this.DEFAULT_SORT_OPTION;
 
   public loading = signal<boolean>(false);
 
@@ -72,6 +82,10 @@ export class LibraryExplorerComponent implements OnInit {
     }
 
     this.openBookAddDialog(file);
+  }
+
+  public setSortOption(e: MatSelectionListChange) {
+    this.selectedSortOption = e.options[0].value ?? this.DEFAULT_SORT_OPTION;
   }
 
   public openBookAddDialog(file: File): void {

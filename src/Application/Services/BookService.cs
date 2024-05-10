@@ -24,15 +24,18 @@ public sealed class BookService(
         ["recent_access"] = b => b.Stats.SingleOrDefault()!.RecentAccess
     };
 
-    public async Task<PageDto<BookDto>> GetPageAsync(PageRequestDto request)
+    public async Task<PageDto<BookDto>> GetPageAsync(
+        PageRequestDto request,
+        Expression<Func<Book, bool>>? predicate = null,
+        User? user = null)
     {
         var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(request.PageNumber);
         var query = dbContext.Books.AsQueryable();
         
-        if (request.Predicate != null)
-            query = query.Where(request.Predicate);
-        if (request.User != null)
-            query = query.Include(b => b.Stats.Where(u => u.UserId == request.User.Id));
+        if (predicate != null)
+            query = query.Where(predicate);
+        if (user != null)
+            query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id));
         
         var totalItemCount = await query.CountAsync();
         var orderExpr = request.SortBy != null && BookAvailableSortOptions.TryGetValue(request.SortBy, out var expr)

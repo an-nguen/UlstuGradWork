@@ -5,7 +5,11 @@ namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface IBookService
 {
-    public Task<PageDto<BookDto>> GetPageAsync(PageRequestDto request);
+    public Task<PageDto<BookDto>> GetPageAsync(
+        PageRequestDto request,
+        Expression<Func<Book, bool>>? predicate = null,
+        User? user = null
+        );
 
     public Task<BookDto?> GetByIdAsync(Guid bookId);
 

@@ -123,6 +123,24 @@ export type PageDto<T> = {
     totalItemCount: number;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.PageRequestDto */
+export type PageRequestDto = {
+    /** Transpiled from int */
+    pageNumber: number;
+    /** Transpiled from int */
+    pageSize: number;
+    /** Transpiled from string? */
+    sortBy?: string;
+    /** Transpiled from BookManager.Application.Common.DTOs.SortOrder */
+    sortOrder: SortOrder;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.SortOrder */
+export enum SortOrder {
+    Asc = 0,
+    Desc = 1,
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.SearchRequestDto */
 export type SearchRequestDto = {
     /** Transpiled from int */
@@ -149,6 +167,8 @@ export type TranslationRequestDto = {
 
 /** Transpiled from BookManager.Application.Common.DTOs.TranslationResponseDto */
 export type TranslationResponseDto = {
+    /** Transpiled from string? */
+    detectedSourceLanguage?: string;
     /** Transpiled from string */
     targetLanguage: string;
     /** Transpiled from string */

@@ -18,13 +18,13 @@
       (change)="onFileInputChange()"
     />
     <mat-menu #sortMenu>
-      <mat-selection-list [multiple]="false">
+      <mat-radio-group [(ngModel)]="selectedSortOption">
         @for (option of SORT_OPTIONS; track $index) {
-        <mat-list-option [value]="option.value">
+        <mat-radio-button [value]="option">
           {{ option.name }}
-        </mat-list-option>
+        </mat-radio-button>
         }
-      </mat-selection-list>
+      </mat-radio-group>
     </mat-menu>
   </div>
 

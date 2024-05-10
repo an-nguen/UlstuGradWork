@@ -8,9 +8,7 @@ public sealed record PageRequestDto(
     int PageNumber, 
     int PageSize, 
     string? SortBy = null, 
-    SortOrder SortOrder = SortOrder.Asc,
-    Expression<Func<Book, bool>>? Predicate = null,
-    User? User = null);
+    SortOrder SortOrder = SortOrder.Asc);
 
 [TranspilationSource]
 public enum SortOrder
