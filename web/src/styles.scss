@@ -36,3 +36,11 @@ ngx-extended-pdf-viewer #toolbarViewerMiddle {
   left: 0 !important;
   transform: none !important;
 }
+
+.custom-page-number {
+  display: flex;
+  flex-direction: row;
+  span {
+    text-wrap: nowrap !important;
+  }
+}

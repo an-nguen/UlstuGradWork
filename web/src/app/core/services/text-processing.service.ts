@@ -11,7 +11,7 @@ export class TextProcessingService {
 
   private readonly _url: string = `${environment.BASE_URL}/text-processing`;
 
-  constructor(private readonly _client: HttpClient) { }
+  constructor(private _client: HttpClient) { }
 
   public translate(request: TranslationRequestDto): Observable<TranslationResponseDto> {
     return this._client.post<TranslationResponseDto>(`${this._url}/translate`, request);

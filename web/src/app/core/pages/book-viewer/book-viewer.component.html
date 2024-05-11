@@ -1,4 +1,9 @@
-<div #viewerContainer id="viewer-container">
+<div
+  id="pdf-viewer-container"
+  (mousedown)="clearSelection()"
+  (mouseup)="showTooltipMenu($event)"
+>
+  <div [cdkMenuTriggerFor]="contextMenu"></div>
   <ngx-extended-pdf-viewer
     #pdfViewer
     [(page)]="page"
@@ -11,16 +16,20 @@
     [authorization]="bearerToken"
     [showHandToolButton]="true"
     [handTool]="false"
-    [cdkContextMenuTriggerFor]="context_menu"
   ></ngx-extended-pdf-viewer>
 </div>
 
-<ng-template #context_menu>
-  <div class="context-menu" cdkMenu>
+<ng-template #contextMenu>
+  <div class="context-menu">
     <button cdkMenuItem (click)="copyText()">Скопировать текст</button>
-    <button cdkMenuItem>Перевести</button>
+    <button cdkMenuItem (click)="translateText()">Перевести</button>
     <button cdkMenuItem>Значение</button>
   </div>
+  @if (translationText) {
+  <div class="translation-tooltip">
+    {{ translationText }}
+  </div>
+  }
 </ng-template>
 <ng-template #customToolbar>
   <div id="custom-toolbar">
@@ -28,7 +37,7 @@
       <button app-icon-button (click)="toggleSidebar()">menu</button>
       <button app-icon-button (click)="goToFirstPage()">skip_previous</button>
       <button app-icon-button (click)="goToPrevPage()">navigate_before</button>
-      <pdf-page-number></pdf-page-number>
+      <pdf-page-number class="custom-page-number"></pdf-page-number>
       <button app-icon-button (click)="goToNextPage()">navigate_next</button>
       <button app-icon-button (click)="goToLastPage()">skip_next</button>
       <pdf-find-button

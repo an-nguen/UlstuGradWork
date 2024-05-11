@@ -33,7 +33,7 @@ ngx-extended-pdf-viewer {
   gap: 0.5em;
 }
 
-#viewer-container {
+#pdf-viewer-container {
   display: flex;
   flex-direction: row;
   flex: 1 1 auto;
@@ -105,6 +105,14 @@ ngx-extended-pdf-viewer {
   &:hover {
     opacity: variables.$app-button-opacity-hover;
   }
+}
+
+.translation-tooltip {
+  display: block;
+  min-width: 100px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  background: #fff;
 }
 
 .btn {

@@ -6,6 +6,7 @@ import {
   CdkMenuModule,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
@@ -99,6 +100,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     CdkMenuBar,
     CdkMenuItem,
     CdkMenuTrigger,
+    OverlayModule,
     DigitOnlyModule,
     IconButtonComponent,
     CdkMenuModule,
