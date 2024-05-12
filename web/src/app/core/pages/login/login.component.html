@@ -26,9 +26,11 @@
     [disabled]="loginForm.invalid || loginForm.pristine"
     (click)="login()"
   >
+    <mat-icon>login</mat-icon>
     Войти
   </button>
   <button mat-flat-button color="accent" (click)="createUser()">
+    <mat-icon>add</mat-icon>
     Создать нового пользователя
   </button>
 </div>
