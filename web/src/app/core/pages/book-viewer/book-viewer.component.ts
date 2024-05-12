@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  HostListener,
   OnDestroy,
   OnInit,
   signal,
@@ -74,6 +75,12 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
+    this._updateLastViewedPage();
+  }
+
+  @HostListener("window:beforeunload", ["$event"])
+  public onBeforeUnload(): void {
+    this._updateLastViewedPage();
   }
 
   public set page(value: number | undefined) {
@@ -165,6 +172,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         tap((book) => {
           this._currentBook = book;
           if (book.documentDetails.title) this._title.setTitle(book.documentDetails.title);
+          if (book.stats?.lastViewedPage) this.page = book.stats.lastViewedPage;
         }),
         catchError((error: Error) => {
           console.error(error);
@@ -192,6 +200,12 @@ export class BookViewerComponent implements OnInit, OnDestroy {
       .subscribe((translationResponse) => {
         this._translationDialogService.targetText$.next(translationResponse.translatedText);
       });
+  }
+
+  private _updateLastViewedPage(): void {
+    if (this._currentBook && this._page) {
+      this._service.updateLastViewedPage(this._currentBook.documentDetails.id, this._page).subscribe();
+    }
   }
 
 }

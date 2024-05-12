@@ -55,6 +55,7 @@ public sealed record BookDto
     {
         public long TotalReadingTime { get; set; }
         public DateTimeOffset? RecentAccessTime { get; set; }
+        public int? LastViewedPage { get; set; }
     }
 
     [TranspilationSource]
@@ -90,7 +91,8 @@ public static class BookDocumentEntityExtensions
             Stats = stats != null ? new BookDto.UserStats
             {
                 TotalReadingTime = stats.TotalReadingTime,
-                RecentAccessTime = stats.RecentAccess.ToDateTimeOffset()
+                RecentAccessTime = stats.RecentAccess.ToDateTimeOffset(),
+                LastViewedPage = stats.LastViewedPage
             } : null
         };
     }

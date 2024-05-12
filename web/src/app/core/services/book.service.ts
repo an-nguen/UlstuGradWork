@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BookDetailsUpdateDto, BookDto, BookMetadataDto, PageDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDetailsUpdateDto, BookDto, BookMetadataDto, LastViewedPageUpdateRequest, PageDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 
@@ -52,7 +52,12 @@ export class BookService {
     return this._httpClient.delete<void>(`${this._url}/${id}`);
   }
 
+  public updateLastViewedPage(id: string, pageNumber: number): Observable<void> {
+    return this._httpClient.post<void>(`${this._url}/${id}/last-viewed-page`, { pageNumber } as LastViewedPageUpdateRequest);
+  }
+
   public getBookDownloadUrl(id: string): URL {
     return new URL(`${this._url}/download/${id}`);
   }
+
 }

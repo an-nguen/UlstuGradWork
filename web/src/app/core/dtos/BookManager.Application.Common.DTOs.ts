@@ -69,6 +69,8 @@ export type UserStats = {
     totalReadingTime: number;
     /** Transpiled from System.DateTimeOffset */
     recentAccessTime?: (Date | string);
+    /** Transpiled from int */
+    lastViewedPage?: number;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */
@@ -115,6 +117,12 @@ export type LanguageDto = {
     code: string;
     /** Transpiled from string */
     name: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.LastViewedPageUpdateRequest */
+export type LastViewedPageUpdateRequest = {
+    /** Transpiled from int */
+    pageNumber: number;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.PageDto<T> */

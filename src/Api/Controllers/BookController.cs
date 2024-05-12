@@ -61,7 +61,8 @@ public class BookController(
     [Route("{id:guid}")]
     public async Task<IActionResult> GetBookById(Guid id)
     {
-        var bookDto = await service.GetByIdAsync(id);
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        var bookDto = await service.GetByIdAsync(id, user?.Id);
         if (bookDto == null)
             return NotFound();
         return Ok(bookDto);
@@ -86,6 +87,17 @@ public class BookController(
     public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
     {
         return await service.AddBookAsync(file.OpenReadStream(), bookMetadata);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [Route("{id:guid}/last-viewed-page")]
+    public async Task<IActionResult> UpdateLastViewedPage(Guid id, [FromBody] LastViewedPageUpdateRequest request)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return BadRequest();
+        await service.UpdateLastViewedPageAsync(request.PageNumber, user.Id, id);
+        return Ok();
     }
 
     [HttpPut]

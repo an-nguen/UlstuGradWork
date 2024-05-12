@@ -12,5 +12,5 @@ public sealed class BookUserStats
     
     public long TotalReadingTime { get; set; }
     
-    public int? LastPage { get; set; }
+    public int? LastViewedPage { get; set; }
 }

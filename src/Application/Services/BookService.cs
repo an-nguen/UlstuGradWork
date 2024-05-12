@@ -55,9 +55,15 @@ public sealed class BookService(
             .Build();
     }
 
-    public async Task<BookDto?> GetByIdAsync(Guid bookId)
+    public async Task<BookDto?> GetByIdAsync(Guid bookId, Guid? userId = null)
     {
-        var book = await dbContext.Books.FindAsync([bookId]);
+        var query = dbContext.Books.AsQueryable();
+        if (userId != null)
+        {
+            query = query.Include(b => b.Stats.Where(s => s.UserId == userId));
+        }
+
+        var book = await query.FirstOrDefaultAsync(b => b.Id == bookId);
         return book?.ToDto();
     }
 
@@ -122,6 +128,26 @@ public sealed class BookService(
         dbContext.Books.Remove(document);
         await dbContext.SaveChangesAsync();
         await IndexingTaskQueue.QueueAsync(new IndexingWorkItem(IndexingWorkItemOperationType.Deleted, id));
+    }
+
+    public async Task UpdateLastViewedPageAsync(int page, Guid userId, Guid bookId)
+    {
+        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
+        if (found != null)
+        {
+            found.LastViewedPage = page;
+        }
+        else
+        {
+            dbContext.BookUserStatsSet.Add(new BookUserStats
+            {
+                BookId = bookId,
+                UserId = userId,
+                RecentAccess = SystemClock.Instance.GetCurrentInstant()
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     private async Task UpdateBookAccessTime(Guid bookId, Guid userId)

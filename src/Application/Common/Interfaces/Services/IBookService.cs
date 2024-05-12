@@ -11,7 +11,7 @@ public interface IBookService
         User? user = null
         );
 
-    public Task<BookDto?> GetByIdAsync(Guid bookId);
+    public Task<BookDto?> GetByIdAsync(Guid bookId, Guid? userId = null);
 
     public Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata);
 
@@ -22,4 +22,6 @@ public interface IBookService
     public Task<FileStream?> GetBookCoverImageFileStream(Guid bookId);
 
     public Task DeleteBookAsync(Guid id);
+
+    public Task UpdateLastViewedPageAsync(int page, Guid userId, Guid bookId);
 }
