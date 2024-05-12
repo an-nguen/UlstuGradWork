@@ -1,5 +1,5 @@
 ﻿using BookManager.Application.Common.DTOs;
-using BookManager.Application.Common.Interfaces;
+using BookManager.Application.Common.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
 using Yandex.Cloud;
 using Yandex.Cloud.Ai.Translate.V2;
@@ -9,6 +9,12 @@ namespace BookManager.Application.Services;
 public class YTranslationService(Sdk sdk) : ITranslationService
 {
     private readonly TranslationService.TranslationServiceClient _client = sdk.Services.Ai.Translate.TranslationService;
+
+    public async Task<IEnumerable<LanguageDto>> ListLanguagesAsync()
+    {
+        var list = await _client.ListLanguagesAsync(new ListLanguagesRequest());
+        return list.Languages.Select(l => new LanguageDto(l.Code, l.Name));
+    }
     
     public async Task<DetectLanguageResponseDto> DetectLanguageAsync(DetectLanguageRequestDto request)
     {

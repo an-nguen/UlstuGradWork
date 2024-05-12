@@ -1,0 +1,15 @@
+<div [cdkMenuTriggerFor]="contextMenu"></div>
+<ng-content></ng-content>
+<ng-template #contextMenu>
+  <div class="tooltip-menu">
+    <button (click)="emitTextCopyEvent()">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+    <button (click)="emitTranslationBtnClickEvent()">
+      <mat-icon>translate</mat-icon>
+    </button>
+    <button>
+      <mat-icon>abc</mat-icon>
+    </button>
+  </div>
+</ng-template>

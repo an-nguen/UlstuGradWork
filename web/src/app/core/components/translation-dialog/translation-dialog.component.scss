@@ -1,0 +1,40 @@
+:host {
+  min-width: 50vw;
+  min-height: 40vh;
+  overflow: hidden;
+  .dialog-content {
+    display: inline-flex;
+    flex-direction: column;
+
+    .section {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      color: #000;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+
+      .translated-text {
+        position: relative;
+        display: flex;
+        flex: 1;
+      }
+
+      .text-container {
+        padding: 16px 8px;
+        font: inherit;
+        line-height: inherit;
+      }
+
+      textarea {
+        flex: 1;
+
+        background-color: transparent;
+        border: none;
+        outline: none;
+        font: inherit;
+      }
+    }
+  }
+}

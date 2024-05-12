@@ -1,5 +1,4 @@
 ﻿using BookManager.Application.Common.DTOs;
-using BookManager.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +9,13 @@ namespace BookManager.Api.Controllers;
 [Route("text-processing")]
 public class TextProcessingController(ITranslationService translationService): ControllerBase
 {
+    [HttpGet]
+    [Route("list-languages")]
+    public async Task<IActionResult> ListLanguages()
+    {
+        return Ok(await translationService.ListLanguagesAsync());
+    }
+    
     [HttpPost]
     [Authorize]
     [Route("detect-language")]

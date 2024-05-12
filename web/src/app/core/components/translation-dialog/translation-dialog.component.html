@@ -1,0 +1,32 @@
+<div class="dialog-content" mat-dialog-content [formGroup]="languageFormGroup">
+  <div class="section">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Язык исходного текста</mat-label>
+      <mat-select formControlName="sourceLanguage">
+        @for (language of languages(); track $index) {
+        <mat-option [value]="language.code">{{ language.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <textarea
+      class="text-container"
+      cdkTextareaAutosize
+      formControlName="sourceText"
+    ></textarea>
+  </div>
+  <div class="section">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Язык перевода</mat-label>
+      <mat-select formControlName="targetLanguage">
+        @for (language of languages(); track $index) {
+        <mat-option [value]="language.code">{{ language.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <div class="translated-text text-container">
+      {{ targetText | async }}
+      <app-loading-spinner-overlay [loading]="!!(loading | async)">
+      </app-loading-spinner-overlay>
+    </div>
+  </div>
+</div>

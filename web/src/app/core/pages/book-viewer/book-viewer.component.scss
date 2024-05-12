@@ -66,34 +66,6 @@ ngx-extended-pdf-viewer {
   }
 }
 
-.context-menu {
-  display: inline-flex;
-  flex-direction: column;
-  min-width: 100px;
-  background-color: #ffffff;
-  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
-  box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
-
-  button {
-    background-color: transparent;
-    cursor: pointer;
-    border: none;
-    user-select: none;
-    min-width: 64px;
-    line-height: 36px;
-    padding: 0 16px;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    flex-grow: 1;
-
-    &:hover {
-      background-color: rgb(208, 208, 208);
-    }
-  }
-}
-
 .hover-overlay {
   position: absolute;
   top: 0;
@@ -105,14 +77,6 @@ ngx-extended-pdf-viewer {
   &:hover {
     opacity: variables.$app-button-opacity-hover;
   }
-}
-
-.translation-tooltip {
-  display: block;
-  min-width: 100px;
-  border: solid 1px #ccc;
-  border-radius: 5px;
-  background: #fff;
 }
 
 .btn {

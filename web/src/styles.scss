@@ -44,3 +44,7 @@ ngx-extended-pdf-viewer #toolbarViewerMiddle {
     text-wrap: nowrap !important;
   }
 }
+
+.cdk-overlay-container {
+  overflow: hidden !important;
+}

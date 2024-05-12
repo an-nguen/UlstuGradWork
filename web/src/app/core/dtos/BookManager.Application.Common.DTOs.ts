@@ -109,6 +109,14 @@ export type DetectLanguageResponseDto = {
     detectedLanguageCode: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.LanguageDto */
+export type LanguageDto = {
+    /** Transpiled from string */
+    code: string;
+    /** Transpiled from string */
+    name: string;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.PageDto<T> */
 export type PageDto<T> = {
     /** Transpiled from System.Collections.Generic.IEnumerable<T> */

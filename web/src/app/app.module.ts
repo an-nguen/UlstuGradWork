@@ -37,6 +37,8 @@ import { TitlebarMenuComponent } from '@core/components/titlebar-menu-button/tit
 import { TitlebarWindowButtonComponent } from '@core/components/titlebar-window-button/titlebar-window-button.component';
 import { TitlebarComponent } from '@core/components/titlebar/titlebar.component';
 import { ToolbarComponent } from '@core/components/toolbar/toolbar.component';
+import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
+import { TranslationDialogComponent } from '@core/components/translation-dialog/translation-dialog.component';
 import { UserRegistrationDialogComponent } from '@core/components/user-registration-dialog/user-registration-dialog.component';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
@@ -75,6 +77,8 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     LoginComponent,
     UserRegistrationDialogComponent,
     SortMenuComponent,
+    TooltipMenuComponent,
+    TranslationDialogComponent,
   ],
   imports: [
     CommonModule,

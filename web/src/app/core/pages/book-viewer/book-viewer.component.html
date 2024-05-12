@@ -1,9 +1,9 @@
 <div
   id="pdf-viewer-container"
-  (mousedown)="clearSelection()"
-  (mouseup)="showTooltipMenu($event)"
+  app-tooltip-menu
+  (textCopyEvent)="copyText($event)"
+  (translationBtnClickEvent)="openTranslationDialog($event)"
 >
-  <div [cdkMenuTriggerFor]="contextMenu"></div>
   <ngx-extended-pdf-viewer
     #pdfViewer
     [(page)]="page"
@@ -19,18 +19,6 @@
   ></ngx-extended-pdf-viewer>
 </div>
 
-<ng-template #contextMenu>
-  <div class="context-menu">
-    <button cdkMenuItem (click)="copyText()">Скопировать текст</button>
-    <button cdkMenuItem (click)="translateText()">Перевести</button>
-    <button cdkMenuItem>Значение</button>
-  </div>
-  @if (translationText) {
-  <div class="translation-tooltip">
-    {{ translationText }}
-  </div>
-  }
-</ng-template>
 <ng-template #customToolbar>
   <div id="custom-toolbar">
     <div class="left">

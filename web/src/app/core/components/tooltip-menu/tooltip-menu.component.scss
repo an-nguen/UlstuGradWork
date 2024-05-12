@@ -1,0 +1,45 @@
+$menu-button-size: 36px;
+$menu-button-font-size: 22px;
+
+.tooltip-menu {
+  display: inline-flex;
+  border-radius: 4px;
+  flex-direction: row;
+  min-width: 100px;
+  background-color: #ffffff;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+
+  button {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-grow: 1;
+    width: $menu-button-size;
+    height: $menu-button-size;
+
+    mat-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: $menu-button-font-size;
+    }
+
+    &:hover {
+      background-color: rgb(208, 208, 208);
+    }
+  }
+}
+
+.translation-tooltip {
+  display: block;
+  min-width: 100px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  background: #fff;
+}
