@@ -1,0 +1,13 @@
+@use '@angular/material' as mat;
+@use '@angular/material-experimental' as matx;
+
+@mixin theme($theme) {
+  .internal-sidenav {
+    a[mat-list-item] {
+      &.active {
+        background-color: mat.get-theme-color($theme, primary);
+        color: mat.get-theme-color($theme, on-primary);
+      }
+    }
+  }
+}

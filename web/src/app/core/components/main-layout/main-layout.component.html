@@ -1,3 +1,31 @@
-<div id="main-container">
-  <ng-content></ng-content>
-</div>
+<mat-sidenav-container>
+  <mat-sidenav
+    mode="side"
+    [class.expanded]="isExpanded"
+    [fixedInViewport]="true"
+    [(opened)]="isExpanded"
+  >
+    <div class="internal-sidenav">
+      <mat-nav-list>
+        <a mat-list-item (click)="toggleSidenav()">
+          <mat-icon matListItemIcon>menu</mat-icon>
+          <div matListItemTitle *ngIf="isExpanded">Закрыть панель</div>
+        </a>
+
+        @for (route of routeLinks; track $index) {
+        <a mat-list-item routerLinkActive="active" [routerLink]="route.link">
+          <mat-icon matListItemIcon>{{ route.iconCode }}</mat-icon>
+          <div matListItemTitle *ngIf="isExpanded">{{ route.name }}</div>
+        </a>
+        }
+      </mat-nav-list>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content
+    [style.margin-left.px]="
+      !isExpanded ? SIDENAV_COLLAPSED_WIDTH : SIDENAV_EXPANDED_WIDTH
+    "
+  >
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -29,6 +29,7 @@ import { RouterLink, RouterOutlet, provideRouter, withEnabledBlockingInitialNavi
 import { BookEditDialogComponent } from '@core/components/book-edit-dialog/book-edit-dialog.component';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
+import { CustomPdfFindBtnComponent } from '@core/components/custom-pdf-find-btn/custom-pdf-find-btn.component';
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { IconButtonComponent } from '@core/components/icon-button/icon-button.component';
 import { MainLayoutComponent } from '@core/components/main-layout/main-layout.component';
@@ -66,6 +67,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     BookEditDialogComponent,
     BookListItemComponent,
     BookListViewComponent,
+    CustomPdfFindBtnComponent,
     DeleteConfirmationDialogComponent,
     ToolbarComponent,
     TitlebarComponent,

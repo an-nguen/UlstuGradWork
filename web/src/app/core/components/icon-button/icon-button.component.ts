@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatRipple } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
 
@@ -11,4 +11,6 @@ import { MatIcon } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [MatRipple]
 })
-export class IconButtonComponent { }
+export class IconButtonComponent {
+  public active = input<boolean>(false);
+}

@@ -1,8 +1,5 @@
 <div class="toolbar mat-primary">
   <div class="left-section">
-    <button mat-icon-button (click)="toggleSidenav()">
-      <mat-icon>menu</mat-icon>
-    </button>
     <button mat-flat-button (click)="bookFileInput.click()">
       <mat-icon>add</mat-icon>
       Добавить
@@ -38,44 +35,33 @@
     </mat-menu>
   </div>
 </div>
-<mat-drawer-container class="main">
-  <mat-drawer [(opened)]="isSidenavOpened">
-    <mat-nav-list>
-      <mat-list-item>Все книги</mat-list-item>
-      <mat-list-item>Недавние</mat-list-item>
-      <mat-list-item>По жанру</mat-list-item>
-    </mat-nav-list>
-  </mat-drawer>
-  <mat-drawer-content>
-    <app-book-list-view
-      [books]="books()"
-      (openItemEvent)="openBook($event)"
-      (editItemEvent)="editBook($event)"
-      (deleteItemEvent)="deleteBook($event)"
-    >
-      <app-loading-spinner-overlay
-        [loading]="loading()"
-      ></app-loading-spinner-overlay>
-    </app-book-list-view>
+<app-book-list-view
+  [books]="books()"
+  (openItemEvent)="openBook($event)"
+  (editItemEvent)="editBook($event)"
+  (deleteItemEvent)="deleteBook($event)"
+>
+  <app-loading-spinner-overlay
+    [loading]="loading()"
+  ></app-loading-spinner-overlay>
+</app-book-list-view>
 
-    <div class="page-control-panel">
-      <div class="page-navigation">
-        <button
-          mat-mini-fab
-          [disabled]="pageNumber() <= 1"
-          (click)="goToPrevPage()"
-        >
-          <mat-icon>navigate_before</mat-icon>
-        </button>
-        <span>Страница {{ pageNumber() }} / {{ pageCount() }}</span>
-        <button
-          mat-mini-fab
-          [disabled]="pageNumber() >= pageCount()"
-          (click)="goToNextPage()"
-        >
-          <mat-icon>navigate_next</mat-icon>
-        </button>
-      </div>
-    </div>
-  </mat-drawer-content>
-</mat-drawer-container>
+<div class="page-control-panel">
+  <div class="page-navigation">
+    <button
+      mat-mini-fab
+      [disabled]="pageNumber() <= 1"
+      (click)="goToPrevPage()"
+    >
+      <mat-icon>navigate_before</mat-icon>
+    </button>
+    <span>Страница {{ pageNumber() }} / {{ pageCount() }}</span>
+    <button
+      mat-mini-fab
+      [disabled]="pageNumber() >= pageCount()"
+      (click)="goToNextPage()"
+    >
+      <mat-icon>navigate_next</mat-icon>
+    </button>
+  </div>
+</div>
