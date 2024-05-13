@@ -1,5 +1,16 @@
-<button mat-icon-button [matMenuTriggerFor]="sortMenu">
+<button
+  mat-icon-button
+  [matMenuTriggerFor]="sortMenu"
+  matTooltip="Меню сортировки по критерию"
+>
   <mat-icon>sort</mat-icon>
+</button>
+<button
+  mat-icon-button
+  (click)="changeSortOrder()"
+  matTooltip="Порядок сортировки"
+>
+  <mat-icon> @if(sortOrder()) { north } @else { south } </mat-icon>
 </button>
 <mat-menu #sortMenu>
   @for (option of sortOptions(); track $index) {

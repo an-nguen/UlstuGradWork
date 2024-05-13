@@ -15,8 +15,9 @@
       (change)="onFileInputChange()"
     />
     <app-sort-menu
-      [(sortOption)]="selectedSortOption"
       [sortOptions]="SORT_OPTIONS"
+      [(sortOption)]="selectedSortOption"
+      [(sortOrder)]="selectedSortOrder"
     >
     </app-sort-menu>
   </div>

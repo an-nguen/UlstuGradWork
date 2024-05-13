@@ -17,7 +17,7 @@ import { BookEditDialogComponent, BookEditDialogData } from '@core/components/bo
 import { DeleteConfirmationDialogComponent } from '@core/components/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { SortOption } from '@core/components/sort-menu/sort-menu.component';
 import { CONSTANTS } from '@core/constants';
-import { BookDetailsUpdateDto, BookDto, BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDetailsUpdateDto, BookDto, BookMetadataDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
 import { debounceTime, finalize, mergeMap, of } from 'rxjs';
@@ -34,6 +34,7 @@ export class LibraryExplorerComponent implements OnInit {
   protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
 
   protected readonly DEFAULT_SORT_OPTION = { value: 'recent_access', name: 'По посл. открытию' };
+  protected readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
 
   public readonly SORT_OPTIONS: SortOption[] = [
     { value: 'title', name: 'По названию' },
@@ -44,6 +45,7 @@ export class LibraryExplorerComponent implements OnInit {
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
+  private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
 
   public loading = signal<boolean>(false);
 
@@ -74,8 +76,17 @@ export class LibraryExplorerComponent implements OnInit {
     return this._selectedSortOption;
   }
 
+  public get selectedSortOrder(): SortOrder {
+    return this._selectedSortOrder;
+  }
+
   public set selectedSortOption(value: SortOption) {
     this._selectedSortOption = value;
+    this._loadBookDocuments();
+  }
+
+  public set selectedSortOrder(value: SortOrder) {
+    this._selectedSortOrder = value;
     this._loadBookDocuments();
   }
 
@@ -220,7 +231,7 @@ export class LibraryExplorerComponent implements OnInit {
 
   private _loadBookDocuments(): void {
     this.loading.set(true);
-    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE, this.selectedSortOption.value)
+    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE, this.selectedSortOption.value, this.selectedSortOrder)
       .pipe(
         finalize(() => this.loading.set(false)),
       )

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
 
 export interface SortOption {
   value: string,
@@ -17,10 +18,18 @@ export class SortMenuComponent {
 
   public sortOption = input<SortOption>();
 
+  public sortOrder = input<SortOrder>(SortOrder.Asc);
+
   public sortOptionChange = output<SortOption>();
+
+  public sortOrderChange = output<SortOrder>();
 
   public onSortOptionSelected(option: SortOption): void {
     this.sortOptionChange.emit(option);
+  }
+
+  public changeSortOrder(): void {
+    this.sortOrderChange.emit(this.sortOrder() === SortOrder.Asc ? SortOrder.Desc : SortOrder.Asc);
   }
 
 }
