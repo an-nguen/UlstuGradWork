@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, Inject, OnInit, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { LanguageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { TranslationDialogService } from '@core/services/translation-dialog.service';
+import { LanguageDto, TranslationRequestDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { TextProcessingService } from '@core/services/text-processing.service';
+import { finalize } from 'rxjs';
 
 export interface TranslationDialogComponentData {
-  languages: LanguageDto[];
   sourceText: string;
   targetLanguageCode: string;
 }
@@ -19,10 +19,9 @@ export interface TranslationDialogComponentData {
 })
 export class TranslationDialogComponent implements OnInit {
 
-  public loading = this._translationDialogService.loading$.asObservable();
-  public targetText = this._translationDialogService.targetText$.asObservable();
+  public loading = signal<boolean>(false);
 
-  public languages = signal<LanguageDto[]>([]);
+  public translatedText = signal<string | null>(null);
 
   public languageFormGroup = this._fb.group({
     sourceLanguage: this._fb.control<string | null>(null, [Validators.required]),
@@ -30,35 +29,44 @@ export class TranslationDialogComponent implements OnInit {
     targetLanguage: this._fb.control<string | null>(null, [Validators.required]),
   });
 
-
   constructor(
     @Inject(MAT_DIALOG_DATA) private _data: TranslationDialogComponentData,
-    private readonly _translationDialogService: TranslationDialogService,
+    private readonly _textProcessingService: TextProcessingService,
     private readonly _fb: FormBuilder,
     private readonly _destroyRef: DestroyRef,
   ) { }
 
   public ngOnInit(): void {
+    this._determineSourceTextLanguage();
     this.languageFormGroup.valueChanges.pipe(
       takeUntilDestroyed(this._destroyRef)
     ).subscribe(() => {
-      this.emitValueChanges();
+      this.translateText();
     });
-    this._translationDialogService.sourceLanguageCode$.subscribe((languageCode) => {
-      this.languageFormGroup.patchValue({ sourceLanguage: languageCode });
-    });
-    this.languages.set(this._data.languages);
     this._initFormGroup();
   }
 
-  public emitValueChanges(): void {
+  public get languages(): LanguageDto[] {
+    return this._textProcessingService.availableLanguages();
+  }
+
+  public translateText(): void {
     const values = this.languageFormGroup.value;
     if (this.languageFormGroup.invalid) return;
-    this._translationDialogService.valueChanges$.next({
+    const request: TranslationRequestDto = {
       sourceLanguage: values.sourceLanguage!,
       sourceText: values.sourceText!,
       targetLanguage: values.targetLanguage!,
-    });
+    };
+    this.loading.set(true);
+    this._textProcessingService.translate(request)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe((response) => this.translatedText.set(response.translatedText));
+  }
+
+  private _determineSourceTextLanguage(): void {
+    this._textProcessingService.detectLanguage({ text: this._data.sourceText })
+      .subscribe((response) => this.languageFormGroup.patchValue({ sourceLanguage: response.detectedLanguageCode }));
   }
 
   private _initFormGroup(): void {

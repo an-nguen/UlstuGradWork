@@ -28,10 +28,7 @@
       <pdf-page-number class="custom-page-number"></pdf-page-number>
       <button app-icon-button (click)="goToNextPage()">navigate_next</button>
       <button app-icon-button (click)="goToLastPage()">skip_next</button>
-      <pdf-find-button
-        [showFindButton]="true"
-        [textLayer]="true"
-      ></pdf-find-button>
+      <app-custom-pdf-find-btn></app-custom-pdf-find-btn>
     </div>
     <div class="mid">
       <button app-icon-button (click)="zoomIn()">add</button>
@@ -41,12 +38,12 @@
       ></pdf-zoom-dropdown>
     </div>
     <div class="right">
-      <pdf-hand-tool class="btn"></pdf-hand-tool>
-      <pdf-select-tool class="btn"></pdf-select-tool>
-      <pdf-presentation-mode class="btn"> </pdf-presentation-mode>
-      <pdf-print class="btn"></pdf-print>
-      <pdf-download class="btn"></pdf-download>
-      <pdf-toggle-secondary-toolbar class="btn"></pdf-toggle-secondary-toolbar>
+      <pdf-hand-tool></pdf-hand-tool>
+      <pdf-select-tool></pdf-select-tool>
+      <pdf-presentation-mode> </pdf-presentation-mode>
+      <pdf-print></pdf-print>
+      <pdf-download></pdf-download>
+      <pdf-toggle-secondary-toolbar></pdf-toggle-secondary-toolbar>
     </div>
   </div>
 </ng-template>

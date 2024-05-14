@@ -43,7 +43,6 @@ ngx-extended-pdf-viewer {
 
 #custom-toolbar {
   display: inline-flex;
-  flex: 1;
   flex-direction: row;
   height: 36px;
   width: 100%;
@@ -76,14 +75,5 @@ ngx-extended-pdf-viewer {
   opacity: 0;
   &:hover {
     opacity: variables.$app-button-opacity-hover;
-  }
-}
-
-.btn {
-  &:hover {
-    background-color: rgba(
-      variables.$app-button-bg-color-hover,
-      variables.$app-button-opacity-hover
-    );
   }
 }

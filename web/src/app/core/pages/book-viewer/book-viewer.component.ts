@@ -12,16 +12,16 @@ import {
   ViewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BookDto, LanguageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/translation-dialog.component';
+import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { TextProcessingService } from '@core/services/text-processing.service';
-import { TranslationDialogService } from '@core/services/translation-dialog.service';
 import { AuthState } from '@core/stores/auth.state';
 import { IPDFViewerApplication, NgxExtendedPdfViewerComponent, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, finalize, mergeMap, of, tap, throwError } from 'rxjs';
+import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-book-viewer',
@@ -44,21 +44,18 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public translationText = '';
   public sidebarVisible = false;
 
-  private _availableLanguages = signal<LanguageDto[]>([]);
-
   private _currentBook?: BookDto;
   private _page?: number;
   private _zoom?: string | number = 100;
 
   constructor(
     private readonly _service: BookService,
-    private readonly _textProcessingService: TextProcessingService,
     private readonly _authState: AuthState,
     private readonly _route: ActivatedRoute,
     private readonly _snackBar: MatSnackBar,
+    private readonly _dialog: MatDialog,
     private readonly _title: Title,
     private readonly _clipboard: Clipboard,
-    private readonly _translationDialogService: TranslationDialogService,
     private readonly _destroyRef: DestroyRef
   ) { }
 
@@ -67,8 +64,6 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     pdfDefaultOptions.enableScripting = false;
 
     this._subscribeToParamMap();
-    this._loadLanguages();
-    this._subscribeToTranslationFormChanges();
     if (this._authState.accessToken) {
       this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
@@ -135,29 +130,17 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public openTranslationDialog(selectedText: string): void {
     if (!selectedText) return;
 
-    this._translationDialogService.open({
-      languages: this._availableLanguages(),
-      sourceText: selectedText,
-      targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
+    this._dialog.open(TranslationDialogComponent, {
+      data: {
+        sourceText: selectedText,
+        targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
+      }
     });
-
-    this._textProcessingService.detectLanguage({ text: selectedText })
-      .subscribe((resp) => {
-        this._translationDialogService.sourceLanguageCode$
-          .next(resp.detectedLanguageCode);
-      });
   }
 
   private _dispatchEventBus(eventName: string, options: unknown | undefined = undefined): void {
     const pdfViewerApplication: IPDFViewerApplication = (window as any).PDFViewerApplication;
     pdfViewerApplication.eventBus.dispatch(eventName, options);
-  }
-
-  private _loadLanguages(): void {
-    this._textProcessingService.listLanguages()
-      .subscribe((languages) => {
-        this._availableLanguages.set(languages);
-      });
   }
 
   private _subscribeToParamMap(): void {
@@ -185,21 +168,6 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
-  }
-
-  private _subscribeToTranslationFormChanges(): void {
-    this._translationDialogService.valueChanges$
-      .pipe(
-        tap(() => this._translationDialogService.loading$.next(true)),
-        mergeMap((request) =>
-          this._textProcessingService.translate(request)
-            .pipe(finalize(() => this._translationDialogService.loading$.next(false)))
-        ),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe((translationResponse) => {
-        this._translationDialogService.targetText$.next(translationResponse.translatedText);
-      });
   }
 
   private _updateLastViewedPage(): void {

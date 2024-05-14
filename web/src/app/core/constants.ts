@@ -1,8 +1,4 @@
 export const CONSTANTS = {
-  ERROR_MESSAGES: {
-    DESKTOP_FRAMEWORK_ERROR:
-      'This application is intended for work in desktop frameworks.',
-  },
   SIZE: {
     DIALOG_MIN_WIDTH_PX: '80vw',
   },
