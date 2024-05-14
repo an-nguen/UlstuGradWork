@@ -1,4 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { CONSTANTS } from '@core/constants';
+import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -26,8 +30,22 @@ export class MainLayoutComponent {
 
   public isExpanded = false;
 
+  constructor(
+    private readonly _authService: AuthService,
+    private readonly _snackBar: MatSnackBar,
+    private readonly _router: Router,
+  ) { }
+
   public toggleSidenav(): void {
     this.isExpanded = !this.isExpanded;
+  }
+
+  public signOut(): void {
+    this._authService.signOut()
+      .subscribe(() => {
+        this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
+        this._router.navigate([CONSTANTS.ENDPOINTS.AUTH.PATH, CONSTANTS.ENDPOINTS.AUTH.SIGN_IN]);
+      });
   }
 
 }

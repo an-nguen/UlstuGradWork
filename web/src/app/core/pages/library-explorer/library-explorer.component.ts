@@ -212,14 +212,6 @@ export class LibraryExplorerComponent implements OnInit {
     this.isSidenavOpened = !this.isSidenavOpened;
   }
 
-  public signOut(): void {
-    this._authService.signOut()
-      .subscribe(() => {
-        this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
-        this._router.navigate([CONSTANTS.ENDPOINTS.AUTH.PATH, CONSTANTS.ENDPOINTS.AUTH.SIGN_IN]);
-      });
-  }
-
   private _subscribeToSearchChanges(): void {
     this.search.valueChanges.pipe(
       debounceTime(500),

@@ -24,15 +24,6 @@
       <mat-label>Поиск</mat-label>
       <input matInput type="text" [formControl]="search" />
     </mat-form-field>
-    <button mat-icon-button [matMenuTriggerFor]="additionalActionsMenu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #additionalActionsMenu>
-      <button mat-menu-item (click)="signOut()">
-        <mat-icon>logout</mat-icon>
-        Выйти
-      </button>
-    </mat-menu>
   </div>
 </div>
 <app-book-list-view
