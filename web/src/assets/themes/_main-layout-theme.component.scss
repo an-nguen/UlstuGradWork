@@ -7,6 +7,12 @@
       &.active {
         background-color: mat.get-theme-color($theme, primary);
         color: mat.get-theme-color($theme, on-primary);
+        .mdc-list-item__primary-text {
+          color: inherit;
+        }
+        .mat-icon {
+          color: inherit;
+        }
       }
     }
   }

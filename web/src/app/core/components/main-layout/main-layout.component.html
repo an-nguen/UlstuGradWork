@@ -13,7 +13,12 @@
         </a>
 
         @for (route of routeLinks; track $index) {
-        <a mat-list-item routerLinkActive="active" [routerLink]="route.link">
+        <a
+          mat-list-item
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [routerLink]="route.link"
+        >
           <mat-icon matListItemIcon>{{ route.iconCode }}</mat-icon>
           <div matListItemTitle *ngIf="isExpanded">{{ route.name }}</div>
         </a>
@@ -21,11 +26,7 @@
       </mat-nav-list>
     </div>
   </mat-sidenav>
-  <mat-sidenav-content
-    [style.margin-left.px]="
-      !isExpanded ? SIDENAV_COLLAPSED_WIDTH : SIDENAV_EXPANDED_WIDTH
-    "
-  >
+  <mat-sidenav-content [class.expanded]="isExpanded">
     <ng-content></ng-content>
   </mat-sidenav-content>
 </mat-sidenav-container>

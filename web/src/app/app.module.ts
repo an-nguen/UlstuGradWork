@@ -25,7 +25,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { RouterLink, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { CustomPdfFindBtnComponent } from '@core/components/custom-pdf-find-btn/custom-pdf-find-btn.component';
@@ -89,6 +89,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     BrowserModule,
     RouterOutlet,
     RouterLink,
+    RouterLinkActive,
     MatButtonModule,
     MatIconModule,
     MatListModule,

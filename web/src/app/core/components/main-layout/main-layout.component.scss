@@ -23,8 +23,18 @@ mat-sidenav {
   }
 }
 
+.mat-sidenav-content {
+  margin-left: $sidenav-collapsed-width;
+  transition-duration: 400ms;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-property: margin, width;
+  &.expanded {
+    margin-left: $sidenav-expanded-width !important;
+  }
+}
+
 .internal-sidenav {
-  padding: 0.25em 0;
+  padding: 0.25em 0.1em;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -36,5 +46,6 @@ mat-sidenav {
     display: flex;
     flex-direction: row;
     width: auto;
+    margin-bottom: 0.25em;
   }
 }
