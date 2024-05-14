@@ -82,7 +82,8 @@ public sealed class BookService(
             FileType = BookFileType.Pdf,
             Title = !string.IsNullOrEmpty(bookMetadata.Title) ? bookMetadata.Title 
                 : string.IsNullOrEmpty(extractedTitle) ? bookMetadata.Filename : extractedTitle,
-            ThumbnailFilename = thumbnailImage
+            ThumbnailFilename = thumbnailImage,
+            PageCount = CountNumberOfPages(fileInfo.FullName)
         };
         var entry = dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
@@ -174,6 +175,20 @@ public sealed class BookService(
         {
             if (bookFileHandler.FileType != fileType) continue;
             return bookFileHandler.GetBookTitle(bookFileStream);
+        }
+
+        return null;
+    }
+
+    private int? CountNumberOfPages(string bookFilepath)
+    {
+        var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
+        foreach (var bookFileHandler in bookFileHandlers)
+        {
+            if (bookFileHandler.FileType != fileType) continue;
+            using var stream = fileStorage.GetFileStream(bookFilepath);
+            var numberOfPages = bookFileHandler.CountNumberOfPages(stream);
+            return numberOfPages;
         }
 
         return null;

@@ -10,7 +10,12 @@ namespace BookManager.Application.Services;
 public sealed class EpubBookFileHandler: IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Epub;
-    
+
+    public int? CountNumberOfPages(Stream bookFileStream)
+    {
+        return null;
+    }
+
     public RawImageDto? GetPreviewImage(Stream bookFileStream)
     {
         var book = EpubReader.ReadBook(bookFileStream);

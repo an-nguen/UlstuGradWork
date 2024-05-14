@@ -7,6 +7,8 @@ public interface IBookFileHandler
 {
     public BookFileType FileType { get; }
 
+    public int? CountNumberOfPages(Stream bookFileStream);
+    
     public RawImageDto? GetPreviewImage(Stream bookFileStream);
 
     public Task<Stream> GetJpegImageAsync(RawImageDto rawImage);

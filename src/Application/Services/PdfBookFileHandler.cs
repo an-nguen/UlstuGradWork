@@ -15,6 +15,12 @@ public sealed class PdfBookFileHandler : IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Pdf;
 
+    public int? CountNumberOfPages(Stream bookFileStream)
+    {
+        using var document = PdfDocument.Open(bookFileStream);
+        return document.NumberOfPages;
+    }
+    
     public RawImageDto? GetPreviewImage(Stream bookFileStream)
     {
         using var stream = new MemoryStream();

@@ -23,6 +23,8 @@ public sealed class Book
 
     public string[]? Tags { get; set; }
     
+    public int? PageCount { get; set; }
+    
     public string? ThumbnailFilename { get; init; }
     
     public IEnumerable<BookUserStats> Stats { get; } = new List<BookUserStats>();

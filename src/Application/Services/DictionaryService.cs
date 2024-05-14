@@ -1,6 +1,6 @@
 ﻿namespace BookManager.Application.Services;
 
-public class DictionaryService
+public sealed class DictionaryService
 {
     
 }
