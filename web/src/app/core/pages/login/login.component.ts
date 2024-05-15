@@ -101,7 +101,7 @@ export class LoginComponent implements OnInit {
   }
 
   private _routeToMainPage() {
-    this._router.navigate([CONSTANTS.ENDPOINTS.EXPLORER]);
+    this._router.navigate([CONSTANTS.ENDPOINTS.RECENT_BOOKS]);
   }
 
   private _handleSignInError(err: unknown): Observable<never> {

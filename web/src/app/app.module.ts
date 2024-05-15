@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -26,6 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { RouterLink, RouterLinkActive, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
+import { BookGridItemComponent } from '@core/components/book-grid-item/book-grid-item.component';
+import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid-view.component';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { CustomPdfFindBtnComponent } from '@core/components/custom-pdf-find-btn/custom-pdf-find-btn.component';
@@ -46,6 +49,7 @@ import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor'
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
 import { LoginComponent } from '@core/pages/login/login.component';
+import { RecentBooksComponent } from '@core/pages/recent-books/recent-books.component';
 import { provideAuthHttpClient } from '@core/providers/auth-http-client';
 import { AuthService } from '@core/services/auth.service';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
@@ -65,22 +69,25 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
   declarations: [
     AppComponent,
     BookEditDialogComponent,
+    BookGridItemComponent,
+    BookGridViewComponent,
     BookListItemComponent,
     BookListViewComponent,
+    BookViewerComponent,
     CustomPdfFindBtnComponent,
     DeleteConfirmationDialogComponent,
-    ToolbarComponent,
-    TitlebarComponent,
-    TitlebarWindowButtonComponent,
-    TitlebarMenuComponent,
-    MainLayoutComponent,
     LibraryExplorerComponent,
-    BookViewerComponent,
     LoginComponent,
-    UserRegistrationDialogComponent,
+    MainLayoutComponent,
     SortMenuComponent,
+    TitlebarComponent,
+    TitlebarMenuComponent,
+    TitlebarWindowButtonComponent,
+    ToolbarComponent,
     TooltipMenuComponent,
     TranslationDialogComponent,
+    RecentBooksComponent,
+    UserRegistrationDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -102,6 +109,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     MatRadioModule,
     MatSidenavModule,
     MatMenuModule,
+    MatProgressBarModule,
     ClipboardModule,
     CdkMenu,
     CdkMenuBar,

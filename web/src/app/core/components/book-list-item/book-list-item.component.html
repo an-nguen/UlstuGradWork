@@ -1,14 +1,16 @@
 <div class="thumbnail-container">
-  <img [src]="image()" alt="No image" />
+  <img [src]="image()" alt="No thumbnail" />
+  <mat-progress-bar
+    *ngIf="showProgression && progressionValue()"
+    [value]="progressionValue()"
+  ></mat-progress-bar>
 </div>
 <div>
   <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
   <div class="details-container">
     <div class="property-item">
-      <span class="name">Описание</span>
-      <span class="value">{{
-        bookItem().documentDetails.description || '-'
-      }}</span>
+      <span class="name">Автор(ы)</span>
+      <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
     </div>
     <div class="property-item">
       <span class="name">Издатель</span>
@@ -30,10 +32,18 @@
 
 <div class="spacer"></div>
 <div class="actions">
-  <button mat-icon-button (click)="handleEditEvent($event)">
+  <button
+    *ngIf="showEditButton"
+    mat-icon-button
+    (click)="handleEditEvent($event)"
+  >
     <mat-icon>edit</mat-icon>
   </button>
-  <button mat-icon-button (click)="handleDeleteEvent($event)">
+  <button
+    *ngIf="showDeleteButton"
+    mat-icon-button
+    (click)="handleDeleteEvent($event)"
+  >
     <mat-icon>delete</mat-icon>
   </button>
 </div>

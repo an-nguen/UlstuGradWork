@@ -4,6 +4,7 @@ import {
   computed,
   EventEmitter,
   HostListener,
+  Input,
   input,
   Output,
 } from '@angular/core';
@@ -21,12 +22,26 @@ export class BookListItemComponent {
 
   protected readonly EMPTY_PLACEHOLDER = '-';
 
+  @Input()
+  public showEditButton: boolean = true;
+  @Input()
+  public showDeleteButton: boolean = true;
+  @Input()
+  public showProgression: boolean = true;
+
   public bookItem = input.required<BookDto>();
 
   public image = computed(() => {
     return this._domSanitizer.bypassSecurityTrustResourceUrl(
       `${this.bookItem().documentDetails.thumbnailUrl}`
-    );
+    ) ?? '/assets/images/noimage.png';
+  });
+
+  public progressionValue = computed(() => {
+    const item = this.bookItem();
+    const lastViewedPage = item.stats?.lastViewedPage ?? 0;
+    const pageCount = item.documentDetails.pageCount ?? 0;
+    return Math.round(lastViewedPage / pageCount * 100);
   });
 
   public recentAccessTime = computed(() => {

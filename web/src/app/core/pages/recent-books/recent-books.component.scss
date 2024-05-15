@@ -1,0 +1,50 @@
+$most-recent-book-thumbnail-width: 120px;
+$most-recent-book-thumbnail-height: 160px;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10vw;
+  h1 {
+    font-style: italic;
+  }
+}
+
+.most-recent-book {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+
+  .item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4em;
+
+    .info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .thumbnail-container {
+      min-width: $most-recent-book-thumbnail-width;
+      min-height: $most-recent-book-thumbnail-height;
+      width: $most-recent-book-thumbnail-width;
+      height: $most-recent-book-thumbnail-height;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  .mat-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  margin-bottom: 1em;
+}

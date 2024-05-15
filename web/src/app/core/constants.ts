@@ -3,11 +3,12 @@ export const CONSTANTS = {
     DIALOG_MIN_WIDTH_PX: '80vw',
   },
   ENDPOINTS: {
-    EXPLORER: '',
+    EXPLORER: 'all-books',
     AUTH: {
       PATH: 'auth',
       SIGN_IN: 'sign-in'
     },
+    RECENT_BOOKS: '',
     NO_CONNECTION: 'no-connection',
     VIEWER: 'viewer/:id',
     EDIT_DETAILS: 'edit/:id'

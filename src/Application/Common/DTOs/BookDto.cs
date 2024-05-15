@@ -49,6 +49,8 @@ public sealed record BookDto
         public string? PublisherName { get; set; }
         public string? ThumbnailUrl { get; set; }
         public int? PageCount { get; set; }
+        public string[]? Authors { get; set; }
+        public string[]? Tags { get; set; }
     }
     
     [TranspilationSource]
@@ -83,7 +85,9 @@ public static class BookDocumentEntityExtensions
                 PublisherName = entity.PublisherName,
                 Title = entity.Title,
                 ThumbnailUrl = string.Empty,
-                PageCount = entity.PageCount
+                PageCount = entity.PageCount,
+                Authors = entity.Authors,
+                Tags = entity.Tags,
             },
             FileMetadata = new BookDto.BookFileMetadata
             {

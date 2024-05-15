@@ -61,6 +61,12 @@ export type Details = {
     publisherName?: string;
     /** Transpiled from string? */
     thumbnailUrl?: string;
+    /** Transpiled from int */
+    pageCount?: number;
+    /** Transpiled from string[]? */
+    authors?: string[];
+    /** Transpiled from string[]? */
+    tags?: string[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.UserStats */

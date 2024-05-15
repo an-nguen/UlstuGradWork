@@ -46,10 +46,11 @@ public sealed class FileStorage : IFileStorage, IDisposable
     public async Task<FileInfo> SaveFileAsync(string filename, Stream stream)
     {
         var filepath = Path.Combine(_options.DirectoryPath, filename);
+        await using var fileStream = stream;
         await using (var file = File.Create(filepath))
         {
-            stream.Seek(0, SeekOrigin.Begin);
-            await stream.CopyToAsync(file);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            await fileStream.CopyToAsync(file);
         }
 
         return new FileInfo(filepath);

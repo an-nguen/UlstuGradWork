@@ -11,14 +11,22 @@ public sealed class EpubBookFileHandler: IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Epub;
 
-    public int? CountNumberOfPages(Stream bookFileStream)
+    public int? CountNumberOfPages(Stream bookStream)
     {
         return null;
     }
 
-    public RawImageDto? GetPreviewImage(Stream bookFileStream)
+    public IEnumerable<string> GetAuthorList(Stream bookStream)
     {
-        var book = EpubReader.ReadBook(bookFileStream);
+        bookStream.Seek(0, SeekOrigin.Begin);
+        var book = EpubReader.ReadBook(bookStream);
+        return book.AuthorList;
+    }
+
+    public RawImageDto? GetPreviewImage(Stream bookStream)
+    {
+        bookStream.Seek(0, SeekOrigin.Begin);
+        var book = EpubReader.ReadBook(bookStream);
         // book.CoverImage; 
         // TODO: Need to implement GetJpegImageAsync
         return null;
@@ -31,6 +39,7 @@ public sealed class EpubBookFileHandler: IBookFileHandler
 
     public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream)
     {
+        stream.Seek(0, SeekOrigin.Begin);
         var book = EpubReader.ReadBook(stream);
         var contents = book
             .ReadingOrder
@@ -43,9 +52,10 @@ public sealed class EpubBookFileHandler: IBookFileHandler
         return contents.AsEnumerable();
     }
     
-    public string? GetBookTitle(Stream bookFileStream)
+    public string? GetBookTitle(Stream bookStream)
     {
-        using var document = EpubReader.OpenBook(bookFileStream);
+        bookStream.Seek(0, SeekOrigin.Begin);
+        using var document = EpubReader.OpenBook(bookStream);
         return string.IsNullOrEmpty(document.Title) ? null : document.Title;
     }
     

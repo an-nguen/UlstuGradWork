@@ -21,6 +21,8 @@ public sealed class Book
 
     [MaxLength(256)] public string? PublisherName { get; set; }
 
+    public string[]? Authors { get; set; }
+    
     public string[]? Tags { get; set; }
     
     public int? PageCount { get; set; }

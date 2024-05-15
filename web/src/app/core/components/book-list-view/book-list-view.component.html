@@ -3,9 +3,11 @@
   <button mat-list-item (click)="handleOpenItemEvent(book)">
     <app-book-list-item
       [bookItem]="book"
+      [matTooltip]="book.documentDetails.title ?? ''"
+      [showEditButton]="showEditButton"
+      [showDeleteButton]="showDeleteButton"
       (editEvent)="handleEditItemEvent(book)"
       (deleteEvent)="handleDeleteItemEvent(book)"
-      [matTooltip]="book.documentDetails.title ?? ''"
       matTooltipPosition="above"
     >
     </app-book-list-item>

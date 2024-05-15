@@ -7,13 +7,15 @@ public interface IBookFileHandler
 {
     public BookFileType FileType { get; }
 
-    public int? CountNumberOfPages(Stream bookFileStream);
+    public int? CountNumberOfPages(Stream bookStream);
+
+    public IEnumerable<string> GetAuthorList(Stream bookStream);
     
-    public RawImageDto? GetPreviewImage(Stream bookFileStream);
+    public RawImageDto? GetPreviewImage(Stream bookStream);
 
     public Task<Stream> GetJpegImageAsync(RawImageDto rawImage);
 
-    public string? GetBookTitle(Stream bookFileStream);
+    public string? GetBookTitle(Stream bookStream);
     
     public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream);
 }

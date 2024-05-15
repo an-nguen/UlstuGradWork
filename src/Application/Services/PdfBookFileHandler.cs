@@ -15,16 +15,26 @@ public sealed class PdfBookFileHandler : IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Pdf;
 
-    public int? CountNumberOfPages(Stream bookFileStream)
+    public int? CountNumberOfPages(Stream bookStream)
     {
-        using var document = PdfDocument.Open(bookFileStream);
+        bookStream.Seek(0, SeekOrigin.Begin);
+        using var document = PdfDocument.Open(bookStream);
         return document.NumberOfPages;
     }
-    
-    public RawImageDto? GetPreviewImage(Stream bookFileStream)
+
+    public IEnumerable<string> GetAuthorList(Stream bookStream)
+    {
+        bookStream.Seek(0, SeekOrigin.Begin);
+        using var document = PdfDocument.Open(bookStream);
+        var authors = document.Information.Author;
+        return new List<string>([authors]);
+    }
+
+    public RawImageDto? GetPreviewImage(Stream bookStream)
     {
         using var stream = new MemoryStream();
-        bookFileStream.CopyTo(stream);
+        bookStream.Seek(0, SeekOrigin.Begin);
+        bookStream.CopyTo(stream);
         using var docReader = DocLib.Instance.GetDocReader(
             stream.ToArray(),
             new PageDimensions(Constants.ThumbnailPreviewWidth, Constants.ThumbnailPreviewHeight
@@ -48,14 +58,16 @@ public sealed class PdfBookFileHandler : IBookFileHandler
         return stream;
     }
 
-    public string? GetBookTitle(Stream bookFileStream)
+    public string? GetBookTitle(Stream bookStream)
     {
-        using var document = PdfDocument.Open(bookFileStream);
+        bookStream.Seek(0, SeekOrigin.Begin);
+        using var document = PdfDocument.Open(bookStream);
         return document.Information.Title;
     }
 
     public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream)
     {
+        stream.Seek(0, SeekOrigin.Begin);
         var document = PdfDocument.Open(stream);
         var pages = document.GetPages().Select(page => new BookText
             {

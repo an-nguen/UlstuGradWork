@@ -183,9 +183,7 @@ export class LibraryExplorerComponent implements OnInit {
   }
 
   public async openBook(book: BookDto): Promise<void> {
-    await this._router.navigate(['viewer', book.documentDetails.id], {
-      relativeTo: this._route,
-    });
+    await this._router.navigate(['viewer', book.documentDetails.id]);
   }
 
   public goToPrevPage(): void {

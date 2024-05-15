@@ -86,7 +86,8 @@ public class BookController(
     [Authorize]
     public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
     {
-        return await service.AddBookAsync(file.OpenReadStream(), bookMetadata);
+        await using var stream = file.OpenReadStream();
+        return await service.AddBookAsync(stream, bookMetadata);
     }
 
     [HttpPost]

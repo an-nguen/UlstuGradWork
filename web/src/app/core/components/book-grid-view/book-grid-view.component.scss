@@ -1,0 +1,8 @@
+:host {
+  display: grid;
+  grid-template-columns: repeat(autofill);
+  column-gap: 0.5em;
+  justify-content: space-around;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

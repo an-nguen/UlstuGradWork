@@ -1,0 +1,34 @@
+<h1>Недавние</h1>
+@if (mostRecentBook()) {
+<div class="most-recent-book">
+  <div class="item">
+    <div class="thumbnail-container">
+      <img [src]="mostRecentBook()!.documentDetails.thumbnailUrl" />
+    </div>
+    <div class="info">
+      <h2 class="title">
+        {{ mostRecentBook()!.documentDetails.title }}
+      </h2>
+      <div *ngIf="mostRecentBook()!.stats?.lastViewedPage">
+        Вы остановились на странице
+        {{ mostRecentBook()!.stats?.lastViewedPage }} /
+        {{ mostRecentBook()!.documentDetails.pageCount }}
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button mat-flat-button (click)="openBook(mostRecentBook()!)">
+      Продолжить
+    </button>
+  </div>
+  <mat-progress-bar
+    *ngIf="mostRecentBookProgressValue()"
+    [value]="mostRecentBookProgressValue()"
+  ></mat-progress-bar>
+</div>
+}
+<app-book-list-view
+  [books]="otherBooks()"
+  [showEditButton]="false"
+  [showDeleteButton]="false"
+  (openItemEvent)="openBook($event)"
+></app-book-list-view>

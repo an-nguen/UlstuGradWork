@@ -17,15 +17,15 @@ export class MainLayoutComponent {
 
   public routeLinks = [
     {
-      iconCode: 'library_books',
-      name: 'Все книги',
-      link: '/'
-    },
-    {
       iconCode: 'schedule',
       name: 'Недавние',
-      link: 'recent'
-    }
+      link: CONSTANTS.ENDPOINTS.RECENT_BOOKS
+    },
+    {
+      iconCode: 'library_books',
+      name: 'Все книги',
+      link: CONSTANTS.ENDPOINTS.EXPLORER
+    },
   ];
 
   public isExpanded = false;

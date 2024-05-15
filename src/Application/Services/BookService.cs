@@ -31,12 +31,12 @@ public sealed class BookService(
     {
         var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(request.PageNumber);
         var query = dbContext.Books.AsQueryable();
-        
+
         if (predicate != null)
             query = query.Where(predicate);
         if (user != null)
             query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id));
-        
+
         var totalItemCount = await query.CountAsync();
         var orderExpr = request.SortBy != null && BookAvailableSortOptions.TryGetValue(request.SortBy, out var expr)
             ? expr
@@ -72,18 +72,23 @@ public sealed class BookService(
         var id = Guid.NewGuid();
         var filename = $"{id}-{bookMetadata.Filename}";
         var fileInfo = await fileStorage.SaveFileAsync(filename, fileStream);
-        var extractedTitle = GetDocumentTitleFromFile(fileInfo.FullName);
-        var thumbnailImage = await SaveThumbnailImage(fileInfo.FullName, filename);
+        var fileType = DocumentFileTypeUtils.GetFileType(fileInfo.FullName);
+        var bookFileHandler = bookFileHandlers.FirstOrDefault(handler => handler.FileType == fileType) ?? throw new Exception();
+
+        await using var bookFileStream = fileStorage.GetFileStream(filename);
+        var extractedTitle = bookFileHandler.GetBookTitle(bookFileStream);
+        var thumbnailImage = await SaveThumbnailImage(bookFileHandler, bookFileStream, filename);
         var book = new Book
         {
             Id = id,
             Filename = fileInfo.Name,
             FileSize = fileInfo.Length,
             FileType = BookFileType.Pdf,
-            Title = !string.IsNullOrEmpty(bookMetadata.Title) ? bookMetadata.Title 
+            Title = !string.IsNullOrEmpty(bookMetadata.Title) ? bookMetadata.Title
                 : string.IsNullOrEmpty(extractedTitle) ? bookMetadata.Filename : extractedTitle,
             ThumbnailFilename = thumbnailImage,
-            PageCount = CountNumberOfPages(fileInfo.FullName)
+            PageCount = CountNumberOfPages(fileInfo.FullName),
+            Authors = bookFileHandler.GetAuthorList(bookFileStream).ToArray(),
         };
         var entry = dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
@@ -194,21 +199,15 @@ public sealed class BookService(
         return null;
     }
 
-    private async Task<string?> SaveThumbnailImage(string bookFilepath, string imageFilenameWithoutExt)
+    private async Task<string?> SaveThumbnailImage(
+        IBookFileHandler bookFileHandler, 
+        FileStream bookFileStream,
+        string imageFilenameWithoutExt)
     {
-        var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
-        foreach (var bookFileHandler in bookFileHandlers)
-        {
-            if (bookFileHandler.FileType != fileType) continue;
-            var stream = fileStorage.GetFileStream(bookFilepath);
-            var rawImage = bookFileHandler.GetPreviewImage(stream);
-            if (rawImage == null) return null;
-            var imageStream = await bookFileHandler.GetJpegImageAsync(rawImage);
-            var fileInfo = await fileStorage.SaveFileAsync($"{imageFilenameWithoutExt}.jpg", imageStream);
-            return fileInfo.Name;
-        }
-
-        return null;
+        var rawImage = bookFileHandler.GetPreviewImage(bookFileStream);
+        if (rawImage == null) return null;
+        var imageStream = await bookFileHandler.GetJpegImageAsync(rawImage);
+        var fileInfo = await fileStorage.SaveFileAsync($"{imageFilenameWithoutExt}.jpg", imageStream);
+        return fileInfo.Name;
     }
-    
 }

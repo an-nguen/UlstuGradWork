@@ -5,10 +5,17 @@ import { loginGuard } from '@core/guards/login.guard';
 import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
 import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
 import { LoginComponent } from '@core/pages/login/login.component';
+import { RecentBooksComponent } from '@core/pages/recent-books/recent-books.component';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: CONSTANTS.ENDPOINTS.RECENT_BOOKS,
+    canActivate: [authGuard],
+    component: RecentBooksComponent,
+  },
+  {
+    path: CONSTANTS.ENDPOINTS.EXPLORER,
+    canActivate: [authGuard],
     component: LibraryExplorerComponent,
   },
   {
