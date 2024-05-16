@@ -7,42 +7,40 @@
 </div>
 <div class="info">
   <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
-  <div class="details-container">
-    <div class="property-item">
-      <span class="name">Автор(ы)</span>
-      <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
-    </div>
-    <div class="property-item">
-      <span class="name">Издатель</span>
-      <span class="value">{{
-        bookItem().documentDetails.publisherName || '-'
-      }}</span>
-    </div>
-
-    <div class="property-item">
-      <span class="name">Общее время</span>
-      <span class="value">{{ '-' }}</span>
-    </div>
-    <div class="property-item">
-      <span class="name">Посл. время открытия</span>
-      <span class="value">{{ recentAccessTime() }}</span>
-    </div>
+  <div class="property-item">
+    <span class="name">Автор(ы)</span>
+    <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
   </div>
-</div>
+  <div class="property-item">
+    <span class="name">Издатель</span>
+    <span class="value">{{
+      bookItem().documentDetails.publisherName || '-'
+    }}</span>
+  </div>
 
-<div class="actions">
-  <button
-    *ngIf="showEditButton"
-    mat-icon-button
-    (click)="handleEditEvent($event)"
-  >
-    <mat-icon>edit</mat-icon>
-  </button>
-  <button
-    *ngIf="showDeleteButton"
-    mat-icon-button
-    (click)="handleDeleteEvent($event)"
-  >
-    <mat-icon>delete</mat-icon>
-  </button>
+  <div class="property-item">
+    <span class="name">Общее время</span>
+    <span class="value">{{ '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Посл. время открытия</span>
+    <span class="value">{{ recentAccessTime() }}</span>
+  </div>
+
+  <div class="actions">
+    <button
+      *ngIf="showEditButton"
+      mat-icon-button
+      (click)="handleEditEvent($event)"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button
+      *ngIf="showDeleteButton"
+      mat-icon-button
+      (click)="handleDeleteEvent($event)"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
 </div>

@@ -34,10 +34,14 @@ $thumbnail-width: 90px;
 }
 
 .info {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   flex: 1;
 }
 
 .book-title {
+  grid-column: 1 / -1;
   overflow: hidden;
   font-weight: 600;
   font-size: 1.2em;
@@ -51,6 +55,12 @@ $thumbnail-width: 90px;
   display: flex;
   flex-direction: row;
   gap: 4em;
+}
+
+.actions {
+  grid-column: -1;
+  grid-row: 1 / -1;
+  align-self: center;
 }
 
 .property-item {
