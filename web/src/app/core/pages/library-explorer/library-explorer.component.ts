@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  OnDestroy,
   OnInit,
   signal,
   viewChild
@@ -19,7 +20,7 @@ import { BookEditDialogComponent, BookEditDialogData } from '@core/dialogs/book-
 import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { BookDetailsUpdateDto, BookDto, BookMetadataDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { debounceTime, finalize, mergeMap, of } from 'rxjs';
+import { debounceTime, finalize, mergeMap, of, tap } from 'rxjs';
 
 enum ViewMode {
   List,
@@ -32,11 +33,14 @@ enum ViewMode {
   styleUrl: './library-explorer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LibraryExplorerComponent implements OnInit {
+export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   protected readonly DEFAULT_PAGE_SIZE = CONSTANTS.PAGE_SIZE;
   protected readonly DEFAULT_SORT_OPTION = { value: 'recent_access', name: 'По посл. открытию' };
   protected readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
+  protected readonly SORT_OPTION_KEY = 'library-explorer-sort-option';
+  protected readonly SORT_ORDER_KEY = 'library-explorer-sort-order';
+  protected readonly VIEW_MODE_KEY = 'library-explorer-view-mode';
 
   public readonly SORT_OPTIONS: SortOption[] = [
     { value: 'title', name: 'По названию' },
@@ -46,6 +50,7 @@ export class LibraryExplorerComponent implements OnInit {
 
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
   private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
+  private _pageCount = 0;
 
   public ViewMode = ViewMode;
 
@@ -71,7 +76,11 @@ export class LibraryExplorerComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    this._loadPageOfBookList(this.currentPageNumber());
+    this._loadViewSettings();
+  }
+
+  public ngOnDestroy(): void {
+    this._saveViewSettings();
   }
 
   public get selectedSortOption(): SortOption {
@@ -198,22 +207,24 @@ export class LibraryExplorerComponent implements OnInit {
   }
 
   public loadNextPage(): void {
+    if (this.currentPageNumber() > this._pageCount - 1) return;
     const nextPage = this.currentPageNumber() + 1;
     this.currentPageNumber.set(nextPage);
-    this._loadPageOfBookList(nextPage, this.DEFAULT_PAGE_SIZE, false);
+    this._loadPageOfBookList(nextPage, this.pageSize(), false);
   }
 
   private _loadPageOfBookList(pageNumber: number, pageSize: number = this.pageSize(), shouldReset: boolean = true): void {
     this.loading.set(true);
     this._bookService.getPage(pageNumber, pageSize, this.selectedSortOption.value, this.selectedSortOrder)
       .pipe(
+        tap((page) => this._pageCount = page.pageCount),
         finalize(() => this.loading.set(false)),
       )
-      .subscribe((books) => {
+      .subscribe((page) => {
         if (!shouldReset) {
-          this.books.update(prevItems => [...prevItems, ...books.items]);
+          this.books.update(prevItems => [...prevItems, ...page.items]);
         } else {
-          this.books.set(books.items);
+          this.books.set(page.items);
         }
       });
   }
@@ -225,6 +236,25 @@ export class LibraryExplorerComponent implements OnInit {
     ).subscribe((value) => {
 
     });
+  }
+
+  private _loadViewSettings(): void {
+    const sortOptionName = sessionStorage.getItem(this.SORT_OPTION_KEY);
+    const sortOption = this.SORT_OPTIONS.find(option => option.name === sortOptionName);
+    if (sortOption) this._selectedSortOption = sortOption;
+
+    const sortOrderStringNumber = sessionStorage.getItem(this.SORT_ORDER_KEY);
+    if (sortOrderStringNumber) this._selectedSortOrder = parseInt(sortOrderStringNumber);
+
+    const viewModeStringNumber = sessionStorage.getItem(this.VIEW_MODE_KEY);
+    if (viewModeStringNumber) this.selectedViewMode.set(parseInt(viewModeStringNumber));
+
+  }
+
+  private _saveViewSettings(): void {
+    sessionStorage.setItem(this.SORT_OPTION_KEY, this.selectedSortOption.name);
+    sessionStorage.setItem(this.SORT_ORDER_KEY, `${this._selectedSortOrder}`);
+    sessionStorage.setItem(this.VIEW_MODE_KEY, `${this.selectedViewMode()}`);
   }
 
   private _resetFileInput(): void {
