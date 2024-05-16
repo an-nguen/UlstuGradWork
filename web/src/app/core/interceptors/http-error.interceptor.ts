@@ -44,7 +44,10 @@ const handleUnauthorizedError = (
 };
 
 const routeToSignInPage = (router: Router) => {
-  router.navigate([CONSTANTS.ENDPOINTS.AUTH.PATH, CONSTANTS.ENDPOINTS.AUTH.SIGN_IN]);
+  router.navigate([
+    CONSTANTS.ENDPOINTS.AUTH.PATH,
+    CONSTANTS.ENDPOINTS.AUTH.SIGN_IN,
+  ]);
 };
 
 export const AUTH_REQ = new HttpContextToken<boolean>(() => false);
@@ -58,7 +61,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 0) {
         router.navigate([CONSTANTS.ENDPOINTS.NO_CONNECTION]);
       } else {
-        if (err.status === HttpStatusCode.Accepted || err.status === HttpStatusCode.Created) {
+        if (
+          err.status === HttpStatusCode.Accepted ||
+          err.status === HttpStatusCode.Created
+        ) {
           return NEVER;
         } else if (err.status === HttpStatusCode.Unauthorized) {
           return handleUnauthorizedError(req, next, err, environmentInjector);

@@ -26,7 +26,14 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { RouterLink, RouterLinkActive, RouterOutlet, provideRouter, withEnabledBlockingInitialNavigation, withViewTransitions } from '@angular/router';
+import {
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+  provideRouter,
+  withEnabledBlockingInitialNavigation,
+  withViewTransitions,
+} from '@angular/router';
 import { BookGridItemComponent } from '@core/components/book-grid-item/book-grid-item.component';
 import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid-view.component';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
@@ -133,7 +140,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     },
     {
       provide: Window,
-      useValue: window
+      useValue: window,
     },
     provideRouter(
       routes,
@@ -141,10 +148,11 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
       withViewTransitions()
     ),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([httpErrorInterceptor, authInterceptor])
+    ),
     provideAuthHttpClient(),
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

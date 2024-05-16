@@ -5,7 +5,7 @@ import {
   EventEmitter,
   Input,
   input,
-  Output
+  Output,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -18,7 +18,7 @@ import { format } from 'date-fns';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListItemComponent {
-
+  
   protected readonly EMPTY_PLACEHOLDER = '-';
 
   @Input()
@@ -36,25 +36,28 @@ export class BookListItemComponent {
   public bookItem = input.required<BookDto>();
 
   public image = computed(() => {
-    return this._domSanitizer.bypassSecurityTrustResourceUrl(
-      `${this.bookItem().documentDetails.thumbnailUrl}`
-    ) ?? '/assets/images/noimage.png';
+    return (
+      this._domSanitizer.bypassSecurityTrustResourceUrl(
+        `${this.bookItem().documentDetails.thumbnailUrl}`
+      ) ?? '/assets/images/noimage.png'
+    );
   });
 
   public progressionValue = computed(() => {
     const item = this.bookItem();
     const lastViewedPage = item.stats?.lastViewedPage ?? 0;
     const pageCount = item.documentDetails.pageCount ?? 0;
-    return Math.round(lastViewedPage / pageCount * 100);
+    return Math.round((lastViewedPage / pageCount) * 100);
   });
 
   public recentAccessTime = computed(() => {
     const item = this.bookItem();
-    if (!item.stats || !item.stats.recentAccessTime) return this.EMPTY_PLACEHOLDER;
+    if (!item.stats || !item.stats.recentAccessTime)
+      return this.EMPTY_PLACEHOLDER;
     return format(item.stats.recentAccessTime, 'dd-MM-yyyy HH:mm');
   });
 
-  constructor(private readonly _domSanitizer: DomSanitizer) { }
+  constructor(private readonly _domSanitizer: DomSanitizer) {}
 
   public handleEditEvent(event: MouseEvent): void {
     event.stopPropagation();
@@ -65,4 +68,5 @@ export class BookListItemComponent {
     event.stopPropagation();
     this.deleteEvent.emit(this.bookItem());
   }
+  
 }

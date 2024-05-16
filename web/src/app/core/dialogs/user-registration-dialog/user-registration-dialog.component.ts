@@ -7,19 +7,22 @@ import { CONSTANTS } from '@core/constants';
   selector: 'app-user-registration-dialog',
   templateUrl: './user-registration-dialog.component.html',
   styleUrl: './user-registration-dialog.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserRegistrationDialogComponent {
-
+  
   public createUserForm = this._fb.group({
     name: this._fb.control('', [Validators.required]),
-    pinCode: this._fb.control('', [Validators.required, Validators.pattern(CONSTANTS.REGEX_PATTERN.PIN_CODE)])
+    pinCode: this._fb.control('', [
+      Validators.required,
+      Validators.pattern(CONSTANTS.REGEX_PATTERN.PIN_CODE),
+    ]),
   });
 
   constructor(
     private readonly _dialogRef: MatDialogRef<UserRegistrationDialogComponent>,
     private readonly _fb: NonNullableFormBuilder
-  ) { }
+  ) {}
 
   public cancel(): void {
     this._dialogRef.close();
@@ -28,5 +31,5 @@ export class UserRegistrationDialogComponent {
     if (this.createUserForm.invalid) return;
     this._dialogRef.close(this.createUserForm.value);
   }
-
+  
 }

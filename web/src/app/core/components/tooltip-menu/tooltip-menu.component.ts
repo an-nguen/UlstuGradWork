@@ -1,14 +1,20 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
-import { ChangeDetectionStrategy, Component, HostListener, output, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  output,
+  viewChild,
+} from '@angular/core';
 
 @Component({
   selector: '[app-tooltip-menu]',
   templateUrl: './tooltip-menu.component.html',
   styleUrl: './tooltip-menu.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TooltipMenuComponent {
-
+  
   protected readonly WORD_BREAK_PATTERN = new RegExp(`([\s-]?)\n`, 'gm');
 
   public contextMenuTrigger = viewChild(CdkMenuTrigger);
@@ -20,9 +26,7 @@ export class TooltipMenuComponent {
 
   private _selectedText?: string;
 
-  constructor(
-    private readonly _window: Window,
-  ) { }
+  constructor(private readonly _window: Window) {}
 
   @HostListener('mousedown')
   public clearSelection(): void {
@@ -43,14 +47,17 @@ export class TooltipMenuComponent {
     if (!contextMenuTrigger.menuPosition) {
       contextMenuTrigger.menuPosition = [];
     }
-    contextMenuTrigger.menuPosition.splice(0, contextMenuTrigger.menuPosition.length);
+    contextMenuTrigger.menuPosition.splice(
+      0,
+      contextMenuTrigger.menuPosition.length
+    );
     contextMenuTrigger.menuPosition.push({
       originX: 'start',
       originY: 'top',
       overlayX: 'start',
       overlayY: 'top',
       offsetX: e.pageX,
-      offsetY: e.pageY
+      offsetY: e.pageY,
     });
 
     console.log(selectedText);
@@ -72,11 +79,11 @@ export class TooltipMenuComponent {
 
   public emitDefinitionBtnClickEvent(): void {
     if (!this._selectedText) return;
-    this.textCopyEvent.emit(this._selectedText);
+    this.definitionBtnClickEvent.emit(this._selectedText);
   }
 
   private _processText(value: string): string {
     return value.trim().replace(this.WORD_BREAK_PATTERN, '').replace('\n', '');
   }
-
+  
 }

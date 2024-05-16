@@ -9,8 +9,10 @@ import { MatIcon } from '@angular/material/icon';
   standalone: true,
   imports: [MatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  hostDirectives: [MatRipple]
+  hostDirectives: [MatRipple],
 })
 export class IconButtonComponent {
+  
   public active = input<boolean>(false);
+  
 }

@@ -5,7 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   input,
-  output
+  output,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -18,7 +18,7 @@ import { debounceTime, fromEvent } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListViewComponent implements AfterViewInit {
-
+  
   public showEditButton = input(true);
   public showDeleteButton = input(true);
   public books = input.required<BookDto[]>();
@@ -34,16 +34,18 @@ export class BookListViewComponent implements AfterViewInit {
 
   constructor(
     private readonly _hostElement: ElementRef,
-    private readonly _destroyRef: DestroyRef,
-  ) { }
+    private readonly _destroyRef: DestroyRef
+  ) {}
 
   public ngAfterViewInit(): void {
     fromEvent(window, 'resize')
       .pipe(
         debounceTime(this.RESIZE_DEBOUNCE_TIME),
-        takeUntilDestroyed(this._destroyRef),
+        takeUntilDestroyed(this._destroyRef)
       )
-      .subscribe(() => this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems()));
+      .subscribe(() =>
+        this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems())
+      );
     this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems());
   }
 
@@ -62,7 +64,9 @@ export class BookListViewComponent implements AfterViewInit {
   private _countVisibleItems(): number {
     const hostStyles = getComputedStyle(this._hostElement.nativeElement);
     const height = parseInt(hostStyles.getPropertyValue('height'));
-    return Math.round(height / (this.LIST_ITEM_HEIGHT_PX + this.LIST_ITEM_GAP_PX));
+    return Math.round(
+      height / (this.LIST_ITEM_HEIGHT_PX + this.LIST_ITEM_GAP_PX)
+    );
   }
-
+  
 }

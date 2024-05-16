@@ -6,7 +6,7 @@ import { LanguageDto, TranslationRequestDto } from '@core/dtos/BookManager.Appli
 import { TextProcessingService } from '@core/services/text-processing.service';
 import { finalize } from 'rxjs';
 
-export interface TranslationDialogComponentData {
+interface TranslationDialogComponentData {
   sourceText: string;
   targetLanguageCode: string;
 }
@@ -15,18 +15,24 @@ export interface TranslationDialogComponentData {
   selector: 'app-translation-dialog',
   templateUrl: './translation-dialog.component.html',
   styleUrl: './translation-dialog.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TranslationDialogComponent implements OnInit {
 
   public loading = signal<boolean>(false);
-
   public translatedText = signal<string | null>(null);
 
   public languageFormGroup = this._fb.group({
-    sourceLanguage: this._fb.control<string | null>(null, [Validators.required]),
-    sourceText: this._fb.control<string | null>(null, { updateOn: 'blur', validators: [Validators.required] },),
-    targetLanguage: this._fb.control<string | null>(null, [Validators.required]),
+    sourceLanguage: this._fb.control<string | null>(null, [
+      Validators.required,
+    ]),
+    sourceText: this._fb.control<string | null>(null, {
+      updateOn: 'blur',
+      validators: [Validators.required],
+    }),
+    targetLanguage: this._fb.control<string | null>(null, [
+      Validators.required,
+    ]),
   });
 
   constructor(
@@ -34,20 +40,17 @@ export class TranslationDialogComponent implements OnInit {
     private readonly _textProcessingService: TextProcessingService,
     private readonly _fb: FormBuilder,
     private readonly _destroyRef: DestroyRef,
-  ) { }
-
-  public ngOnInit(): void {
-    this._determineSourceTextLanguage();
-    this.languageFormGroup.valueChanges.pipe(
-      takeUntilDestroyed(this._destroyRef)
-    ).subscribe(() => {
-      this.translateText();
-    });
+  ) {
     this._initFormGroup();
   }
 
   public get languages(): LanguageDto[] {
     return this._textProcessingService.availableLanguages();
+  }
+
+  public ngOnInit(): void {
+    this._determineSourceTextLanguage();
+    this._subscribeOnFormChanges();
   }
 
   public translateText(): void {
@@ -59,14 +62,22 @@ export class TranslationDialogComponent implements OnInit {
       targetLanguage: values.targetLanguage!,
     };
     this.loading.set(true);
-    this._textProcessingService.translate(request)
+    this._textProcessingService
+      .translate(request)
       .pipe(finalize(() => this.loading.set(false)))
-      .subscribe((response) => this.translatedText.set(response.translatedText));
+      .subscribe((response) =>
+        this.translatedText.set(response.translatedText),
+      );
   }
 
   private _determineSourceTextLanguage(): void {
-    this._textProcessingService.detectLanguage({ text: this._data.sourceText })
-      .subscribe((response) => this.languageFormGroup.patchValue({ sourceLanguage: response.detectedLanguageCode }));
+    this._textProcessingService
+      .detectLanguage({ text: this._data.sourceText })
+      .subscribe((response) =>
+        this.languageFormGroup.patchValue({
+          sourceLanguage: response.detectedLanguageCode,
+        }),
+      );
   }
 
   private _initFormGroup(): void {
@@ -74,6 +85,12 @@ export class TranslationDialogComponent implements OnInit {
       sourceText: this._data.sourceText,
       targetLanguage: this._data.targetLanguageCode,
     });
+  }
+
+  private _subscribeOnFormChanges() {
+    this.languageFormGroup.valueChanges
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(() => this.translateText());
   }
 
 }

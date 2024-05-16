@@ -7,8 +7,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   imports: [MatProgressSpinner],
   templateUrl: './loading-spinner-overlay.component.html',
   styleUrl: './loading-spinner-overlay.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingSpinnerOverlayComponent {
+
   public loading = input.required<boolean>();
+  
 }

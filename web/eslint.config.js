@@ -38,6 +38,7 @@ export default tsEslint.config(
           style: 'kebab-case',
         },
       ],
+      'no-useless-space': ['off'],
     },
   },
   {
@@ -55,9 +56,9 @@ export default tsEslint.config(
     },
   },
   {
-    plugins: {
-      prettier,
-    },
+    // plugins: {
+    //   prettier,
+    // },
     languageOptions: {
       parserOptions: {
         project: ['./packages/*/tsconfig.json'],
@@ -79,12 +80,7 @@ export default tsEslint.config(
           argsIgnorePattern: '^_',
         },
       ],
-      'prettier/prettier': [
-        'error',
-        {
-          endOfLine: 'lf',
-        },
-      ],
+      '@typescript-eslint/no-explicit-any': ['off'],
     },
-  }
+  },
 );

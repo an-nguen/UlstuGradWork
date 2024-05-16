@@ -4,7 +4,7 @@ import { Injectable, computed, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class AuthState {
-
+  
   public isSignedIn = computed<boolean>(() => this._signedIn());
 
   private _signedIn = signal(false);
@@ -18,5 +18,5 @@ export class AuthState {
     this._accessToken.set(value);
     this._signedIn.set(!!value);
   }
-
+  
 }

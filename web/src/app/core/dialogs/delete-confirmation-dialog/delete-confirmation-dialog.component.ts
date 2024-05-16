@@ -5,13 +5,14 @@ import { MatDialogRef } from '@angular/material/dialog';
   selector: 'app-delete-confirmation-dialog',
   templateUrl: './delete-confirmation-dialog.component.html',
   styleUrl: './delete-confirmation-dialog.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteConfirmationDialogComponent {
+
   constructor(
     private _dialogRef: MatDialogRef<DeleteConfirmationDialogComponent>,
   ) { }
-
+  
   public confirm(): void {
     this._dialogRef.close(true);
   }
@@ -19,4 +20,5 @@ export class DeleteConfirmationDialogComponent {
   public cancel(): void {
     this._dialogRef.close(false);
   }
+
 }

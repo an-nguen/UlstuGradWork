@@ -4,9 +4,9 @@
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
-    minmax(variables.$thumbnail-width, 1fr)
+    minmax(variables.$thumbnail-width, auto)
   );
-  grid-template-rows: repeat(2, minmax(variables.$thumbnail-height, 1fr));
+  grid-template-rows: repeat(2, minmax(variables.$thumbnail-height, auto));
   margin: 1em;
   padding: 2em;
   grid-gap: 2em;

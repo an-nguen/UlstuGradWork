@@ -10,6 +10,8 @@ export const authGuard: CanActivateFn = () => {
   if (authState.isSignedIn()) {
     return true;
   } else {
-    return router.parseUrl(`/${CONSTANTS.ENDPOINTS.AUTH.PATH}/${CONSTANTS.ENDPOINTS.AUTH.SIGN_IN}`);
+    return router.parseUrl(
+      `/${CONSTANTS.ENDPOINTS.AUTH.PATH}/${CONSTANTS.ENDPOINTS.AUTH.SIGN_IN}`
+    );
   }
 };

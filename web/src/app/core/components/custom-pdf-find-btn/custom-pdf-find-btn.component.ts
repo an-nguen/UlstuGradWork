@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'app-custom-pdf-find-btn',
   templateUrl: './custom-pdf-find-btn.component.html',
   styleUrl: './custom-pdf-find-btn.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomPdfFindBtnComponent {
 

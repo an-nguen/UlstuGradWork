@@ -1,5 +1,4 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CdkMenuTrigger } from '@angular/cdk/menu';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,8 +7,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  viewChild,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,7 +18,11 @@ import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/tra
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
-import { IPDFViewerApplication, NgxExtendedPdfViewerComponent, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
+import {
+  IPDFViewerApplication,
+  NgxExtendedPdfViewerComponent,
+  pdfDefaultOptions,
+} from 'ngx-extended-pdf-viewer';
 import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
 
 @Component({
@@ -30,18 +32,16 @@ import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookViewerComponent implements OnInit, OnDestroy {
-
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
 
-  public contextMenuTrigger = viewChild(CdkMenuTrigger);
-  public documentSource = signal<ArrayBuffer | Uint8Array | URL>(new ArrayBuffer(0));
-  public isTranslationMenuOpen = signal<boolean>(false);
-
+  public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
+    new ArrayBuffer(0)
+  );
+  
   public bearerToken?: string;
-  public translationText = '';
   public sidebarVisible = false;
 
   private _currentBook?: BookDto;
@@ -57,7 +57,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     private readonly _title: Title,
     private readonly _clipboard: Clipboard,
     private readonly _destroyRef: DestroyRef
-  ) { }
+  ) {}
 
   public ngOnInit(): void {
     pdfDefaultOptions.externalLinkTarget = 2;
@@ -73,7 +73,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     this._updateLastViewedPage();
   }
 
-  @HostListener("window:beforeunload", ["$event"])
+  @HostListener('window:beforeunload', ['$event'])
   public onBeforeUnload(): void {
     this._updateLastViewedPage();
   }
@@ -134,12 +134,16 @@ export class BookViewerComponent implements OnInit, OnDestroy {
       data: {
         sourceText: selectedText,
         targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
-      }
+      },
     });
   }
 
-  private _dispatchEventBus(eventName: string, options: unknown | undefined = undefined): void {
-    const pdfViewerApplication: IPDFViewerApplication = (window as any).PDFViewerApplication;
+  private _dispatchEventBus(
+    eventName: string,
+    options: unknown | undefined = undefined
+  ): void {
+    const pdfViewerApplication: IPDFViewerApplication = (window as any)
+      .PDFViewerApplication;
     pdfViewerApplication.eventBus.dispatch(eventName, options);
   }
 
@@ -148,13 +152,15 @@ export class BookViewerComponent implements OnInit, OnDestroy {
       .pipe(
         mergeMap((params) => {
           const id = params.get('id');
-          if (!id) return throwError(() => new Error('The book ID is not provided.'));
+          if (!id)
+            return throwError(() => new Error('The book ID is not provided.'));
           this.documentSource.set(this._service.getBookDownloadUrl(id));
           return this._service.getBookById(id);
         }),
         tap((book) => {
           this._currentBook = book;
-          if (book.documentDetails.title) this._title.setTitle(book.documentDetails.title);
+          if (book.documentDetails.title)
+            this._title.setTitle(book.documentDetails.title);
           if (book.stats?.lastViewedPage) this.page = book.stats.lastViewedPage;
         }),
         catchError((error: Error) => {
@@ -165,15 +171,16 @@ export class BookViewerComponent implements OnInit, OnDestroy {
           );
           return of(new Uint8Array());
         }),
-        takeUntilDestroyed(this._destroyRef),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
 
   private _updateLastViewedPage(): void {
     if (this._currentBook && this._page) {
-      this._service.updateLastViewedPage(this._currentBook.documentDetails.id, this._page).subscribe();
+      this._service
+        .updateLastViewedPage(this._currentBook.documentDetails.id, this._page)
+        .subscribe();
     }
   }
-
 }
