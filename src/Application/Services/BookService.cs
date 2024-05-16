@@ -21,7 +21,7 @@ public sealed class BookService(
     {
         ["title"] = b => b.Title!,
         ["isbn"] = b => b.Isbn!,
-        ["recent_access"] = b => b.Stats.SingleOrDefault()!.RecentAccess
+        ["recent_access"] = b => b.Stats.FirstOrDefault()!.RecentAccess
     };
 
     public async Task<PageDto<BookDto>> GetPageAsync(
@@ -41,7 +41,17 @@ public sealed class BookService(
         var orderExpr = request.SortBy != null && BookAvailableSortOptions.TryGetValue(request.SortBy, out var expr)
             ? expr
             : BookAvailableSortOptions["recent_access"];
-        query = request.SortOrder == SortOrder.Desc ? query.OrderByDescending(orderExpr) : query.OrderBy(orderExpr);
+        if (request.SortBy == "recent_access")
+        {
+            Expression<Func<Book, object>> orderByNullExpr = b => b.Stats.FirstOrDefault().RecentAccess == null;
+            query = request.SortOrder == SortOrder.Desc
+                ? query.OrderBy(orderByNullExpr).ThenByDescending(orderExpr)
+                : query.OrderBy(orderByNullExpr).ThenBy(orderExpr);
+        }
+        else
+        {
+            query = request.SortOrder == SortOrder.Desc ? query.OrderByDescending(orderExpr) : query.OrderBy(orderExpr);
+        }
         query = query.Skip((normalizedPageNumber - 1) * request.PageSize)
             .Take(request.PageSize);
         var pageCount = PageDto<BookDto>.CountPage(totalItemCount, request.PageSize);
