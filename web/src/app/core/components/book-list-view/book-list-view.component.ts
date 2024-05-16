@@ -19,20 +19,18 @@ import { debounceTime, fromEvent } from 'rxjs';
 })
 export class BookListViewComponent implements AfterViewInit {
 
-  protected readonly RESIZE_DEBOUNCE_TIME = 200;
-
-  protected readonly LIST_ITEM_HEIGHT_PX = 130;
-  protected readonly LIST_ITEM_GAP_PX = 14;
-
   public showEditButton = input(true);
   public showDeleteButton = input(true);
+  public books = input.required<BookDto[]>();
 
   public openItemEvent = output<BookDto>();
   public editItemEvent = output<BookDto>();
   public deleteItemEvent = output<BookDto>();
   public numOfVisibleItemsChangeEvent = output<number>();
 
-  public books = input.required<BookDto[]>();
+  protected readonly RESIZE_DEBOUNCE_TIME = 200;
+  protected readonly LIST_ITEM_HEIGHT_PX = 130;
+  protected readonly LIST_ITEM_GAP_PX = 14;
 
   constructor(
     private readonly _hostElement: ElementRef,
