@@ -1,12 +1,11 @@
-$thumbnail-height: 240px;
-$thumbnail-width: 180px;
+@use 'variables';
 
 :host {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: $thumbnail-width;
-  height: $thumbnail-height;
+  width: variables.$thumbnail-width;
+  height: variables.$thumbnail-height;
   padding: 1em;
   border-radius: 2em;
   cursor: pointer;

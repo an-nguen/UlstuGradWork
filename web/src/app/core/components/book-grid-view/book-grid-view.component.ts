@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, input, output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, EventEmitter, Output, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { debounceTime, fromEvent } from 'rxjs';
@@ -13,13 +13,15 @@ export class BookGridViewComponent implements AfterViewInit {
 
   protected readonly RESIZE_DEBOUNCE_TIME = 200;
 
+
   public books = input.required<BookDto[]>();
 
   public openItemEvent = output<BookDto>();
   public editItemEvent = output<BookDto>();
   public deleteItemEvent = output<BookDto>();
 
-  public numOfVisibleItemsChangeEvent = output<number>();
+  @Output()
+  public numOfVisibleItemsChangeEvent = new EventEmitter<number>();
 
   constructor(
     private readonly _hostElement: ElementRef,
@@ -50,8 +52,8 @@ export class BookGridViewComponent implements AfterViewInit {
 
   private _calculateGridItemCount(): number {
     const hostStyles = getComputedStyle(this._hostElement.nativeElement);
-    const rowCount = hostStyles.getPropertyValue('grid-template-rows').split(' ').length;
-    const colCount = hostStyles.getPropertyValue('grid-template-columns').split(' ').length;
+    const rowCount = hostStyles.gridTemplateRows.split(' ').length;
+    const colCount = hostStyles.gridTemplateColumns.split(' ').length;
     return rowCount * colCount;
   }
 

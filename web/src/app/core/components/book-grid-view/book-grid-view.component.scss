@@ -1,7 +1,14 @@
+@use 'variables';
+
 :host {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 180px);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(variables.$thumbnail-width, 1fr)
+  );
+  grid-template-rows: repeat(2, minmax(variables.$thumbnail-height, 1fr));
   margin: 1em;
+  padding: 2em;
   grid-gap: 2em;
   justify-content: space-around;
   overflow-x: hidden;
