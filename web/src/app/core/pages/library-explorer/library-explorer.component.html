@@ -17,6 +17,14 @@
       [(sortOrder)]="selectedSortOrder"
     >
     </app-sort-menu>
+    <div class="toggle-view-panel">
+      <button mat-icon-button (click)="setViewMode(ViewMode.List)">
+        <mat-icon>view_list</mat-icon>
+      </button>
+      <button mat-icon-button (click)="setViewMode(ViewMode.Grid)">
+        <mat-icon>grid_view</mat-icon>
+      </button>
+    </div>
   </div>
 
   <div class="right-section">
@@ -26,33 +34,41 @@
     </mat-form-field>
   </div>
 </div>
-<app-book-list-view
-  [books]="books()"
-  (openItemEvent)="openBook($event)"
-  (editItemEvent)="editBook($event)"
-  (deleteItemEvent)="deleteBook($event)"
->
-  <app-loading-spinner-overlay
-    [loading]="loading()"
-  ></app-loading-spinner-overlay>
-</app-book-list-view>
-
-<div class="page-control-panel">
-  <div class="page-navigation">
-    <button
-      mat-mini-fab
-      [disabled]="pageNumber() <= 1"
-      (click)="goToPrevPage()"
+@switch (selectedViewMode()) {
+  @case (ViewMode.List) {
+    <app-book-list-view
+      infiniteScroll
+      [infiniteScrollDistance]="1"
+      [infiniteScrollUpDistance]="1.5"
+      [infiniteScrollThrottle]="50"
+      [scrollWindow]="false"
+      [books]="books()"
+      (openItemEvent)="openBook($event)"
+      (editItemEvent)="editBook($event)"
+      (deleteItemEvent)="deleteBook($event)"
+      (scrolled)="loadNextPage()"
+      (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
     >
-      <mat-icon>navigate_before</mat-icon>
-    </button>
-    <span>Страница {{ pageNumber() }} / {{ pageCount() }}</span>
-    <button
-      mat-mini-fab
-      [disabled]="pageNumber() >= pageCount()"
-      (click)="goToNextPage()"
+      <app-loading-spinner-overlay [loading]="loading()">
+      </app-loading-spinner-overlay>
+    </app-book-list-view>
+  }
+  @case (ViewMode.Grid) {
+    <app-book-grid-view
+      infiniteScroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollUpDistance]="1.5"
+      [infiniteScrollThrottle]="50"
+      [scrollWindow]="false"
+      [books]="books()"
+      (openItemEvent)="openBook($event)"
+      (editItemEvent)="editBook($event)"
+      (deleteItemEvent)="deleteBook($event)"
+      (scrolled)="loadNextPage()"
+      (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
     >
-      <mat-icon>navigate_next</mat-icon>
-    </button>
-  </div>
-</div>
+      <app-loading-spinner-overlay [loading]="loading()">
+      </app-loading-spinner-overlay>
+    </app-book-grid-view>
+  }
+}

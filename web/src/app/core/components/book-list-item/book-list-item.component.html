@@ -5,7 +5,7 @@
     [value]="progressionValue()"
   ></mat-progress-bar>
 </div>
-<div>
+<div class="info">
   <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
   <div class="details-container">
     <div class="property-item">
@@ -30,7 +30,6 @@
   </div>
 </div>
 
-<div class="spacer"></div>
 <div class="actions">
   <button
     *ngIf="showEditButton"

@@ -1,3 +1,9 @@
 @for (book of books(); track $index) {
-<app-book-grid-item [bookItem]="book"></app-book-grid-item>
+  <app-book-grid-item
+    [bookItem]="book"
+    (openEvent)="emitOpenItemEvent(book)"
+    (editEvent)="emitEditItemEvent(book)"
+    (deleteEvent)="emitDeleteItemEvent(book)"
+  ></app-book-grid-item>
 }
+<ng-content></ng-content>

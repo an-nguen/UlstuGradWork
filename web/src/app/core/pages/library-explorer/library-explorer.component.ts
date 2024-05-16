@@ -11,17 +11,20 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { getBookFileType } from '@core/book-file-type';
 import { SortOption } from '@core/components/sort-menu/sort-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { BookEditDialogComponent, BookEditDialogData } from '@core/dialogs/book-edit-dialog/book-edit-dialog.component';
 import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { BookDetailsUpdateDto, BookDto, BookMetadataDto, SortOrder } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { AuthService } from '@core/services/auth.service';
 import { BookService } from '@core/services/book.service';
 import { debounceTime, finalize, mergeMap, of } from 'rxjs';
 
+enum ViewMode {
+  List,
+  Grid
+}
 
 @Component({
   selector: 'app-library-explorer',
@@ -31,8 +34,7 @@ import { debounceTime, finalize, mergeMap, of } from 'rxjs';
 })
 export class LibraryExplorerComponent implements OnInit {
 
-  protected readonly PAGE_SIZE = CONSTANTS.PAGE_SIZE;
-
+  protected readonly DEFAULT_PAGE_SIZE = CONSTANTS.PAGE_SIZE;
   protected readonly DEFAULT_SORT_OPTION = { value: 'recent_access', name: 'По посл. открытию' };
   protected readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
 
@@ -42,34 +44,34 @@ export class LibraryExplorerComponent implements OnInit {
     this.DEFAULT_SORT_OPTION
   ];
 
-  public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
-
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
   private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
+
+  public ViewMode = ViewMode;
+
+  public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
   public loading = signal<boolean>(false);
 
   public books = signal<BookDto[]>([]);
 
-  public pageNumber = signal<number>(1);
-  public pageCount = signal<number>(0);
+  public currentPageNumber = signal<number>(1);
+  public pageSize = signal<number>(this.DEFAULT_PAGE_SIZE);
 
   public search = new FormControl<string | null>(null);
 
-  public isSidenavOpened = false;
+  public selectedViewMode = signal<ViewMode>(ViewMode.List);
 
   constructor(
     private readonly _bookService: BookService,
-    private readonly _authService: AuthService,
     private readonly _dialog: MatDialog,
     private readonly _router: Router,
-    private readonly _route: ActivatedRoute,
     private readonly _snackBar: MatSnackBar,
     private readonly _destroyRef: DestroyRef
   ) { }
 
   public ngOnInit(): void {
-    this._loadBookDocuments();
+    this._loadPageOfBookList(this.currentPageNumber());
   }
 
   public get selectedSortOption(): SortOption {
@@ -82,12 +84,17 @@ export class LibraryExplorerComponent implements OnInit {
 
   public set selectedSortOption(value: SortOption) {
     this._selectedSortOption = value;
-    this._loadBookDocuments();
+    this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
   }
 
   public set selectedSortOrder(value: SortOrder) {
     this._selectedSortOrder = value;
-    this._loadBookDocuments();
+    this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
+  }
+
+  public handleNumOfVisibleItemsChange(numOfVisibleItems: number) {
+    this.pageSize.set(Math.round(numOfVisibleItems * 2));
+    this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
   }
 
   public onFileInputChange() {
@@ -98,6 +105,10 @@ export class LibraryExplorerComponent implements OnInit {
     }
 
     this.openBookAddDialog(file);
+  }
+
+  public setViewMode(mode: ViewMode): void {
+    this.selectedViewMode.set(mode);
   }
 
   public openBookAddDialog(file: File): void {
@@ -124,7 +135,7 @@ export class LibraryExplorerComponent implements OnInit {
         takeUntilDestroyed(this._destroyRef))
       .subscribe((book) => {
         if (!book) return;
-        this._loadBookDocuments();
+        this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
         this._snackBar.open(`Добавлена новая книга "${book.documentDetails.title}"`, 'OK', { duration: 3000 });
       });
   }
@@ -163,7 +174,7 @@ export class LibraryExplorerComponent implements OnInit {
       )
       .subscribe((book) => {
         if (!book) return;
-        this._loadBookDocuments();
+        this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
         this._snackBar.open(`Обновлены данные о книге "${book.documentDetails.title}"`, 'OK', { duration: 3000 });
       });
   }
@@ -186,28 +197,25 @@ export class LibraryExplorerComponent implements OnInit {
     await this._router.navigate(['viewer', book.documentDetails.id]);
   }
 
-  public goToPrevPage(): void {
-    const previousPage = this.pageNumber() - 1;
-    if (previousPage < 0 || previousPage > this.pageCount()) {
-      return;
-    }
-
-    this.pageNumber.set(previousPage);
-    this._loadBookDocuments();
+  public loadNextPage(): void {
+    const nextPage = this.currentPageNumber() + 1;
+    this.currentPageNumber.set(nextPage);
+    this._loadPageOfBookList(nextPage, this.DEFAULT_PAGE_SIZE, false);
   }
 
-  public goToNextPage(): void {
-    const nextPage = this.pageNumber() + 1;
-    if (nextPage < 0 || nextPage > this.pageCount()) {
-      return;
-    }
-
-    this.pageNumber.set(nextPage);
-    this._loadBookDocuments();
-  }
-
-  public toggleSidenav(): void {
-    this.isSidenavOpened = !this.isSidenavOpened;
+  private _loadPageOfBookList(pageNumber: number, pageSize: number = this.pageSize(), shouldReset: boolean = true): void {
+    this.loading.set(true);
+    this._bookService.getPage(pageNumber, pageSize, this.selectedSortOption.value, this.selectedSortOrder)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe((books) => {
+        if (!shouldReset) {
+          this.books.update(prevItems => [...prevItems, ...books.items]);
+        } else {
+          this.books.set(books.items);
+        }
+      });
   }
 
   private _subscribeToSearchChanges(): void {
@@ -217,18 +225,6 @@ export class LibraryExplorerComponent implements OnInit {
     ).subscribe((value) => {
 
     });
-  }
-
-  private _loadBookDocuments(): void {
-    this.loading.set(true);
-    this._bookService.getPage(this.pageNumber(), this.PAGE_SIZE, this.selectedSortOption.value, this.selectedSortOrder)
-      .pipe(
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe((books) => {
-        this.books.set(books.items);
-        this.pageCount.set(books.pageCount);
-      });
   }
 
   private _resetFileInput(): void {

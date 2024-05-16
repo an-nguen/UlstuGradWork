@@ -1,12 +1,15 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
+  DestroyRef,
+  ElementRef,
   input,
-  Output,
+  output
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { debounceTime, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-book-list-view',
@@ -14,21 +17,37 @@ import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
   styleUrl: './book-list-view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookListViewComponent {
+export class BookListViewComponent implements AfterViewInit {
 
-  @Input()
-  public showEditButton: boolean = true;
-  @Input()
-  public showDeleteButton: boolean = true;
+  protected readonly RESIZE_DEBOUNCE_TIME = 200;
 
-  @Output()
-  public readonly openItemEvent = new EventEmitter<BookDto>();
-  @Output()
-  public readonly editItemEvent = new EventEmitter<BookDto>();
-  @Output()
-  public readonly deleteItemEvent = new EventEmitter<BookDto>();
+  protected readonly LIST_ITEM_HEIGHT_PX = 130;
+  protected readonly LIST_ITEM_GAP_PX = 14;
+
+  public showEditButton = input(true);
+  public showDeleteButton = input(true);
+
+  public openItemEvent = output<BookDto>();
+  public editItemEvent = output<BookDto>();
+  public deleteItemEvent = output<BookDto>();
+  public numOfVisibleItemsChangeEvent = output<number>();
 
   public books = input.required<BookDto[]>();
+
+  constructor(
+    private readonly _hostElement: ElementRef,
+    private readonly _destroyRef: DestroyRef,
+  ) { }
+
+  public ngAfterViewInit(): void {
+    fromEvent(window, 'resize')
+      .pipe(
+        debounceTime(this.RESIZE_DEBOUNCE_TIME),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe(() => this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems()));
+    this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems());
+  }
 
   public handleOpenItemEvent(book: BookDto): void {
     this.openItemEvent.emit(book);
@@ -41,4 +60,11 @@ export class BookListViewComponent {
   public handleEditItemEvent(book: BookDto) {
     this.editItemEvent.emit(book);
   }
+
+  private _countVisibleItems(): number {
+    const hostStyles = getComputedStyle(this._hostElement.nativeElement);
+    const height = parseInt(hostStyles.getPropertyValue('height'));
+    return Math.round(height / (this.LIST_ITEM_HEIGHT_PX + this.LIST_ITEM_GAP_PX));
+  }
+
 }

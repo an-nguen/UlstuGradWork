@@ -52,24 +52,6 @@
   padding: 1em 0;
 }
 
-.page-control-panel {
-  display: flex;
-  padding: 0.5em;
-  margin: 0.5em;
-  border-radius: 1em;
-  gap: 1em;
-  align-items: center;
-  justify-content: end;
-
-  .page-navigation {
-    display: inline-flex;
-    flex-direction: row;
-    gap: 1em;
-    align-items: center;
-    padding: 1em;
-  }
-}
-
 .mat-drawer-content {
   display: flex;
   flex-direction: column;

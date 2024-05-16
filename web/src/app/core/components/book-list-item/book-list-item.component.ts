@@ -3,10 +3,9 @@ import {
   Component,
   computed,
   EventEmitter,
-  HostListener,
   Input,
   input,
-  Output,
+  Output
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -28,6 +27,11 @@ export class BookListItemComponent {
   public showDeleteButton: boolean = true;
   @Input()
   public showProgression: boolean = true;
+
+  @Output()
+  public readonly editEvent = new EventEmitter<BookDto>();
+  @Output()
+  public readonly deleteEvent = new EventEmitter<BookDto>();
 
   public bookItem = input.required<BookDto>();
 
@@ -51,20 +55,6 @@ export class BookListItemComponent {
   });
 
   constructor(private readonly _domSanitizer: DomSanitizer) { }
-
-  @Output()
-  public readonly clickEvent = new EventEmitter<BookDto>();
-
-  @Output()
-  public readonly editEvent = new EventEmitter<BookDto>();
-
-  @Output()
-  public readonly deleteEvent = new EventEmitter<BookDto>();
-
-  @HostListener('click')
-  public handleClickEvent(): void {
-    this.clickEvent.emit(this.bookItem());
-  }
 
   public handleEditEvent(event: MouseEvent): void {
     event.stopPropagation();

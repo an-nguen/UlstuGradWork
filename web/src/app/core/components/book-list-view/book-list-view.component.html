@@ -1,17 +1,18 @@
-<mat-action-list id="book-list">
+<mat-action-list #itemList id="book-list" [style.gap.px]="LIST_ITEM_GAP_PX">
   @for (book of books(); track $index) {
-  <button mat-list-item (click)="handleOpenItemEvent(book)">
-    <app-book-list-item
-      [bookItem]="book"
-      [matTooltip]="book.documentDetails.title ?? ''"
-      [showEditButton]="showEditButton"
-      [showDeleteButton]="showDeleteButton"
-      (editEvent)="handleEditItemEvent(book)"
-      (deleteEvent)="handleDeleteItemEvent(book)"
-      matTooltipPosition="above"
-    >
-    </app-book-list-item>
-  </button>
+    <button mat-list-item (click)="handleOpenItemEvent(book)">
+      <app-book-list-item
+        matTooltipPosition="above"
+        [style.height.px]="LIST_ITEM_HEIGHT_PX"
+        [bookItem]="book"
+        [matTooltip]="book.documentDetails.title ?? ''"
+        [showEditButton]="showEditButton()"
+        [showDeleteButton]="showDeleteButton()"
+        (editEvent)="handleEditItemEvent(book)"
+        (deleteEvent)="handleDeleteItemEvent(book)"
+      >
+      </app-book-list-item>
+    </button>
   }
 </mat-action-list>
 <ng-content></ng-content>

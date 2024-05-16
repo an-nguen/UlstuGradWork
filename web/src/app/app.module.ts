@@ -55,6 +55,7 @@ import { AuthService } from '@core/services/auth.service';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { DigitOnlyModule } from '@uiowa/digit-only';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { Observable } from 'rxjs';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
@@ -120,6 +121,7 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     IconButtonComponent,
     CdkMenuModule,
     NgxExtendedPdfViewerModule,
+    InfiniteScrollModule,
     LoadingSpinnerOverlayComponent,
   ],
   providers: [

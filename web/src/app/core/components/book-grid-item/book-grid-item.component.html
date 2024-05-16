@@ -1,4 +1,23 @@
-<img
-  [src]="bookItem().documentDetails.thumbnailUrl"
-  alt="assets/no-image.png"
-/>
+<img [src]="bookItem().documentDetails.thumbnailUrl" alt="No thumbnail" />
+<div class="info-container">
+  <span class="title">
+    {{ bookItem().documentDetails.title }}
+  </span>
+  <a
+    mat-icon-button
+    (click)="$event.stopPropagation()"
+    [matMenuTriggerFor]="actionMenu"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </a>
+</div>
+<mat-menu #actionMenu>
+  <button mat-menu-item (click)="emitEditEvent()">
+    <mat-icon>edit</mat-icon>
+    Редактировать детали
+  </button>
+  <button mat-menu-item (click)="emitDeleteEvent()">
+    <mat-icon>delete</mat-icon>
+    Удалить
+  </button>
+</mat-menu>
