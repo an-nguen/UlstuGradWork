@@ -22,17 +22,17 @@
 <ng-template #customToolbar>
   <div id="custom-toolbar">
     <div class="left">
-      <button app-icon-button (click)="toggleSidebar()">menu</button>
-      <button app-icon-button (click)="goToFirstPage()">skip_previous</button>
-      <button app-icon-button (click)="goToPrevPage()">navigate_before</button>
+      <pdf-toggle-sidebar></pdf-toggle-sidebar>
+      <pdf-first-page></pdf-first-page>
+      <pdf-previous-page></pdf-previous-page>
       <pdf-page-number class="custom-page-number"></pdf-page-number>
-      <button app-icon-button (click)="goToNextPage()">navigate_next</button>
-      <button app-icon-button (click)="goToLastPage()">skip_next</button>
-      <app-custom-pdf-find-btn></app-custom-pdf-find-btn>
+      <pdf-next-page></pdf-next-page>
+      <pdf-last-page></pdf-last-page>
+      <pdf-find-button></pdf-find-button>
     </div>
     <div class="mid">
-      <button app-icon-button (click)="zoomIn()">add</button>
-      <button app-icon-button (click)="zoomOut()">remove</button>
+      <pdf-zoom-in></pdf-zoom-in>
+      <pdf-zoom-out></pdf-zoom-out>
       <pdf-zoom-dropdown
         [zoomLevels]="pdfViewer.zoomLevels"
       ></pdf-zoom-dropdown>

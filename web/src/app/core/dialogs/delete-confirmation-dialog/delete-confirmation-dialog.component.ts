@@ -1,10 +1,18 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-delete-confirmation-dialog',
   templateUrl: './delete-confirmation-dialog.component.html',
   styleUrl: './delete-confirmation-dialog.component.scss',
+  standalone: true,
+  imports: [
+    MatDialogContent,
+    MatDialogTitle,
+    MatButton,
+    MatDialogActions,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteConfirmationDialogComponent {

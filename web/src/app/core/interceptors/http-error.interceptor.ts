@@ -50,8 +50,6 @@ const routeToSignInPage = (router: Router) => {
   ]);
 };
 
-export const AUTH_REQ = new HttpContextToken<boolean>(() => false);
-
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const environmentInjector = inject(EnvironmentInjector);
   const router = inject(Router);

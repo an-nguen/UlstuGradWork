@@ -6,11 +6,19 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: '[app-tooltip-menu]',
   templateUrl: './tooltip-menu.component.html',
   styleUrl: './tooltip-menu.component.scss',
+  standalone: true,
+  imports: [
+    CdkMenuTrigger,
+    MatTooltip,
+    MatIcon,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TooltipMenuComponent {

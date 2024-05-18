@@ -1,23 +1,20 @@
 <div class="thumbnail-container">
-  <img [src]="image()" alt="No thumbnail" />
-  <mat-progress-bar
-    *ngIf="showProgression && progressionValue()"
-    [value]="progressionValue()"
-  ></mat-progress-bar>
+  <img [ngSrc]="image()" alt="No thumbnail" fill />
+  @if (showProgression && progressionValue()) {
+    <mat-progress-bar [value]="progressionValue()"></mat-progress-bar>
+  }
 </div>
 <div class="info">
   <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
+
   <div class="property-item">
     <span class="name">Автор(ы)</span>
     <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
   </div>
   <div class="property-item">
     <span class="name">Издатель</span>
-    <span class="value">{{
-      bookItem().documentDetails.publisherName || '-'
-    }}</span>
+    <span class="value">{{ bookItem().documentDetails.publisherName || '-' }}</span>
   </div>
-
   <div class="property-item">
     <span class="name">Общее время</span>
     <span class="value">{{ '-' }}</span>
@@ -28,19 +25,15 @@
   </div>
 
   <div class="actions">
-    <button
-      *ngIf="showEditButton"
-      mat-icon-button
-      (click)="handleEditEvent($event)"
-    >
-      <mat-icon>edit</mat-icon>
-    </button>
-    <button
-      *ngIf="showDeleteButton"
-      mat-icon-button
-      (click)="handleDeleteEvent($event)"
-    >
-      <mat-icon>delete</mat-icon>
-    </button>
+    @if (showEditButton) {
+      <button mat-icon-button (click)="handleEditEvent($event)">
+        <mat-icon>edit</mat-icon>
+      </button> 
+    }
+    @if (showDeleteButton) {
+      <button mat-icon-button (click)="handleDeleteEvent($event)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    }
   </div>
 </div>

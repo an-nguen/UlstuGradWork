@@ -10,11 +10,23 @@ import {
 import { DomSanitizer } from '@angular/platform-browser';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { format } from 'date-fns';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-book-list-item',
   templateUrl: './book-list-item.component.html',
   styleUrl: './book-list-item.component.scss',
+  standalone: true,
+  imports: [
+    MatProgressBar,
+    MatIconButton,
+    MatIcon,
+    NgOptimizedImage,
+
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListItemComponent {

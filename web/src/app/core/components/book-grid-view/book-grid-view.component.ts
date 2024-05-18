@@ -12,11 +12,16 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { debounceTime, fromEvent } from 'rxjs';
+import { BookGridItemComponent } from '@core/components/book-grid-item/book-grid-item.component';
 
 @Component({
   selector: 'app-book-grid-view',
   templateUrl: './book-grid-view.component.html',
   styleUrl: './book-grid-view.component.scss',
+  standalone: true,
+  imports: [
+    BookGridItemComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookGridViewComponent implements AfterViewInit {

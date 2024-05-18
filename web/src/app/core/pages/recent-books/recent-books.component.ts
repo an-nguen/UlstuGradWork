@@ -11,11 +11,22 @@ import {
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
+import { MatButton } from '@angular/material/button';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { NgOptimizedImage } from '@angular/common';
+import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 
 @Component({
   selector: 'app-recent-books',
   templateUrl: './recent-books.component.html',
   styleUrl: './recent-books.component.scss',
+  standalone: true,
+  imports: [
+    MatButton,
+    MatProgressBar,
+    NgOptimizedImage,
+    BookListViewComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecentBooksComponent implements OnInit {

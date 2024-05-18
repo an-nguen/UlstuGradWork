@@ -1,31 +1,41 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CONSTANTS } from '@core/constants';
 import { UserRegistrationDialogComponent } from '@core/dialogs/user-registration-dialog/user-registration-dialog.component';
-import {
-  UserAddRequest,
-  UserDto,
-} from '@core/dtos/BookManager.Application.Common.DTOs';
+import { UserAddRequest, UserDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
 import { UserService } from '@core/services/user.service';
 import { AuthState } from '@core/stores/auth.state';
-import { NEVER, Observable, catchError, mergeMap, throwError } from 'rxjs';
+import { catchError, mergeMap, NEVER, Observable, throwError } from 'rxjs';
+import { DigitOnlyModule } from '@uiowa/digit-only';
+import { MatOption } from '@angular/material/core';
+import { MatFormField, MatLabel, MatSelect } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
+  standalone: true,
+  imports: [
+    DigitOnlyModule,
+    MatButton,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    MatOption,
+    MatSelect,
+    MatIcon,
+    ReactiveFormsModule,
+    UserRegistrationDialogComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit {

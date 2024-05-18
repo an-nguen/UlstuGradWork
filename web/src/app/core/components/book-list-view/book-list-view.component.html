@@ -1,4 +1,4 @@
-<mat-action-list #itemList id="book-list" [style.gap.px]="LIST_ITEM_GAP_PX">
+<mat-action-list id="book-list" [style.gap.px]="LIST_ITEM_GAP_PX">
   @for (book of books(); track $index) {
     <button mat-list-item (click)="handleOpenItemEvent(book)">
       <app-book-list-item

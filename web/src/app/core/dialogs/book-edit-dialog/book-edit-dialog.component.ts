@@ -6,9 +6,21 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { DigitOnlyModule } from '@uiowa/digit-only';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatButton } from '@angular/material/button';
+import { MatLabel } from '@angular/material/select';
 
 export interface BookEditDialogData {
   mode?: 'create' | 'update';
@@ -22,6 +34,19 @@ export interface BookEditDialogData {
   selector: 'app-book-edit-dialog',
   templateUrl: './book-edit-dialog.component.html',
   styleUrl: './book-edit-dialog.component.scss',
+  standalone: true,
+  imports: [
+    MatDialogTitle,
+    MatDialogContent,
+    MatLabel,
+    MatFormField,
+    MatInput,
+    ReactiveFormsModule,
+    DigitOnlyModule,
+    MatTooltip,
+    MatDialogActions,
+    MatButton,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookEditDialogComponent implements OnInit {

@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, Inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { LanguageDto, TranslationRequestDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { TextProcessingService } from '@core/services/text-processing.service';
 import { finalize } from 'rxjs';
+import { MatFormField } from '@angular/material/form-field';
+import { MatLabel, MatOption, MatSelect } from '@angular/material/select';
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 
 interface TranslationDialogComponentData {
   sourceText: string;
@@ -15,6 +19,18 @@ interface TranslationDialogComponentData {
   selector: 'app-translation-dialog',
   templateUrl: './translation-dialog.component.html',
   styleUrl: './translation-dialog.component.scss',
+  standalone: true,
+  imports: [
+    MatDialogTitle,
+    MatDialogContent,
+    MatLabel,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    CdkTextareaAutosize,
+    ReactiveFormsModule,
+    LoadingSpinnerOverlayComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TranslationDialogComponent implements OnInit {

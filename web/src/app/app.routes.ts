@@ -2,31 +2,31 @@ import { Routes } from '@angular/router';
 import { CONSTANTS } from '@core/constants';
 import { authGuard } from '@core/guards/auth.guard';
 import { loginGuard } from '@core/guards/login.guard';
-import { BookViewerComponent } from '@core/pages/book-viewer/book-viewer.component';
-import { LibraryExplorerComponent } from '@core/pages/library-explorer/library-explorer.component';
-import { LoginComponent } from '@core/pages/login/login.component';
-import { RecentBooksComponent } from '@core/pages/recent-books/recent-books.component';
 
 export const routes: Routes = [
   {
     path: CONSTANTS.ENDPOINTS.RECENT_BOOKS,
     canActivate: [authGuard],
-    component: RecentBooksComponent,
+    loadComponent: () => import('@core/pages/recent-books/recent-books.component')
+      .then(m => m.RecentBooksComponent),
   },
   {
     path: CONSTANTS.ENDPOINTS.EXPLORER,
     canActivate: [authGuard],
-    component: LibraryExplorerComponent,
+    loadComponent: () => import('@core/pages/library-explorer/library-explorer.component')
+      .then(m => m.LibraryExplorerComponent),
   },
   {
     path: CONSTANTS.ENDPOINTS.VIEWER,
     canActivate: [authGuard],
-    component: BookViewerComponent,
+    loadComponent: () => import('@core/pages/book-viewer/book-viewer.component')
+      .then(m => m.BookViewerComponent),
   },
   {
     path: `${CONSTANTS.ENDPOINTS.AUTH.PATH}/${CONSTANTS.ENDPOINTS.AUTH.SIGN_IN}`,
     canActivate: [loginGuard],
-    component: LoginComponent,
+    loadComponent: () => import('@core/pages/login/login.component')
+      .then(m => m.LoginComponent),
   },
   {
     path: CONSTANTS.ENDPOINTS.NO_CONNECTION,

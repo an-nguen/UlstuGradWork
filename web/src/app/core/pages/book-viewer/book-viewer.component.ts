@@ -19,16 +19,23 @@ import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import {
-  IPDFViewerApplication,
   NgxExtendedPdfViewerComponent,
+  NgxExtendedPdfViewerModule,
   pdfDefaultOptions,
 } from 'ngx-extended-pdf-viewer';
 import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
+import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 
 @Component({
   selector: 'app-book-viewer',
   templateUrl: './book-viewer.component.html',
   styleUrl: './book-viewer.component.scss',
+  standalone: true,
+  imports: [
+    NgxExtendedPdfViewerModule, 
+    TooltipMenuComponent,
+    TranslationDialogComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookViewerComponent implements OnInit, OnDestroy {
@@ -94,34 +101,6 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     return this._zoom;
   }
 
-  public toggleSidebar(): void {
-    this.sidebarVisible = !this.sidebarVisible;
-  }
-
-  public zoomIn(): void {
-    this._dispatchEventBus('zoomin');
-  }
-
-  public zoomOut(): void {
-    this._dispatchEventBus('zoomout');
-  }
-
-  public goToNextPage(): void {
-    this._dispatchEventBus('nextpage');
-  }
-
-  public goToPrevPage(): void {
-    this._dispatchEventBus('previouspage');
-  }
-
-  public goToFirstPage(): void {
-    this._dispatchEventBus('firstpage');
-  }
-
-  public goToLastPage(): void {
-    this._dispatchEventBus('lastpage');
-  }
-
   public copyText(selectedText: string): void {
     this._clipboard.copy(selectedText);
     this._snackBar.open('Текст скопирован', 'OK', { duration: 3000 });
@@ -136,15 +115,6 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
       },
     });
-  }
-
-  private _dispatchEventBus(
-    eventName: string,
-    options: unknown | undefined = undefined
-  ): void {
-    const pdfViewerApplication: IPDFViewerApplication = (window as any)
-      .PDFViewerApplication;
-    pdfViewerApplication.eventBus.dispatch(eventName, options);
   }
 
   private _subscribeToParamMap(): void {

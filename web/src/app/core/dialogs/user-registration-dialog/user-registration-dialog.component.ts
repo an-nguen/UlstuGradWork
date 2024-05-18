@@ -1,12 +1,26 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NonNullableFormBuilder, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { CONSTANTS } from '@core/constants';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatButton } from '@angular/material/button';
+import { DigitOnlyModule } from '@uiowa/digit-only';
 
 @Component({
   selector: 'app-user-registration-dialog',
   templateUrl: './user-registration-dialog.component.html',
   styleUrl: './user-registration-dialog.component.scss',
+  standalone: true,
+  imports: [
+    MatDialogContent,
+    MatDialogTitle,
+    MatFormField,
+    MatLabel,
+    ReactiveFormsModule,
+    MatButton,
+    DigitOnlyModule,
+    MatDialogActions,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserRegistrationDialogComponent {

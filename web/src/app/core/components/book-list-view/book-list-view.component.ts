@@ -10,11 +10,22 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { debounceTime, fromEvent } from 'rxjs';
+import { MatActionList, MatListItem } from '@angular/material/list';
+import { MatTooltip } from '@angular/material/tooltip';
+import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
 
 @Component({
   selector: 'app-book-list-view',
   templateUrl: './book-list-view.component.html',
   styleUrl: './book-list-view.component.scss',
+  standalone: true,
+  imports: [
+    MatActionList,
+    MatListItem,
+    MatTooltip,
+    BookListItemComponent,
+
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListViewComponent implements AfterViewInit {

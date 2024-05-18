@@ -9,12 +9,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { getBookFileType } from '@core/book-file-type';
-import { SortOption } from '@core/components/sort-menu/sort-menu.component';
+import { SortMenuComponent, SortOption } from '@core/components/sort-menu/sort-menu.component';
 import { CONSTANTS } from '@core/constants';
 import {
   BookEditDialogComponent,
@@ -29,6 +29,16 @@ import {
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { debounceTime, finalize, mergeMap, of, tap } from 'rxjs';
+import { MatSort } from '@angular/material/sort';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
+import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid-view.component';
+import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
+import { MatLabel } from '@angular/material/select';
 
 enum ViewMode {
   List,
@@ -39,6 +49,24 @@ enum ViewMode {
   selector: 'app-library-explorer',
   templateUrl: './library-explorer.component.html',
   styleUrl: './library-explorer.component.scss',
+  standalone: true,
+  imports: [
+    InfiniteScrollModule,
+    LoadingSpinnerOverlayComponent,
+    MatFormField,
+    MatIcon,
+    MatButton,
+    MatIconButton,
+    MatInput,
+    MatLabel,
+    MatSort,
+    ReactiveFormsModule,
+    SortMenuComponent,
+    BookGridViewComponent,
+    BookListViewComponent,
+    BookEditDialogComponent,
+    DeleteConfirmationDialogComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibraryExplorerComponent implements OnInit, OnDestroy {
