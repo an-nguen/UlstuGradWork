@@ -8,3 +8,18 @@
 .file-input {
   display: none;
 }
+
+.list-title {
+  margin: 0.2em;
+}
+
+.author-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 1em;
+  
+  .author-name {
+    flex: 1;
+  }
+}

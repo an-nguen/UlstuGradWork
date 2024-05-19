@@ -35,6 +35,10 @@ export type BookDetailsUpdateDto = {
     isbn?: string;
     /** Transpiled from string? */
     publisherName?: string;
+    /** Transpiled from System.Collections.Generic.IEnumerable<string>? */
+    authors?: string[];
+    /** Transpiled from System.Collections.Generic.IEnumerable<string>? */
+    tags?: string[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto */
@@ -103,6 +107,10 @@ export type BookMetadataDto = {
     description?: string;
     /** Transpiled from string? */
     publisherName?: string;
+    /** Transpiled from System.Collections.Generic.IEnumerable<string>? */
+    authors?: string[];
+    /** Transpiled from System.Collections.Generic.IEnumerable<string>? */
+    tags?: string[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.DetectLanguageRequestDto */

@@ -23,6 +23,25 @@
     <mat-label>Издатель книги</mat-label>
     <input matInput type="text" placeholder="Рога и копыта" formControlName="publisherName" />
   </mat-form-field>
+  <mat-form-field>
+    <mat-label>Добавить автора книги</mat-label>
+    <input matInput type="text" [formControl]="authorNameInputControl">
+    <button mat-icon-button
+            matSuffix
+            [disabled]="authorNameInputControl.invalid || authorNameInputControl.pristine"
+            (click)="addAuthor()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-form-field>
+  <h3 class="list-title">Список авторов книги</h3>
+  <mat-list>
+    @for (author of bookForm.value.authors; track $index) {
+      <div matListItemLine class="author-item">
+        <div matListItemTitle class="author-name">{{ author }}</div>
+        <button mat-icon-button (click)="deleteAuthor($index)"><mat-icon>delete</mat-icon></button>
+      </div>
+    }
+  </mat-list>
 </div>
 <mat-dialog-actions>
   <button

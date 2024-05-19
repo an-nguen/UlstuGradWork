@@ -1,26 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnInit,
-  computed,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { MatFormField } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { DigitOnlyModule } from '@uiowa/digit-only';
-import { MatTooltip } from '@angular/material/tooltip';
-import { MatButton } from '@angular/material/button';
-import { MatLabel } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 
 export interface BookEditDialogData {
   mode?: 'create' | 'update';
@@ -36,24 +24,26 @@ export interface BookEditDialogData {
   styleUrl: './book-edit-dialog.component.scss',
   standalone: true,
   imports: [
-    MatDialogTitle,
-    MatDialogContent,
-    MatLabel,
-    MatFormField,
-    MatInput,
+    MatDialogModule,
+    MatIconModule,
     ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
     DigitOnlyModule,
-    MatTooltip,
+    MatTooltipModule,
     MatDialogActions,
-    MatButton,
+    MatButtonModule,
+    MatListModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookEditDialogComponent implements OnInit {
-  
+
   protected readonly CREATION_DIALOG_TITLE = 'Добавление новой книги';
   protected readonly EDIT_DIALOG_TITLE = 'Обновление информации о книге';
-
+  
+  public isEditMode = signal<boolean>(false);
+  
   public bookForm = this._fb.group({
     title: this._fb.control<string | null>(null),
     description: this._fb.control<string | null>(null),
@@ -61,9 +51,10 @@ export class BookEditDialogComponent implements OnInit {
       Validators.pattern('^([0-9]{10}|[0-9]{13})|null$'),
     ]),
     publisherName: this._fb.control<string | null>(null),
+    authors: this._fb.control<string[]>([]),
   });
 
-  public isEditMode = signal<boolean>(false);
+  public authorNameInputControl = this._fb.control<string | null>(null);
 
   public dialogTitle = computed(() => {
     return this.isEditMode()
@@ -74,14 +65,32 @@ export class BookEditDialogComponent implements OnInit {
   constructor(
     private readonly _fb: FormBuilder,
     private readonly _dialogRef: MatDialogRef<BookEditDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public dialogData: BookEditDialogData
-  ) {}
-
-  public ngOnInit(): void {
-    this.isEditMode.set(this.dialogData?.mode === 'update');
+    @Inject(MAT_DIALOG_DATA) public dialogData: BookEditDialogData,
+  ) {
     this._initForm();
   }
 
+  public ngOnInit(): void {
+    this.isEditMode.set(this.dialogData?.mode === 'update');
+  }
+
+  public addAuthor(): void {
+    if (this.authorNameInputControl.invalid || !this.authorNameInputControl.value) return;
+    this.bookForm.patchValue({
+      authors: [
+        ...this.bookForm.value.authors ?? [],
+        this.authorNameInputControl.value,
+      ],
+    });
+    this.authorNameInputControl.reset();
+  }
+  
+  public deleteAuthor(index: number): void {
+    this.bookForm.patchValue({
+      authors: this.bookForm.value.authors?.filter((_, i) => i !== index)
+    });
+  }
+  
   public saveBook(): void {
     const values = this.bookForm.value;
 
@@ -92,6 +101,7 @@ export class BookEditDialogComponent implements OnInit {
         description: values.description ?? undefined,
         isbn: values.isbn ?? undefined,
         publisherName: values.publisherName ?? undefined,
+        authors: values.authors ?? undefined,
       },
     };
     this._dialogRef.close(formData);
@@ -109,6 +119,7 @@ export class BookEditDialogComponent implements OnInit {
       description: dialogData.description ?? null,
       isbn: dialogData.isbn ?? null,
       publisherName: dialogData.publisherName ?? null,
+      authors: dialogData.authors ?? [],
     });
   }
   
