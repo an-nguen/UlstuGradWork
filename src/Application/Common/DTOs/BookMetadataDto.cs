@@ -14,4 +14,6 @@ public sealed record BookMetadataDto
     public string? Isbn { get; init; }
     public string? Description { get; init; }
     public string? PublisherName { get; init; }
+    public IEnumerable<string>? Authors { get; init; }
+    public IEnumerable<string>? Tags { get; init; }
 }

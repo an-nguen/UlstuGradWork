@@ -25,7 +25,9 @@ public sealed record BookDto
             Filename = string.Empty,
             FileType = FileMetadata.Type,
             FileSize = FileMetadata.Size,
-            ThumbnailFilename = string.Empty
+            ThumbnailFilename = string.Empty,
+            Authors = DocumentDetails.Authors,
+            Tags = DocumentDetails.Tags
         };
     }
 

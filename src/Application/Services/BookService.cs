@@ -119,6 +119,9 @@ public sealed class BookService(
         found.Title = details.Title;
         found.PublisherName = details.PublisherName;
         found.Isbn = details.Isbn;
+        found.Authors = details.Authors?.ToArray();
+        found.Tags = details.Tags?.ToArray();
+        
         var updatedEntityEntry = dbContext.Books.Update(found);
         await dbContext.SaveChangesAsync();
         return updatedEntityEntry.Entity.ToDto();
