@@ -1,15 +1,15 @@
 import {
   ChangeDetectionStrategy,
-  Component,
+  Component, computed,
   DestroyRef,
   ElementRef,
   OnDestroy,
-  OnInit,
+  OnInit, Signal,
   signal,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -24,7 +24,7 @@ import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirma
 import {
   BookDetailsUpdateDto,
   BookDto,
-  BookMetadataDto,
+  BookMetadataDto, SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
@@ -32,13 +32,14 @@ import { debounceTime, finalize, mergeMap, of, tap } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField } from '@angular/material/form-field';
+import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid-view.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { MatLabel } from '@angular/material/select';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 enum ViewMode {
   List,
@@ -66,6 +67,16 @@ enum ViewMode {
     BookListViewComponent,
     BookEditDialogComponent,
     DeleteConfirmationDialogComponent,
+    MatPrefix,
+    MatSuffix,
+  ],
+  animations: [
+    trigger('searchFocus', [
+      state('true', style({ width: '100%' })),
+      state('false', style({ width: '240px' })),
+      transition('false => true', animate('400ms')),
+      transition('true => false', animate('200ms')),
+    ]),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -78,8 +89,6 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     name: 'По посл. открытию',
   };
   protected readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
-  protected readonly EDIT_DIALOG_WIDTH = '80vw';
-  protected readonly EDIT_DIALOG_HEIGHT = '60vh';
   protected readonly SORT_OPTION_KEY = 'library-explorer-sort-option';
   protected readonly SORT_ORDER_KEY = 'library-explorer-sort-order';
   protected readonly VIEW_MODE_KEY = 'library-explorer-view-mode';
@@ -90,12 +99,22 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   ];
 
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
-  public loading = signal<boolean>(false);
+
   public books = signal<BookDto[]>([]);
+
   public currentPageNumber = signal<number>(1);
   public pageSize = signal<number>(this.DEFAULT_PAGE_SIZE);
   public selectedViewMode = signal<ViewMode>(ViewMode.List);
-  public search = new FormControl<string | null>(null);
+
+  public isLoading = signal<boolean>(false);
+
+  public searchFormControl = new FormControl<string | null>(null, [Validators.minLength(3)]);
+  public isSearchInFocus = signal<boolean>(false);
+  public isInSearchMode: Signal<boolean> = computed(() => {
+    const isInFocus = this.isSearchInFocus();
+    return isInFocus || !!this.searchFormControl.value;
+  });
+
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
   private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
   private _pageCount = 0;
@@ -111,6 +130,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this._loadViewSettings();
+    this._subscribeToSearchChanges();
   }
 
   public ngOnDestroy(): void {
@@ -133,6 +153,14 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public set selectedSortOrder(value: SortOrder) {
     this._selectedSortOrder = value;
     this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
+  }
+
+  public onSearchInputFocus(): void {
+    this.isSearchInFocus.set(true);
+  }
+
+  public onSearchInputBlur(): void {
+    this.isSearchInFocus.set(false);
   }
 
   public handleNumOfVisibleItemsChange(numOfVisibleItems: number) {
@@ -160,7 +188,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(
         mergeMap((data: BookEditDialogData | undefined) => {
-          this.loading.set(true);
+          this.isLoading.set(true);
           if (!data) return of(null);
           const bookMetadata: BookMetadataDto = {
             ...data.bookDetails,
@@ -172,7 +200,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this._resetFileInput();
-          this.loading.set(false);
+          this.isLoading.set(false);
         }),
         takeUntilDestroyed(this._destroyRef),
       )
@@ -201,14 +229,14 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       },
     };
     this._dialog
-      .open(BookEditDialogComponent, { 
+      .open(BookEditDialogComponent, {
         data,
         minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH,
       })
       .afterClosed()
       .pipe(
         mergeMap((dialogReturnData: BookEditDialogData) => {
-          this.loading.set(true);
+          this.isLoading.set(true);
           if (!dialogReturnData) return of(null);
           const modifiedDetails = dialogReturnData.bookDetails;
           const request: BookDetailsUpdateDto = {
@@ -217,7 +245,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
             description: modifiedDetails.description,
             publisherName: modifiedDetails.publisherName,
             authors: modifiedDetails.authors,
-            tags: modifiedDetails.tags
+            tags: modifiedDetails.tags,
           };
           return this._bookService.updateBookDetails(
             book.documentDetails.id,
@@ -226,7 +254,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this._resetFileInput();
-          this.loading.set(false);
+          this.isLoading.set(false);
         }),
         takeUntilDestroyed(this._destroyRef),
       )
@@ -249,7 +277,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
         mergeMap((isConfirmed: boolean) => {
           if (!isConfirmed) return of(null);
           this.books.update((value) =>
-            value.filter((v) => v.documentDetails.id !== book.documentDetails.id ),
+            value.filter((v) => v.documentDetails.id !== book.documentDetails.id),
           );
           return this._bookService.deleteBook(book.documentDetails.id);
         }),
@@ -274,17 +302,20 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     pageSize: number = this.pageSize(),
     shouldReset: boolean = true,
   ): void {
-    this.loading.set(true);
-    this._bookService
-      .getPage(
+    this.isLoading.set(true);
+    const searchValue = this.searchFormControl.value;
+    const page$ = !searchValue ?
+      this._bookService.getPage(
         pageNumber,
         pageSize,
         this.selectedSortOption.value,
         this.selectedSortOrder,
       )
+      : this._bookService.searchByBookDetails(this._createSearchRequest(pageNumber, pageSize, searchValue));
+    page$
       .pipe(
         tap((page) => (this._pageCount = page.pageCount)),
-        finalize(() => this.loading.set(false)),
+        finalize(() => this.isLoading.set(false)),
       )
       .subscribe((page) => {
         if (!shouldReset) {
@@ -296,9 +327,16 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   }
 
   private _subscribeToSearchChanges(): void {
-    this.search.valueChanges
-      .pipe(debounceTime(500), takeUntilDestroyed(this._destroyRef))
-      .subscribe((value) => {
+    this.searchFormControl.valueChanges
+      .pipe(
+        tap(() => this.searchFormControl.markAsTouched()),
+        debounceTime(500),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe(() => {
+        if (this.searchFormControl.invalid) return;
+        this.currentPageNumber.set(1);
+        this._loadPageOfBookList(1, this.pageSize());
       });
   }
 
@@ -326,6 +364,19 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   private _resetFileInput(): void {
     this.fileInputElement()!.nativeElement.value = '';
+  }
+
+  private _createSearchRequest(pageNumber: number, pageSize: number, value: string): SearchRequestDto {
+    return {
+      pageNumber,
+      pageSize,
+      sortProperty: this._selectedSortOption.value,
+      sortOrder: this._selectedSortOrder,
+      title: value,
+      description: value,
+      publisherName: value,
+      authors: [value],
+    };
   }
 
 }

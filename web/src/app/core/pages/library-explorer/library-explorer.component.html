@@ -11,12 +11,6 @@
       accept="application/pdf"
       (change)="onFileInputChange()"
     />
-    <app-sort-menu
-      [sortOptions]="SORT_OPTIONS"
-      [(sortOption)]="selectedSortOption"
-      [(sortOrder)]="selectedSortOrder"
-    >
-    </app-sort-menu>
     <div class="toggle-view-panel">
       <button mat-icon-button (click)="setViewMode(ViewMode.List)">
         <mat-icon>view_list</mat-icon>
@@ -25,12 +19,33 @@
         <mat-icon>grid_view</mat-icon>
       </button>
     </div>
+    <app-sort-menu
+      [sortOptions]="SORT_OPTIONS"
+      [(sortOption)]="selectedSortOption"
+      [(sortOrder)]="selectedSortOrder"
+    >
+    </app-sort-menu>
   </div>
 
   <div class="right-section">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Поиск</mat-label>
-      <input matInput type="text" [formControl]="search" />
+    <mat-form-field class="search-form-field"
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    [@searchFocus]="isInSearchMode()"
+    >
+      <input matInput
+             type="text"
+             placeholder="Поиск"
+             [formControl]="searchFormControl"
+             (focus)="onSearchInputFocus()"
+             (blur)="onSearchInputBlur()"
+      />
+      <mat-icon matPrefix>search</mat-icon>
+      @if (searchFormControl.value) {
+        <button mat-icon-button matSuffix (click)="searchFormControl.reset()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </div>
 </div>
@@ -49,7 +64,7 @@
       (scrolled)="loadNextPage()"
       (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
     >
-      <app-loading-spinner-overlay [loading]="loading()">
+      <app-loading-spinner-overlay [loading]="isLoading()">
       </app-loading-spinner-overlay>
     </app-book-list-view>
   }
@@ -67,7 +82,7 @@
       (scrolled)="loadNextPage()"
       (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
     >
-      <app-loading-spinner-overlay [loading]="loading()">
+      <app-loading-spinner-overlay [loading]="isLoading()">
       </app-loading-spinner-overlay>
     </app-book-grid-view>
   }

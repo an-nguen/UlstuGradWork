@@ -11,6 +11,10 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none;
+}
+
 .book-file-input {
   display: none;
 }
@@ -23,20 +27,36 @@
 
 .toolbar {
   display: flex;
+  position: relative;
   gap: 1em;
   align-items: center;
   flex-direction: row;
+  min-height: 60px;
+  
   div {
     padding: 0.5em 1em;
     display: flex;
     flex-grow: 1;
     flex-direction: row;
     align-items: center;
-    gap: 1.5em;
+  }
+
+  .left-section {
+    display: flex;
+    flex: 0 0 auto;
   }
 
   .right-section {
+    flex: 1 0 auto;
     justify-content: end;
+    
+    .search-form-field {
+      --mdc-outlined-text-field-container-shape: 2em;
+      
+      .mdc-text-field {
+        border-radius: 2em !important;
+      }
+    }
   }
 }
 
@@ -56,4 +76,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.view-container {
+  display: flex;
+  overflow-y: auto;
 }

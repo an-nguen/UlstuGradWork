@@ -70,9 +70,16 @@ public class BookController(
 
     [HttpPost]
     [Route("search")]
-    public Task<PageDto<BookDto>> Search([FromBody] SearchRequestDto request)
+    public async Task<PageDto<BookDto>> Search([FromBody] SearchRequestDto request)
     {
-        return searchService.SearchByBookDetailsAsync(request);
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        var page = await searchService.SearchByBookDetailsAsync(request, user);
+        foreach (var item in page.Items)
+        {
+            item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);
+        }
+
+        return page;
     }
     
     [HttpPost]

@@ -5,7 +5,7 @@ import {
   BookDto,
   BookMetadataDto,
   LastViewedPageUpdateRequest,
-  PageDto,
+  PageDto, SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
@@ -71,5 +71,8 @@ export class BookService {
   public getBookDownloadUrl(id: string): URL {
     return new URL(`${this._url}/download/${id}`);
   }
-  
+
+  public searchByBookDetails(request: SearchRequestDto): Observable<PageDto<BookDto>> {
+    return this._httpClient.post<PageDto<BookDto>>(`${this._url}/search`, request);
+  }
 }

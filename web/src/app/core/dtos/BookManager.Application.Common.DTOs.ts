@@ -178,11 +178,19 @@ export type SearchRequestDto = {
     /** Transpiled from int */
     pageNumber: number;
     /** Transpiled from string? */
+    sortProperty?: string;
+    /** Transpiled from BookManager.Application.Common.DTOs.SortOrder */
+    sortOrder?: SortOrder;
+    /** Transpiled from string? */
     title?: string;
+    /** Transpiled from string? */
+    description?: string;
     /** Transpiled from string? */
     isbn?: string;
     /** Transpiled from string? */
     publisherName?: string;
+    /** Transpiled from string[]? */
+    authors?: string[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.TranslationRequestDto */

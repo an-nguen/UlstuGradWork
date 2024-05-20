@@ -7,21 +7,30 @@ namespace BookManager.Application.Services;
 
 public sealed class SearchService(IAppDbContext dbContext, IBookService bookService) : ISearchService
 {
-    public async Task<PageDto<BookDto>> SearchByBookDetailsAsync(SearchRequestDto searchRequest)
+    public async Task<PageDto<BookDto>> SearchByBookDetailsAsync(SearchRequestDto searchRequest, User? user = null)
     {
         var predicate = PredicateBuilder.New<Book>();
         foreach (var propInfo in searchRequest.GetType().GetProperties())
         {
-            if (propInfo.GetValue(searchRequest) is not string stringValue) continue;
+            if (propInfo.GetValue(searchRequest) is not string stringValue
+                || !typeof(Book).GetProperties().Select(p => p.Name).Contains(propInfo.Name))
+                continue;
             var expr = GetStringContainsExpression<Book>(propInfo.Name, stringValue);
             predicate = predicate.Or(expr);
         }
 
+        if (searchRequest.Authors is { Length: > 0 })
+        {
+            predicate = predicate.Or(b => b.Authors.Intersect(searchRequest.Authors).Any());
+        }
+
         var request = new PageRequestDto(
             searchRequest.PageNumber,
-            searchRequest.PageSize
-            );
-        return await bookService.GetPageAsync(request, predicate);
+            searchRequest.PageSize,
+            searchRequest.SortProperty,
+            searchRequest.SortOrder ?? SortOrder.Asc
+        );
+        return await bookService.GetPageAsync(request, predicate, user);
     }
 
     public async Task<PageDto<BookTextDto>> SearchByBookTexts(TextSearchRequestDto request)
@@ -34,11 +43,11 @@ public sealed class SearchService(IAppDbContext dbContext, IBookService bookServ
             .Skip((normalizedPageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(t => t.ToDto());
-        
+
         var totalItemCount = await query.CountAsync();
         var pageCount = PageDto<BookTextDto>.CountPage(totalItemCount, request.PageSize);
         var searchResults = await query.ToListAsync();
-        
+
         return PageDto<BookTextDto>.Builder.Create()
             .SetPageCount(pageCount)
             .SetPageNumber(normalizedPageNumber)

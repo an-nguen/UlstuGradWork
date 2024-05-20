@@ -13,7 +13,8 @@ public sealed class BookService(
     IAppDbContext dbContext,
     IFileStorage fileStorage,
     IEnumerable<IBookFileHandler> bookFileHandlers,
-    IIndexingTaskQueue indexingTaskQueue) : IBookService
+    IIndexingTaskQueue indexingTaskQueue) 
+    : IBookService
 {
     private IIndexingTaskQueue IndexingTaskQueue { get; } = indexingTaskQueue;
 
