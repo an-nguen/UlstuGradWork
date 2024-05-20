@@ -1,6 +1,8 @@
 export const CONSTANTS = {
   SIZE: {
-    DIALOG_MIN_WIDTH_PX: '80vw',
+    DIALOG_MIN_WIDTH: '80vw',
+    TRANSLATION_DIALOG_MIN_WIDTH: '80vw',
+    TRANSLATION_DIALOG_MIN_HEIGHT: '60vh'
   },
   ENDPOINTS: {
     EXPLORER: 'all-books',

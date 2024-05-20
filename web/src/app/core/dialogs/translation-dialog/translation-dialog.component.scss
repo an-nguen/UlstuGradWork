@@ -2,39 +2,60 @@
   min-width: 50vw;
   min-height: 40vh;
   overflow: hidden;
-  .dialog-content {
-    display: inline-flex;
-    flex-direction: column;
 
-    .section {
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+  }
+  
+  .language-selector-section {
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    align-items: center;
+    width: 100%;
+
+    .language-dropdown-container {
       display: flex;
       flex: 1;
-      flex-direction: column;
-      color: #000;
-      font-size: 16px;
-      font-weight: 400;
-      line-height: 1.5;
 
-      .translated-text {
-        position: relative;
-        display: flex;
-        flex: 1;
+      &.right {
+        justify-content: flex-end;
       }
+    }
+  }
 
-      .text-container {
-        padding: 16px 8px;
-        font: inherit;
-        line-height: inherit;
-      }
+  .section {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
 
-      textarea {
-        flex: 1;
+    .translated-text {
+      position: relative;
+      display: flex;
+      flex: 1;
+      background-color: #e4e4e4;
+      border-radius: 2em;
+    }
 
-        background-color: transparent;
-        border: none;
-        outline: none;
-        font: inherit;
-      }
+    .text-container {
+      padding: 2em;
+      font: inherit;
+      line-height: inherit;
+    }
+
+    textarea {
+      flex: 1;
+
+      background-color: transparent;
+      border: none;
+      outline: none;
+      font: inherit;
     }
   }
 }

@@ -25,6 +25,7 @@ import {
 } from 'ngx-extended-pdf-viewer';
 import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
+import { CONSTANTS } from '@core/constants';
 
 @Component({
   selector: 'app-book-viewer',
@@ -32,22 +33,23 @@ import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu
   styleUrl: './book-viewer.component.scss',
   standalone: true,
   imports: [
-    NgxExtendedPdfViewerModule, 
+    NgxExtendedPdfViewerModule,
     TooltipMenuComponent,
     TranslationDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookViewerComponent implements OnInit, OnDestroy {
+
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
 
   public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
-    new ArrayBuffer(0)
+    new ArrayBuffer(0),
   );
-  
+
   public bearerToken?: string;
   public sidebarVisible = false;
 
@@ -63,8 +65,9 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     private readonly _dialog: MatDialog,
     private readonly _title: Title,
     private readonly _clipboard: Clipboard,
-    private readonly _destroyRef: DestroyRef
-  ) {}
+    private readonly _destroyRef: DestroyRef,
+  ) {
+  }
 
   public ngOnInit(): void {
     pdfDefaultOptions.externalLinkTarget = 2;
@@ -110,6 +113,8 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     if (!selectedText) return;
 
     this._dialog.open(TranslationDialogComponent, {
+      minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
         sourceText: selectedText,
         targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
@@ -137,11 +142,11 @@ export class BookViewerComponent implements OnInit, OnDestroy {
           console.error(error);
           this._snackBar.open(
             `Failed to open book or fetch book details: ${error}`,
-            'OK'
+            'OK',
           );
           return of(new Uint8Array());
         }),
-        takeUntilDestroyed(this._destroyRef)
+        takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
   }
@@ -153,4 +158,5 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         .subscribe();
     }
   }
+  
 }

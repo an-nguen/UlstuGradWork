@@ -9,6 +9,8 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatLabel, MatOption, MatSelect } from '@angular/material/select';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 interface TranslationDialogComponentData {
   sourceText: string;
@@ -27,9 +29,11 @@ interface TranslationDialogComponentData {
     MatFormField,
     MatSelect,
     MatOption,
+    MatButtonModule,
     CdkTextareaAutosize,
     ReactiveFormsModule,
     LoadingSpinnerOverlayComponent,
+    MatIcon,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -84,6 +88,15 @@ export class TranslationDialogComponent implements OnInit {
       .subscribe((response) =>
         this.translatedText.set(response.translatedText),
       );
+  }
+
+  public swapLanguages(): void {
+    const selectedSourceLangCode = this.languageFormGroup.value.sourceLanguage;
+    const selectedTargetLangCode = this.languageFormGroup.value.targetLanguage;
+    this.languageFormGroup.patchValue({
+      sourceLanguage: selectedTargetLangCode,
+      targetLanguage: selectedSourceLangCode,
+    });
   }
 
   private _determineSourceTextLanguage(): void {
