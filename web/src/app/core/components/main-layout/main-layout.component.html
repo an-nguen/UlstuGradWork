@@ -7,7 +7,11 @@
   >
     <div class="internal-sidenav">
       <mat-nav-list>
-        <a mat-list-item (click)="toggleSidenav()">
+        <a mat-list-item 
+           matTooltip="Раскрыть панель"
+           matTooltipPosition="right"
+           [matTooltipDisabled]="isExpanded"
+           (click)="toggleSidenav()">
           <mat-icon matListItemIcon>menu</mat-icon>
           <div matListItemTitle *ngIf="isExpanded">Закрыть панель</div>
         </a>
@@ -16,6 +20,9 @@
         <a
           mat-list-item
           routerLinkActive="active"
+          matTooltipPosition="right"
+          [matTooltip]="route.name"
+          [matTooltipDisabled]="isExpanded"
           [routerLinkActiveOptions]="{ exact: true }"
           [routerLink]="route.link"
         >
@@ -26,9 +33,13 @@
       </mat-nav-list>
       <div class="spacer"></div>
       <mat-nav-list>
-        <a mat-list-item (click)="signOut()">
+        <a mat-list-item
+           matTooltip="Выйти из системы"
+           matTooltipPosition="right"
+           [matTooltipDisabled]="isExpanded"
+           (click)="signOut()">
           <mat-icon matListItemIcon>logout</mat-icon>
-          <div matListItemTitle *ngIf="isExpanded">Выйти</div>
+          <div matListItemTitle *ngIf="isExpanded">Выйти из системы</div>
         </a>
       </mat-nav-list>
     </div>
