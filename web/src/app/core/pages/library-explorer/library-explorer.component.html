@@ -49,44 +49,41 @@
     </mat-form-field>
   </div>
 </div>
-@switch (selectedViewMode()) {
-  @case (ViewMode.List) {
-    <app-book-list-view
-      infiniteScroll
-      [infiniteScrollDistance]="1"
-      [infiniteScrollUpDistance]="1.5"
-      [infiniteScrollThrottle]="50"
-      [scrollWindow]="false"
-      [books]="books()"
-      (openItemEvent)="openBook($event)"
-      (editItemEvent)="editBook($event)"
-      (deleteItemEvent)="deleteBook($event)"
-      (scrolled)="loadNextPage()"
-      (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
-    >
-      <app-loading-spinner-overlay [loading]="isLoading()">
-      </app-loading-spinner-overlay>
-    </app-book-list-view>
+<div class="view-container"
+     infiniteScroll
+     [infiniteScrollDistance]="1"
+     [infiniteScrollUpDistance]="1.5"
+     [infiniteScrollThrottle]="50"
+     [scrollWindow]="false"
+     (scrolled)="loadNextPage()"
+>
+  @switch (selectedViewMode()) {
+    @case (ViewMode.List) {
+      <app-book-list-view
+        [books]="books()"
+        (openItemEvent)="openBook($event)"
+        (editItemEvent)="editBook($event)"
+        (deleteItemEvent)="deleteBook($event)"
+        (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
+      >
+        <app-loading-spinner-overlay [loading]="isLoading()">
+        </app-loading-spinner-overlay>
+      </app-book-list-view>
+    }
+    @case (ViewMode.Grid) {
+      <app-book-grid-view
+        [books]="books()"
+        (openItemEvent)="openBook($event)"
+        (editItemEvent)="editBook($event)"
+        (deleteItemEvent)="deleteBook($event)"
+        (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
+      >
+        <app-loading-spinner-overlay [loading]="isLoading()">
+        </app-loading-spinner-overlay>
+      </app-book-grid-view>
+    }
   }
-  @case (ViewMode.Grid) {
-    <app-book-grid-view
-      infiniteScroll
-      [infiniteScrollDistance]="2"
-      [infiniteScrollUpDistance]="1.5"
-      [infiniteScrollThrottle]="50"
-      [scrollWindow]="false"
-      [books]="books()"
-      (openItemEvent)="openBook($event)"
-      (editItemEvent)="editBook($event)"
-      (deleteItemEvent)="deleteBook($event)"
-      (scrolled)="loadNextPage()"
-      (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
-    >
-      <app-loading-spinner-overlay [loading]="isLoading()">
-      </app-loading-spinner-overlay>
-    </app-book-grid-view>
+  @if (books().length === 0) {
+    <div>Здесь пусто :(</div>
   }
-}
-@if (books().length === 0) {
-  <div>Здесь пусто :(</div>
-}
+</div>

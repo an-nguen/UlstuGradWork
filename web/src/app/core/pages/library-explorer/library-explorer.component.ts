@@ -82,7 +82,12 @@ enum ViewMode {
 })
 export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
-  public ViewMode = ViewMode;
+  public ViewMode = ViewMode;  
+  public readonly SORT_OPTIONS: SortOption[] = [
+    { value: 'title', name: 'По названию' },
+    { value: 'isbn', name: 'По ISBN' },
+    { value: 'recent_access', name: 'По посл. открытию' },
+  ];
   protected readonly DEFAULT_PAGE_SIZE = CONSTANTS.PAGE_SIZE;
   protected readonly DEFAULT_SORT_OPTION = {
     value: 'recent_access',
@@ -92,11 +97,6 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   protected readonly SORT_OPTION_KEY = 'library-explorer-sort-option';
   protected readonly SORT_ORDER_KEY = 'library-explorer-sort-order';
   protected readonly VIEW_MODE_KEY = 'library-explorer-view-mode';
-  public readonly SORT_OPTIONS: SortOption[] = [
-    { value: 'title', name: 'По названию' },
-    { value: 'isbn', name: 'По ISBN' },
-    { value: 'recent_access', name: 'По посл. открытию' },
-  ];
 
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 

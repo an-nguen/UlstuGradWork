@@ -80,5 +80,6 @@
 
 .view-container {
   display: flex;
+  box-sizing: border-box;
   overflow-y: auto;
 }
