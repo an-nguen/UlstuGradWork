@@ -5,6 +5,7 @@ using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
 using BookManager.Domain.Enums;
+using FluentValidation;
 using NodaTime;
 
 namespace BookManager.Application.Services;
@@ -13,6 +14,7 @@ public sealed class BookService(
     IAppDbContext dbContext,
     IFileStorage fileStorage,
     IEnumerable<IBookFileHandler> bookFileHandlers,
+    IValidator<PageRequestDto> pageRequestValidator,
     IIndexingTaskQueue indexingTaskQueue) 
     : IBookService
 {
@@ -30,6 +32,7 @@ public sealed class BookService(
         Expression<Func<Book, bool>>? predicate = null,
         User? user = null)
     {
+        
         var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(request.PageNumber);
         var query = dbContext.Books.AsQueryable();
 

@@ -10,7 +10,7 @@ public record PageDto<T>
     public int PageNumber { get; set; }
     public int PageCount { get; set; }
     public int TotalItemCount { get; set; }
-    
+
     // Returns a page number in a range from 1 to infinity
     public static int GetNormalizedPageNumber(int pageNumber)
     {
@@ -19,20 +19,25 @@ public record PageDto<T>
 
     public static int CountPage(int totalItemCount, int pageSize)
     {
-        return totalItemCount / pageSize + (totalItemCount % pageSize > 0 ? 1 : 0);
+        var normalizedTotalItemCount = totalItemCount == 0 ? 1 : totalItemCount;
+        var normalizedPageSize = pageSize == 0 ? 1 : pageSize;
+        return normalizedTotalItemCount / normalizedPageSize +
+               (normalizedTotalItemCount % normalizedPageSize > 0 ? 1 : 0);
     }
-    
+
     public sealed class Builder
     {
         private readonly PageDto<T> _pageDto = new();
-        
-        private Builder() {}
+
+        private Builder()
+        {
+        }
 
         public static Builder Create()
         {
             return new Builder();
         }
-        
+
         public Builder SetItems(IEnumerable<T> items)
         {
             _pageDto.Items = items;
@@ -44,7 +49,7 @@ public record PageDto<T>
             _pageDto.PageSize = pageSize;
             return this;
         }
-        
+
         public Builder SetPageNumber(int pageNumber)
         {
             _pageDto.PageNumber = pageNumber;
@@ -56,17 +61,16 @@ public record PageDto<T>
             _pageDto.PageCount = pageCount;
             return this;
         }
-        
+
         public Builder SetTotalItemCount(int totalItemCount)
         {
             _pageDto.TotalItemCount = totalItemCount;
             return this;
         }
-        
+
         public PageDto<T> Build()
         {
             return _pageDto;
         }
     }
 }
-

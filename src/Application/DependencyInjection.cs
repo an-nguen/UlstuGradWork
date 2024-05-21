@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IBookFileHandler, PdfBookFileHandler>();
         services.AddScoped<ITranslationService, YTranslationService>();
 
+        services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
         services.AddHostedService<IndexingHostedService>();
 
