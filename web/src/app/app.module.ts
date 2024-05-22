@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,16 +24,8 @@ import { ToolbarComponent } from '@core/components/toolbar/toolbar.component';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
 import { provideAuthHttpClient } from '@core/providers/auth-http-client';
-import { AuthService } from '@core/services/auth.service';
-import { Observable } from 'rxjs';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
-
-function initAppFactory(authService: AuthService): () => Observable<any> {
-  return () => {
-    return authService.refreshToken();
-  };
-}
 
 @NgModule({
   declarations: [
@@ -58,12 +50,6 @@ function initAppFactory(authService: AuthService): () => Observable<any> {
     MatSidenavModule,
   ],
   providers: [
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initAppFactory,
-      deps: [AuthService],
-      multi: true,
-    },
     {
       provide: Window,
       useValue: window,
