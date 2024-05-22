@@ -2,8 +2,12 @@
 @use '@angular/material' as mat;
 
 @mixin theme($theme) {
-  .page-control-panel {
-    // color: mat.get-theme-color($theme, on-tertiary);
-    // background-color: mat.get-theme-color($theme, tertiary);
+  .toggle-view-panel {
+    button {
+      &.active {
+        color: mat.get-theme-color($theme, on-primary);
+        background-color: mat.get-theme-color($theme, primary);
+      }
+    }
   }
 }

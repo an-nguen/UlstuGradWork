@@ -12,10 +12,16 @@
       (change)="onFileInputChange()"
     />
     <div class="toggle-view-panel">
-      <button mat-icon-button (click)="setViewMode(ViewMode.List)">
+      <button mat-icon-button
+              [class.active]="selectedViewMode() === ViewMode.List"
+              (click)="setViewMode(ViewMode.List)"
+      >
         <mat-icon>view_list</mat-icon>
       </button>
-      <button mat-icon-button (click)="setViewMode(ViewMode.Grid)">
+      <button mat-icon-button
+              [class.active]="selectedViewMode() === ViewMode.Grid"
+              (click)="setViewMode(ViewMode.Grid)"
+      >
         <mat-icon>grid_view</mat-icon>
       </button>
     </div>
