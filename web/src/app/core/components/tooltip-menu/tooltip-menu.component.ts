@@ -22,8 +22,9 @@ import { MatIcon } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TooltipMenuComponent {
-  
-  protected readonly WORD_BREAK_PATTERN = new RegExp(`([\s-]?)\n`, 'gm');
+
+  protected readonly WORD_BREAK_PATTERN = new RegExp(`(-)\n`, 'gm');
+  protected readonly NEW_LINE_PATTERN = new RegExp(`(\n|\r\n|\r)`, 'gm');
 
   public contextMenuTrigger = viewChild(CdkMenuTrigger);
 
@@ -34,7 +35,8 @@ export class TooltipMenuComponent {
 
   private _selectedText?: string;
 
-  constructor(private readonly _window: Window) {}
+  constructor(private readonly _window: Window) {
+  }
 
   @HostListener('mousedown')
   public clearSelection(): void {
@@ -57,7 +59,7 @@ export class TooltipMenuComponent {
     }
     contextMenuTrigger.menuPosition.splice(
       0,
-      contextMenuTrigger.menuPosition.length
+      contextMenuTrigger.menuPosition.length,
     );
     contextMenuTrigger.menuPosition.push({
       originX: 'start',
@@ -68,7 +70,6 @@ export class TooltipMenuComponent {
       offsetY: e.pageY,
     });
 
-    console.log(selectedText);
     this._selectedText = this._processText(selectedText);
     contextMenuTrigger.open();
   }
@@ -91,7 +92,9 @@ export class TooltipMenuComponent {
   }
 
   private _processText(value: string): string {
-    return value.trim().replace(this.WORD_BREAK_PATTERN, '').replace('\n', '');
+    return value.trim()
+      .replace(this.WORD_BREAK_PATTERN, '')
+      .replace(this.NEW_LINE_PATTERN, ' ');
   }
-  
+
 }
