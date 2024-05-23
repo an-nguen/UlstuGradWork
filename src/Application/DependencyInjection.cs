@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
@@ -18,7 +19,8 @@ namespace BookManager.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection ConfigureDataPersistence(this IServiceCollection services,
+    public static IServiceCollection ConfigureDataPersistence(
+        this IServiceCollection services,
         IConfiguration configuration)
     {
         var conStrBuilder = new NpgsqlConnectionStringBuilder(configuration.GetConnectionString("Main"))
@@ -31,20 +33,22 @@ public static class DependencyInjection
                 .UseSnakeCaseNamingConvention());
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddIdentityCore<User>(options =>
-        {
-            options.Password.RequireLowercase = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireDigit = true;
-            options.Password.RequireNonAlphanumeric = false;
-        })
-        .AddRoles<IdentityRole<Guid>>()
-        .AddEntityFrameworkStores<AppDbContext>();
-        
+            {
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<AppDbContext>();
+
         return services;
     }
 
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var yandexCloudOptions = configuration.GetSection(YandexCloudOptions.YandexCloud).Get<YandexCloudOptions>();
+        
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
@@ -56,6 +60,13 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IBookFileHandler, PdfBookFileHandler>();
         services.AddScoped<ITranslationService, YTranslationService>();
+        services.AddScoped<ITextSummarizationService, YTextSummarizationService>();
+
+        services.AddHttpClient<ITextSummarizationService, YTextSummarizationService>(httpClient =>
+        {
+            httpClient.BaseAddress = new Uri("https://llm.api.cloud.yandex.net");
+        });
+        services.AddHttpClient<IDictionaryService, DictionaryService>();
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();

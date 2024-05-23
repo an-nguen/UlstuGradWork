@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder();
 builder.Services
     .Configure<FileStorageOptions>(builder.Configuration.GetSection(FileStorageOptions.FileStorage))
     .ConfigureDataPersistence(builder.Configuration)
-    .AddApplicationServices();
+    .AddApplicationServices(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer()
@@ -24,8 +24,8 @@ builder.Services.AddCors(options =>
         .AllowCredentials()
     );
 });
-builder.AddTokenBasedSecurity();
-builder.AddYandexCloudSdk();
+builder.Services.AddYandexCloudSdk(builder.Configuration);
+builder.Services.AddTokenBasedSecurity(builder.Configuration);
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = Constants.Default.MaxFileSize;

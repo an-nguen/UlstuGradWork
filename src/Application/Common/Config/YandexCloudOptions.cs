@@ -7,4 +7,6 @@ public class YandexCloudOptions
     public string KeyId { get; init; } = string.Empty;
     public string ServiceAccountId { get; init; } = string.Empty;
     public string PrivateKeyFilePath { get; init; } = string.Empty;
+    public string ModelSummarizationUri { get; init; } = string.Empty;
+    public float ModelSummarizationTemperature { get; init; }
 }

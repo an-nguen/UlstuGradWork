@@ -7,7 +7,9 @@ namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("text-processing")]
-public class TextProcessingController(ITranslationService translationService): ControllerBase
+public class TextProcessingController(
+    ITranslationService translationService,
+    ITextSummarizationService textSummarizationService): ControllerBase
 {
     [HttpGet]
     [Route("list-languages")]
@@ -30,5 +32,13 @@ public class TextProcessingController(ITranslationService translationService): C
     public async Task<IActionResult> Translate([FromBody] TranslationRequestDto request)
     {
         return Ok(await translationService.TranslateAsync(request));
+    }
+
+    [HttpPost]
+    [Authorize]
+    [Route("summarize-text")]
+    public async Task<IActionResult> SummarizeText([FromBody] TextSummarizationRequestDto request)
+    {
+        return Ok(await textSummarizationService.SummarizeTextAsync(request));
     }
 }

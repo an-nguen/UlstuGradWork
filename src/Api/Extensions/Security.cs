@@ -5,9 +5,9 @@ namespace BookManager.Api.Extensions;
 
 public static class SecurityExtensions
 {
-    public static IServiceCollection AddTokenBasedSecurity(this WebApplicationBuilder builder)
+    public static IServiceCollection AddTokenBasedSecurity(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtTokenOptionsSection = builder.Configuration.GetSection(JwtTokenOptions.Jwt);
+        var jwtTokenOptionsSection = configuration.GetSection(JwtTokenOptions.Jwt);
         var jwtTokenOptions = jwtTokenOptionsSection.Get<JwtTokenOptions>() ?? new JwtTokenOptions();
         var jsonWebKey = new JsonWebKey(File.ReadAllText("./jwk.json", Encoding.UTF8));
         var tokenValidationParameters = new TokenValidationParameters
@@ -20,14 +20,14 @@ public static class SecurityExtensions
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = jsonWebKey,
         }; 
-        builder.Services.AddSingleton<SecurityKey, JsonWebKey>(_ => jsonWebKey);
-        builder.Services.AddSingleton<TokenValidationParameters>(_ => tokenValidationParameters);
-        builder.Services.Configure<JwtTokenOptions>(jwtTokenOptionsSection);
-        builder.Services.AddAuthentication().AddJwtBearer(options =>
+        services.AddSingleton<SecurityKey, JsonWebKey>(_ => jsonWebKey);
+        services.AddSingleton<TokenValidationParameters>(_ => tokenValidationParameters);
+        services.Configure<JwtTokenOptions>(jwtTokenOptionsSection);
+        services.AddAuthentication().AddJwtBearer(options =>
         {
             options.TokenValidationParameters = tokenValidationParameters;
         });
         
-        return builder.Services;
+        return services;
     }
 }

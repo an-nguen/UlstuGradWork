@@ -61,18 +61,20 @@ public class JwtCredentialsProvider(string keyId, string serviceAccountId, strin
 
 public static class YandexCloud
 {
-    public static WebApplicationBuilder AddYandexCloudSdk(this WebApplicationBuilder builder)
+    public static IServiceCollection AddYandexCloudSdk(this IServiceCollection services, IConfiguration configuration)
     {
-        var ycOptions = builder.Configuration.GetSection(YandexCloudOptions.YandexCloud)
+        var ycOptions = configuration.GetSection(YandexCloudOptions.YandexCloud)
             .Get<YandexCloudOptions>();
-        if (ycOptions == null) return builder;
+        if (ycOptions == null) return services;
 
+        services.Configure<YandexCloudOptions>(configuration.GetSection(YandexCloudOptions.YandexCloud));
         var credentialsProvider =
             new JwtCredentialsProvider(ycOptions.KeyId, ycOptions.ServiceAccountId, ycOptions.PrivateKeyFilePath);
         var sdk = new Sdk(credentialsProvider);
+
+        services.AddScoped<ICredentialsProvider>(_ => credentialsProvider);
+        services.AddScoped<Sdk>(_ => sdk);
         
-        builder.Services.AddScoped<Sdk>(_ => sdk);
-        
-        return builder;
+        return services;
     }
 }
