@@ -32,6 +32,7 @@ export class TooltipMenuComponent {
   public textCopyEvent = output<string>();
   public translationBtnClickEvent = output<string>();
   public definitionBtnClickEvent = output<string>();
+  public textSumBtnClickEvent = output<string>();
 
   private _selectedText?: string;
 
@@ -86,6 +87,11 @@ export class TooltipMenuComponent {
     this.contextMenuTrigger()?.close();
   }
 
+  public emitTextSumBtnClickEvent(): void {
+    if (!this._selectedText) return;
+    this.textSumBtnClickEvent.emit(this._selectedText);
+  }
+  
   public emitDefinitionBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.definitionBtnClickEvent.emit(this._selectedText);
@@ -96,5 +102,5 @@ export class TooltipMenuComponent {
       .replace(this.WORD_BREAK_PATTERN, '')
       .replace(this.NEW_LINE_PATTERN, ' ');
   }
-
+  
 }

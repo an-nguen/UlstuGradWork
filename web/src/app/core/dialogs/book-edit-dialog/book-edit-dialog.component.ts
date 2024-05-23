@@ -8,7 +8,7 @@ import { DigitOnlyModule } from '@uiowa/digit-only';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface BookEditDialogData {
   mode?: 'create' | 'update';

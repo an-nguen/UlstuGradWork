@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import {
   DetectLanguageRequestDto,
   DetectLanguageResponseDto,
-  LanguageDto,
+  LanguageDto, TextSummarizationRequestDto, TextSummarizationResponseDto,
   TranslationRequestDto,
   TranslationResponseDto,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -43,6 +43,10 @@ export class TextProcessingService {
       `${this._url}/detect-language`,
       request
     );
+  }
+  
+  public summarizeText(request: TextSummarizationRequestDto): Observable<TextSummarizationResponseDto> {
+    return this._client.post<TextSummarizationResponseDto>(`${this._url}/summarize-text`, request);
   }
 
   private _loadLanguages(): void {

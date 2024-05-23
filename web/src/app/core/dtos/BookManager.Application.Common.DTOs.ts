@@ -193,6 +193,18 @@ export type SearchRequestDto = {
     authors?: string[];
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.TextSummarizationRequestDto */
+export type TextSummarizationRequestDto = {
+    /** Transpiled from string */
+    text: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TextSummarizationResponseDto */
+export type TextSummarizationResponseDto = {
+    /** Transpiled from string */
+    summarizedText: string;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.TranslationRequestDto */
 export type TranslationRequestDto = {
     /** Transpiled from string? */

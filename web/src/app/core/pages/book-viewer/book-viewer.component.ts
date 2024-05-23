@@ -26,6 +26,8 @@ import {
 import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
+import { TextProcessingService } from '@core/services/text-processing.service';
+import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 
 @Component({
   selector: 'app-book-viewer',
@@ -59,6 +61,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly _service: BookService,
+    private readonly _textProcessingService: TextProcessingService,
     private readonly _authState: AuthState,
     private readonly _route: ActivatedRoute,
     private readonly _snackBar: MatSnackBar,
@@ -120,6 +123,25 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
       },
     });
+  }
+  
+  public openTextSummarizationDialog(selectedText: string): void {
+    if (!selectedText) return;
+    if (selectedText.length > CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE) {
+      this._snackBar.open(
+        `Максимальная длина текста для обобщения (больше ${CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE})`, 
+        'OK'
+      );
+      return;
+    }
+    
+    this._dialog.open(TextSumDialogComponent, {
+      minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
+      data: {
+        inputText: selectedText
+      }
+    })
   }
 
   private _subscribeToParamMap(): void {
