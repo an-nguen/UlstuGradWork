@@ -28,6 +28,8 @@ public sealed class Book
     public int? PageCount { get; set; }
     
     public string? ThumbnailFilename { get; init; }
+
+    public ICollection<BookCollection> Collections { get; set; } = new List<BookCollection>();
     
     public IEnumerable<BookUserStats> Stats { get; } = new List<BookUserStats>();
 }

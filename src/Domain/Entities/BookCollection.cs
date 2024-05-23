@@ -3,14 +3,14 @@ using NodaTime;
 
 namespace BookManager.Domain.Entities;
 
-public class BookGroup
+public class BookCollection
 {
     [Key]
     public Guid Id { get; init; }
     
     public required string Name { get; init; }
 
-    public ICollection<Book> BookDocuments { get; set; } = new List<Book>();
+    public ICollection<Book> Books { get; set; } = new List<Book>();
     
     public Instant CreatedAt { get; init; }
 }

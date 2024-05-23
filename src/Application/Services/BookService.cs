@@ -32,7 +32,6 @@ public sealed class BookService(
         Expression<Func<Book, bool>>? predicate = null,
         User? user = null)
     {
-        
         var normalizedPageNumber = PageDto<BookDto>.GetNormalizedPageNumber(request.PageNumber);
         var query = dbContext.Books.AsQueryable();
 
