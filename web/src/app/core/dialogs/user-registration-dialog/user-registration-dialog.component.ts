@@ -5,6 +5,7 @@ import { CONSTANTS } from '@core/constants';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { DigitOnlyModule } from '@uiowa/digit-only';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-user-registration-dialog',
@@ -15,6 +16,7 @@ import { DigitOnlyModule } from '@uiowa/digit-only';
     MatDialogContent,
     MatDialogTitle,
     MatFormField,
+    MatInputModule,
     MatLabel,
     ReactiveFormsModule,
     MatButton,
