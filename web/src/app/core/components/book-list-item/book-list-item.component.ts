@@ -4,7 +4,7 @@ import {
   computed,
   EventEmitter,
   Input,
-  input,
+  input, output,
   Output,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -14,6 +14,9 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { NgOptimizedImage } from '@angular/common';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-book-list-item',
@@ -40,10 +43,9 @@ export class BookListItemComponent {
   @Input()
   public showProgression: boolean = true;
 
-  @Output()
-  public readonly editEvent = new EventEmitter<BookDto>();
-  @Output()
-  public readonly deleteEvent = new EventEmitter<BookDto>();
+  public readonly infoClickEvent = output();
+  public readonly editClickEvent = output();
+  public readonly deleteClickEvent = output();
 
   public bookItem = input.required<BookDto>();
 
@@ -68,17 +70,28 @@ export class BookListItemComponent {
       return this.EMPTY_PLACEHOLDER;
     return format(item.stats.recentAccessTime, 'dd-MM-yyyy HH:mm');
   });
-
-  constructor(private readonly _domSanitizer: DomSanitizer) {}
+  
+  public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
+    .pipe(map((result) => result.matches)));
+  
+  constructor(
+    private readonly _breakpointObserver: BreakpointObserver,
+    private readonly _domSanitizer: DomSanitizer
+  ) {}
 
   public handleEditEvent(event: MouseEvent): void {
     event.stopPropagation();
-    this.editEvent.emit(this.bookItem());
+    this.editClickEvent.emit();
   }
 
   public handleDeleteEvent(event: MouseEvent): void {
     event.stopPropagation();
-    this.deleteEvent.emit(this.bookItem());
+    this.deleteClickEvent.emit();
   }
-  
+
+  public handleInfoClickEvent(event: MouseEvent): void {
+    event.stopPropagation();
+    this.infoClickEvent.emit()
+  }
+
 }

@@ -3,6 +3,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CONSTANTS } from '@core/constants';
 import { AuthService } from '@core/services/auth.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-main-layout',
@@ -26,10 +29,14 @@ export class MainLayoutComponent {
   ];
 
   public isExpanded = false;
-
+  
+  public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
+    .pipe(map((result) => result.matches)));
+  
   constructor(
     private readonly _authService: AuthService,
     private readonly _snackBar: MatSnackBar,
+    private readonly _breakpointObserver: BreakpointObserver, 
     private readonly _router: Router
   ) {}
 

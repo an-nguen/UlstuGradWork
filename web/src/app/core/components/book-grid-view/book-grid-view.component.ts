@@ -31,6 +31,7 @@ export class BookGridViewComponent implements AfterViewInit {
   public books = input.required<BookDto[]>();
 
   public openItemEvent = output<BookDto>();
+  public infoItemEvent = output<BookDto>();
   public editItemEvent = output<BookDto>();
   public deleteItemEvent = output<BookDto>();
 
@@ -58,6 +59,10 @@ export class BookGridViewComponent implements AfterViewInit {
     this.openItemEvent.emit(book);
   }
 
+  public emitInfoItemEvent(book: BookDto) {
+    this.infoItemEvent.emit(book);
+  }
+  
   public emitEditItemEvent(book: BookDto): void {
     this.editItemEvent.emit(book);
   }

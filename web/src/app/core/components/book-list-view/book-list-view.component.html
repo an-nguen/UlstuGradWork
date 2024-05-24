@@ -8,8 +8,9 @@
         [matTooltip]="book.documentDetails.title ?? ''"
         [showEditButton]="showEditButton()"
         [showDeleteButton]="showDeleteButton()"
-        (editEvent)="handleEditItemEvent(book)"
-        (deleteEvent)="handleDeleteItemEvent(book)"
+        (infoClickEvent)="handleInfoItemEvent(book)"
+        (editClickEvent)="handleEditItemEvent(book)"
+        (deleteClickEvent)="handleDeleteItemEvent(book)"
       >
       </app-book-list-item>
     </button>

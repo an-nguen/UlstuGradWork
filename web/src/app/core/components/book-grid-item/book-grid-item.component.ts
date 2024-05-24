@@ -31,6 +31,7 @@ export class BookGridItemComponent {
   public bookItem = input.required<BookDto>();
 
   public openEvent = output();
+  public infoEvent = output();
   public editEvent = output();
   public deleteEvent = output();
 
@@ -45,6 +46,10 @@ export class BookGridItemComponent {
 
   public emitDeleteEvent(): void {
     this.deleteEvent.emit();
+  }
+
+  public emitInfoClickEvent() {
+    this.infoEvent.emit();
   }
   
 }

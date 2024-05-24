@@ -4,36 +4,55 @@
     <mat-progress-bar [value]="progressionValue()"></mat-progress-bar>
   }
 </div>
-<div class="info">
+<div class="info" [class.handset]="isHandset()">
   <div class="book-title">{{ bookItem().documentDetails.title || '-' }}</div>
 
-  <div class="property-item">
-    <span class="name">Автор(ы)</span>
-    <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Издатель</span>
-    <span class="value">{{ bookItem().documentDetails.publisherName || '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Общее время</span>
-    <span class="value">{{ '-' }}</span>
-  </div>
-  <div class="property-item">
-    <span class="name">Посл. время открытия</span>
-    <span class="value">{{ recentAccessTime() }}</span>
-  </div>
+  @if (!isHandset()) {
+    <div class="property-item">
+      <span class="name">Автор(ы)</span>
+      <span class="value">{{ bookItem().documentDetails.authors || '-' }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">Издатель</span>
+      <span class="value">{{ bookItem().documentDetails.publisherName || '-' }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">Общее время</span>
+      <span class="value">{{ '-' }}</span>
+    </div>
+    <div class="property-item">
+      <span class="name">Посл. время открытия</span>
+      <span class="value">{{ recentAccessTime() }}</span>
+    </div>
 
-  <div class="actions">
-    @if (showEditButton) {
-      <button mat-icon-button (click)="handleEditEvent($event)">
-        <mat-icon>edit</mat-icon>
-      </button> 
-    }
-    @if (showDeleteButton) {
-      <button mat-icon-button (click)="handleDeleteEvent($event)">
-        <mat-icon>delete</mat-icon>
+    <div class="actions">
+      @if (showEditButton) {
+        <button mat-icon-button (click)="handleEditEvent($event)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      }
+      @if (showDeleteButton) {
+        <button mat-icon-button (click)="handleDeleteEvent($event)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="actions" [class.handset]="isHandset()">
+      <button mat-icon-button (click)="handleInfoClickEvent($event)">
+        <mat-icon>info</mat-icon>
       </button>
-    }
-  </div>
+      @if (showEditButton) {
+        <button mat-icon-button (click)="handleEditEvent($event)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      }
+      @if (showDeleteButton) {
+        <button mat-icon-button (click)="handleDeleteEvent($event)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </div>
+  }
+  
 </div>

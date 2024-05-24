@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,10 +28,10 @@ import {
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { debounceTime, finalize, mergeMap, of, tap } from 'rxjs';
+import { debounceTime, finalize, map, mergeMap, Observable, of, tap } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatIcon } from '@angular/material/icon';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatButton, MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
@@ -40,6 +40,9 @@ import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
 import { MatLabel } from '@angular/material/select';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { AsyncPipe } from '@angular/common';
+import { BookInfoDialogComponent } from '@core/dialogs/book-info-dialog/book-info-dialog.component';
 
 enum ViewMode {
   List,
@@ -56,8 +59,7 @@ enum ViewMode {
     LoadingSpinnerOverlayComponent,
     MatFormField,
     MatIcon,
-    MatButton,
-    MatIconButton,
+    MatButtonModule,
     MatInput,
     MatLabel,
     MatSort,
@@ -69,6 +71,7 @@ enum ViewMode {
     DeleteConfirmationDialogComponent,
     MatPrefix,
     MatSuffix,
+    AsyncPipe,
   ],
   animations: [
     trigger('searchFocus', [
@@ -82,7 +85,7 @@ enum ViewMode {
 })
 export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
-  public ViewMode = ViewMode;  
+  public ViewMode = ViewMode;
   public readonly SORT_OPTIONS: SortOption[] = [
     { value: 'title', name: 'По названию' },
     { value: 'isbn', name: 'По ISBN' },
@@ -115,6 +118,9 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     return isInFocus || !!this.searchFormControl.value;
   });
 
+  public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
+    .pipe(map((result) => result.matches)));
+
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
   private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
   private _pageCount = 0;
@@ -125,6 +131,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     private readonly _router: Router,
     private readonly _snackBar: MatSnackBar,
     private readonly _destroyRef: DestroyRef,
+    private readonly _breakpointObserver: BreakpointObserver,
   ) {
   }
 
@@ -162,7 +169,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public onSearchInputBlur(): void {
     this.isSearchInFocus.set(false);
   }
-
+  
   public handleNumOfVisibleItemsChange(numOfVisibleItems: number) {
     this.pageSize.set(Math.round(numOfVisibleItems * 2));
     this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
@@ -180,6 +187,19 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public setViewMode(mode: ViewMode): void {
     this.selectedViewMode.set(mode);
+  }
+
+  public openBookInfoDialog(book: BookDto): void {
+    this._dialog.open(BookInfoDialogComponent, {
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100vh',
+      maxHeight: '100vh',
+      panelClass: 'fullscreen',
+      data: {
+        book
+      }
+    })
   }
 
   public openBookAddDialog(file: File): void {

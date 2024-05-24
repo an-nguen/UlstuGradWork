@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Информация об электронной книге</h2>
+<div mat-dialog-content>
+  <div class="property-item">
+    <span class="name">Автор(ы)</span>
+    <span class="value" [innerText]="bookAuthors"></span>
+  </div>
+  <div class="property-item">
+    <span class="name">Издатель</span>
+    <span class="value">{{ book.documentDetails.publisherName || '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Общее время</span>
+    <span class="value">{{ '-' }}</span>
+  </div>
+  <div class="property-item">
+    <span class="name">Посл. время открытия</span>
+    <span class="value">{{ book.stats?.recentAccessTime | date }}</span>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button (click)="close()">
+    Закрыть
+  </button>
+</div>

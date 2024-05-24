@@ -35,6 +35,7 @@ export class BookListViewComponent implements AfterViewInit {
   public books = input.required<BookDto[]>();
 
   public openItemEvent = output<BookDto>();
+  public infoItemEvent = output<BookDto>();
   public editItemEvent = output<BookDto>();
   public deleteItemEvent = output<BookDto>();
   public numOfVisibleItemsChangeEvent = output<number>();
@@ -65,7 +66,11 @@ export class BookListViewComponent implements AfterViewInit {
   public handleOpenItemEvent(book: BookDto): void {
     this.openItemEvent.emit(book);
   }
-
+  
+  public handleInfoItemEvent(book: BookDto): void {
+    this.infoItemEvent.emit(book);
+  }
+  
   public handleDeleteItemEvent(book: BookDto): void {
     this.deleteItemEvent.emit(book);
   }

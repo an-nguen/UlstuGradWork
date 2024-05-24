@@ -1,0 +1,27 @@
+:host {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.mat-mdc-dialog-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 2em;
+  
+  .property-item {
+    display: flex;
+    flex-direction: column;
+    
+    .name {
+      font: inherit;
+      font-weight: 600;
+    }
+  }
+}
+
+.mat-mdc-dialog-actions {
+  display: flex;
+  justify-content: center;
+}

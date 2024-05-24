@@ -1,6 +1,7 @@
 <mat-sidenav-container>
+  @if (!isHandset()) {
   <mat-sidenav
-    mode="side"
+    [mode]="!isHandset() ? 'side' : 'over'"
     [class.expanded]="isExpanded"
     [fixedInViewport]="true"
     [(opened)]="isExpanded"
@@ -44,7 +45,11 @@
       </mat-nav-list>
     </div>
   </mat-sidenav>
-  <mat-sidenav-content [class.expanded]="isExpanded">
+  }
+  <mat-sidenav-content
+    [class.handset]="isHandset()"
+    [class.expanded]="!isHandset() && isExpanded"
+  >
     <ng-content></ng-content>
   </mat-sidenav-content>
 </mat-sidenav-container>

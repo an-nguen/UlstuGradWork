@@ -2,6 +2,7 @@
   <app-book-grid-item
     [bookItem]="book"
     (openEvent)="emitOpenItemEvent(book)"
+    (infoEvent)="emitInfoItemEvent(book)"
     (editEvent)="emitEditItemEvent(book)"
     (deleteEvent)="emitDeleteItemEvent(book)"
   ></app-book-grid-item>

@@ -12,6 +12,10 @@
   </a>
 </div>
 <mat-menu #actionMenu>
+  <button mat-menu-item (click)="emitInfoClickEvent()">
+    <mat-icon>info</mat-icon>
+    Информация о книге
+  </button>
   <button mat-menu-item (click)="emitEditEvent()">
     <mat-icon>edit</mat-icon>
     Редактировать детали

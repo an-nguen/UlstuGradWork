@@ -28,6 +28,11 @@ mat-sidenav {
   transition-duration: 400ms;
   transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
   transition-property: margin, width;
+  
+  &.handset {
+    margin-left: 0;  
+  }
+  
   &.expanded {
     margin-left: $sidenav-expanded-width !important;
   }

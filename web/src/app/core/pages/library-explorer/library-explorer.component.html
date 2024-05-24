@@ -1,9 +1,15 @@
-<div class="toolbar mat-primary">
+<div class="toolbar mat-primary" [class.handset]="isHandset()">
   <div class="left-section">
-    <button mat-flat-button (click)="bookFileInput.click()">
-      <mat-icon>add</mat-icon>
-      Добавить
-    </button>
+    @if (isHandset()) {
+      <button mat-mini-fab color="primary" (click)="bookFileInput.click()">
+        <mat-icon>add</mat-icon>
+      </button>
+    } @else {
+      <button mat-flat-button (click)="bookFileInput.click()">
+        <mat-icon>add</mat-icon>
+        Добавить
+      </button>
+    }
     <input
       #bookFileInput
       class="book-file-input"
@@ -37,7 +43,7 @@
     <mat-form-field class="search-form-field"
                     appearance="outline"
                     subscriptSizing="dynamic"
-                    [@searchFocus]="isInSearchMode()"
+                    [@searchFocus]="isInSearchMode() && !isHandset()"
     >
       <input matInput
              type="text"
@@ -69,6 +75,7 @@
       <app-book-list-view
         [books]="books()"
         (openItemEvent)="openBook($event)"
+        (infoItemEvent)="openBookInfoDialog($event)"
         (editItemEvent)="editBook($event)"
         (deleteItemEvent)="deleteBook($event)"
         (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
@@ -81,6 +88,7 @@
       <app-book-grid-view
         [books]="books()"
         (openItemEvent)="openBook($event)"
+        (infoItemEvent)="openBookInfoDialog($event)"
         (editItemEvent)="editBook($event)"
         (deleteItemEvent)="deleteBook($event)"
         (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
