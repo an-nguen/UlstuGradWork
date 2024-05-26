@@ -47,8 +47,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var yandexCloudOptions = configuration.GetSection(YandexCloudOptions.YandexCloud).Get<YandexCloudOptions>();
-        
+        // var yandexCloudOptions = configuration.GetSection(YandexCloudOptions.YandexCloud).Get<YandexCloudOptions>();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
@@ -61,12 +60,12 @@ public static class DependencyInjection
         services.AddScoped<IBookFileHandler, PdfBookFileHandler>();
         services.AddScoped<ITranslationService, YTranslationService>();
         services.AddScoped<ITextSummarizationService, YTextSummarizationService>();
+        services.AddScoped<IWordDictionaryService, DictionaryService>();
 
         services.AddHttpClient<ITextSummarizationService, YTextSummarizationService>(httpClient =>
         {
             httpClient.BaseAddress = new Uri("https://llm.api.cloud.yandex.net");
         });
-        services.AddHttpClient<IDictionaryService, DictionaryService>();
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();

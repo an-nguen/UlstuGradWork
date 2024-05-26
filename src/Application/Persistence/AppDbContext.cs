@@ -14,6 +14,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<BookUserStats> BookUserStatsSet => Set<BookUserStats>();
 
+    public DbSet<DictionaryWord> DictionaryWords => Set<DictionaryWord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -31,5 +33,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Book>()
             .HasMany(b => b.Collections)
             .WithMany(bc => bc.Books);
+        modelBuilder.Entity<DictionaryWord>()
+            .Navigation(w => w.Definitions)
+            .AutoInclude();
     }
 }
