@@ -69,6 +69,8 @@ public static class DependencyInjection
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
+        services.AddScoped<IValidator<WordDto>, WordDtoValidator>();
+        
         services.AddHostedService<IndexingHostedService>();
 
         return services;

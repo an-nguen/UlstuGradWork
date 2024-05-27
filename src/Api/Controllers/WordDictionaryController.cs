@@ -20,30 +20,57 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     [HttpPost]
     public async Task<IActionResult> AddWord([FromBody] WordDto word)
     {
-        var addedWord = await service.AddWord(word);
-        return Ok(addedWord);
+        IActionResult result;
+        try
+        {
+            var addedWord = await service.AddWord(word);
+            result = Ok(addedWord);
+        }
+        catch (ArgumentException e)
+        {
+            result = BadRequest(e.Message);
+        }
+
+        return result;
     }
 
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateWord(string id, [FromBody] WordDto word)
     {
-        var updatedWord = await service.UpdateWord(id, word);
-        return Ok(updatedWord);
+        IActionResult result;
+        try
+        {
+            var updatedWord = await service.UpdateWord(id, word);
+            result = Ok(updatedWord);
+        }
+        catch (ArgumentException e)
+        {
+            result = BadRequest(e.Message);
+        }
+        catch (EntityNotFoundException)
+        {
+            result = NotFound();
+        }
+
+        return result;
     }
 
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteWord(string id)
     {
+        IActionResult result;
         try
         {
             await service.DeleteWord(id);
-            return Ok();
+            result = Ok();
         }
         catch (EntityNotFoundException)
         {
-            return NotFound();
+            result = NotFound();
         }
-    } 
+
+        return result;
+    }
 }
