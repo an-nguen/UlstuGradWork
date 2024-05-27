@@ -4,11 +4,13 @@ namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface IWordDictionaryService
 {
-    public Task<WordDto?> Find(string word); 
+    public IEnumerable<string> GetThirdPartyProviderNames();
+    
+    public Task<WordDto?> FindAsync(string word, string? thirdPartyProviderName);
 
-    public Task<WordDto> AddWord(WordDto word);
+    public Task<WordDto> AddWordAsync(WordDto word);
 
-    public Task<WordDto> UpdateWord(string wordId, WordDto word);
+    public Task<WordDto> UpdateWordAsync(string wordId, WordDto word);
 
-    public Task DeleteWord(string word);
+    public Task DeleteWordAsync(string word);
 }

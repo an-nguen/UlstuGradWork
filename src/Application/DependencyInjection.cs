@@ -45,10 +45,11 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
-        // var yandexCloudOptions = configuration.GetSection(YandexCloudOptions.YandexCloud).Get<YandexCloudOptions>();
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.Configure<MerriamWebsterOptions>(configuration.GetSection(MerriamWebsterOptions.MerriamWebster));
+        
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
 
@@ -61,16 +62,18 @@ public static class DependencyInjection
         services.AddScoped<ITranslationService, YTranslationService>();
         services.AddScoped<ITextSummarizationService, YTextSummarizationService>();
         services.AddScoped<IWordDictionaryService, DictionaryService>();
+        services.AddScoped<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
+
+        services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
+        services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
+        services.AddScoped<IValidator<WordDto>, WordDtoValidator>();
 
         services.AddHttpClient<ITextSummarizationService, YTextSummarizationService>(httpClient =>
         {
             httpClient.BaseAddress = new Uri("https://llm.api.cloud.yandex.net");
         });
+        services.AddHttpClient<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
 
-        services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
-        services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
-        services.AddScoped<IValidator<WordDto>, WordDtoValidator>();
-        
         services.AddHostedService<IndexingHostedService>();
 
         return services;

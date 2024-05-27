@@ -9,12 +9,32 @@ namespace BookManager.Api.Controllers;
 public class WordDictionaryController(IWordDictionaryService service) : ControllerBase
 {
     [HttpGet]
-    [Route("{id}")]
-    public async Task<IActionResult> Find(string id)
+    [Route("list-third-party-providers")]
+    public IActionResult ListThirdPartyDictionaryProviderNames()
     {
-        var word = await service.Find(id);
-        if (word == null) return NotFound(id);
-        return Ok(word);
+        return Ok(service.GetThirdPartyProviderNames());
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> Find(string id, [FromQuery] string? providerName)
+    {
+        IActionResult? result;
+        try
+        {
+            var word = await service.FindAsync(id, providerName);
+            result = word == null ? NotFound(id) : Ok(word);
+        }
+        catch (NotAvailableException e)
+        {
+            result = StatusCode(StatusCodes.Status503ServiceUnavailable, e.Message);
+        }
+        catch (ArgumentException)
+        {
+            result = BadRequest();
+        }
+
+        return result;
     }
 
     [HttpPost]
@@ -23,7 +43,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
         IActionResult result;
         try
         {
-            var addedWord = await service.AddWord(word);
+            var addedWord = await service.AddWordAsync(word);
             result = Ok(addedWord);
         }
         catch (ArgumentException e)
@@ -41,7 +61,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
         IActionResult result;
         try
         {
-            var updatedWord = await service.UpdateWord(id, word);
+            var updatedWord = await service.UpdateWordAsync(id, word);
             result = Ok(updatedWord);
         }
         catch (ArgumentException e)
@@ -63,7 +83,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
         IActionResult result;
         try
         {
-            await service.DeleteWord(id);
+            await service.DeleteWordAsync(id);
             result = Ok();
         }
         catch (EntityNotFoundException)
