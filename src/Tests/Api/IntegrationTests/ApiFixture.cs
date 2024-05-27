@@ -57,6 +57,7 @@ public class ApiFixture : IDisposable
         var dbContext = ServiceProviderServiceExtensions.GetRequiredService<AppDbContext>(scope.ServiceProvider);
         dbContext.Books.ExecuteDelete();
         dbContext.BookTexts.ExecuteDelete();
+        dbContext.DictionaryWords.ExecuteDelete();
     }
     
     private void AddUser()
