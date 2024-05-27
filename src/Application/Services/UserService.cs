@@ -40,14 +40,19 @@ public sealed class UserService(
     {
         var validationResult = await userAddRequestValidator.ValidateAsync(request);
         if (!validationResult.IsValid) throw new ArgumentException("Invalid request", nameof(request));
+        
         var foundUser = await dbContext.Users.FindAsync([id]);
         if (foundUser == null || string.IsNullOrEmpty(foundUser.UserName)) throw new EntityNotFoundException();
+        
         foundUser.PasswordHash = passwordHasher.HashPassword(foundUser, request.PinCode);
+        
         var identityResult = await userManager.UpdateAsync(foundUser);
         if (!identityResult.Succeeded)
             throw new UserUpdateException("Failed to update user account.");
+        
         var updatedUser = await userManager.FindByNameAsync(foundUser.UserName) 
                           ?? throw new UserUpdateException("Failed to get user entity after an user account update.");
+        
         return updatedUser.ToDto();
     }
 
