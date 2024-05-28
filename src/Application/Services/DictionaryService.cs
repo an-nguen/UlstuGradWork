@@ -15,21 +15,21 @@ public sealed class DictionaryService(
         return thirdPartyDictionaryProviders.Select(provider => provider.ProviderName).ToList();
     }
 
-    public async Task<WordDto?> FindAsync(string word, string? thirdPartyProviderName)
+    public async Task<IEnumerable<WordDto>> FindAsync(string word)
     {
-        var foundDictWord = await dbContext.DictionaryWords.FirstOrDefaultAsync(w => w.Word == word);
-        if (foundDictWord != null || thirdPartyProviderName == null) return foundDictWord?.ToDto();
-        
-        var provider = thirdPartyDictionaryProviders.FirstOrDefault(provider => provider.ProviderName == thirdPartyProviderName);
-        if (provider == null) 
-            throw new ArgumentException(null, nameof(thirdPartyProviderName));
-        var wordDto = await provider.GetDefinitionAsync(word);
-        if (wordDto != null)
-        {
-            await AddWordAsync(wordDto);
-        }
+        return await dbContext.DictionaryWords
+            .Where(w => w.Word == word || w.Aliases.Select(alias => alias.Alias).Contains(word))
+            .Select(w => w.ToDto())
+            .ToListAsync();
+    }
 
-        return wordDto;
+    public async Task<IEnumerable<WordDto>> FindInExtDictAsync(string word, string thirdPartyProviderName)
+    {
+        var provider =
+            thirdPartyDictionaryProviders.FirstOrDefault(provider => provider.ProviderName == thirdPartyProviderName);
+        if (provider == null)
+            throw new ArgumentException(null, nameof(thirdPartyProviderName));
+        return await provider.GetDefinitionAsync(word);
     }
 
     public async Task<WordDto> AddWordAsync(WordDto word)
@@ -54,6 +54,13 @@ public sealed class DictionaryService(
         {
             foundEntity.Definitions.Add(wordDef.ToEntity());
         }
+
+        foundEntity.Aliases.Clear();
+        foreach (var alias in word.Aliases)
+        {
+            foundEntity.Aliases.Add(alias.ToEntity());
+        }
+
         var entry = dbContext.DictionaryWords.Update(foundEntity);
         await dbContext.SaveChangesAsync();
         return entry.Entity.ToDto();

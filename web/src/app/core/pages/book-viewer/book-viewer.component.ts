@@ -15,19 +15,28 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/translation-dialog.component';
-import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
+import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import {
-  NgxExtendedPdfViewerComponent,
-  NgxExtendedPdfViewerModule,
-  pdfDefaultOptions,
-} from 'ngx-extended-pdf-viewer';
-import { catchError, mergeMap, of, tap, throwError } from 'rxjs';
+  catchError,
+  combineLatest,
+  concat,
+  concatAll,
+  finalize,
+  mergeMap,
+  Observable,
+  of,
+  tap,
+  throwError,
+  toArray,
+} from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
-import { TextProcessingService } from '@core/services/text-processing.service';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
+import { DictionaryService } from '@core/services/dictionary.service';
+import { DictionaryWordEditDialogComponent } from '@core/dialogs/dictionary-word-edit-dialog/dictionary-word-edit-dialog.component';
 
 @Component({
   selector: 'app-book-viewer',
@@ -43,6 +52,7 @@ import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-d
 })
 export class BookViewerComponent implements OnInit, OnDestroy {
 
+  protected readonly DICTIONARY_PROVIDER_NAME = 'MerriamWebster';
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
 
   @ViewChild(NgxExtendedPdfViewerComponent)
@@ -51,17 +61,20 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
     new ArrayBuffer(0),
   );
+  public wordEntries = signal<WordDto[]>([]);
 
   public bearerToken?: string;
   public sidebarVisible = false;
+  public isDefinitionLoading = false;
 
+  private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
   private _currentBook?: BookDto;
   private _page?: number;
   private _zoom?: string | number = 100;
 
   constructor(
     private readonly _service: BookService,
-    private readonly _textProcessingService: TextProcessingService,
+    private readonly _dictionaryService: DictionaryService,
     private readonly _authState: AuthState,
     private readonly _route: ActivatedRoute,
     private readonly _snackBar: MatSnackBar,
@@ -124,24 +137,24 @@ export class BookViewerComponent implements OnInit, OnDestroy {
       },
     });
   }
-  
+
   public openTextSummarizationDialog(selectedText: string): void {
     if (!selectedText) return;
     if (selectedText.length > CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE) {
       this._snackBar.open(
-        `Максимальная длина текста для обобщения (больше ${CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE})`, 
-        'OK'
+        `Максимальная длина текста для обобщения (больше ${CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE})`,
+        'OK',
       );
       return;
     }
-    
+
     this._dialog.open(TextSumDialogComponent, {
       minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
       minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
-        inputText: selectedText
-      }
-    })
+        inputText: selectedText,
+      },
+    });
   }
 
   private _subscribeToParamMap(): void {
@@ -173,6 +186,36 @@ export class BookViewerComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  public showWordDefinition(word: string): void {
+    const normalizedWord = word.trim().toLowerCase();
+    if (!this._dictionaryWordRegex.test(normalizedWord)) return;
+    this.isDefinitionLoading = true;
+    this._dictionaryService.find(normalizedWord)
+      .pipe(
+        mergeMap((foundWords) =>
+          (foundWords.length === 0)
+            ? this._dictionaryService.findInExtDict(normalizedWord, this.DICTIONARY_PROVIDER_NAME)
+            : of(foundWords)),
+        finalize(() => this.isDefinitionLoading = false),
+      )
+      .subscribe((foundWords) => {
+        if (foundWords.length === 0) return;
+        this.wordEntries.set(foundWords);
+      });
+  }
+
+  public clearWordEntries(): void {
+    this.wordEntries.set([]);
+  }
+
+  public addWordsToDictionary(words: WordDto[]): void {
+    const requests = words.map((word) => this._dictionaryService.addWord(word));
+    combineLatest(requests)
+      .subscribe((results) => {
+        this._snackBar.open(`Успешно добавлены ${results.length} слов(а).`, 'OK')
+      });
+  }
+
   private _updateLastViewedPage(): void {
     if (this._currentBook && this._page) {
       this._service
@@ -180,5 +223,4 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         .subscribe();
     }
   }
-  
 }

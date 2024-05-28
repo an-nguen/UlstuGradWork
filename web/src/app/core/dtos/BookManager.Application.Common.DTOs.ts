@@ -241,3 +241,33 @@ export type UserDto = {
     name: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.WordDefinitionDto */
+export type WordDefinitionDto = {
+    /** Transpiled from string */
+    partOfSpeech: string;
+    /** Transpiled from string */
+    subjectName: string;
+    /** Transpiled from string */
+    definition: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.WordAlias */
+export type WordAlias = {
+    /** Transpiled from string */
+    alias: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.WordDto */
+export type WordDto = {
+    /** Transpiled from string */
+    word: string;
+    /** Transpiled from string? */
+    transcription?: string;
+    /** Transpiled from string? */
+    languageCode?: string;
+    /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.WordAlias> */
+    aliases: WordAlias[];
+    /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.WordDefinitionDto> */
+    definitions: WordDefinitionDto[];
+}
+

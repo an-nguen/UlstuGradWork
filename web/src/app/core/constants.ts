@@ -32,6 +32,7 @@ export const CONSTANTS = {
   },
   REGEX_PATTERN: {
     PIN_CODE: '^[0-9]{4,16}$',
+    DICTIONARY_WORD: `^([\\p{L}-]*)( ?)([\\p{L}-]*)$`
   },
   PAGE_SIZE: 7,
 };

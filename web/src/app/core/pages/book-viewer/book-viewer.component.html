@@ -1,9 +1,14 @@
 <div
   id="pdf-viewer-container"
   app-tooltip-menu
+  [wordDefinitionEntries]="wordEntries()"
+  [definitionLoading]="isDefinitionLoading"
+  (selectionEvent)="clearWordEntries()"
   (textCopyEvent)="copyText($event)"
+  (definitionBtnClickEvent)="showWordDefinition($event)"
   (translationBtnClickEvent)="openTranslationDialog($event)"
   (textSumBtnClickEvent)="openTextSummarizationDialog($event)"
+  (definitionAddBtnClickEvent)="addWordsToDictionary($event)"
 >
   <ngx-extended-pdf-viewer
     #pdfViewer
@@ -17,7 +22,8 @@
     [authorization]="bearerToken"
     [showHandToolButton]="true"
     [handTool]="false"
-  ></ngx-extended-pdf-viewer>
+  >
+  </ngx-extended-pdf-viewer>
 </div>
 
 <ng-template #customToolbar>
@@ -41,7 +47,7 @@
     <div class="right">
       <pdf-hand-tool></pdf-hand-tool>
       <pdf-select-tool></pdf-select-tool>
-      <pdf-presentation-mode> </pdf-presentation-mode>
+      <pdf-presentation-mode></pdf-presentation-mode>
       <pdf-print></pdf-print>
       <pdf-download></pdf-download>
       <pdf-toggle-secondary-toolbar></pdf-toggle-secondary-toolbar>

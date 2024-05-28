@@ -1,20 +1,54 @@
 <div [cdkMenuTriggerFor]="contextMenu"></div>
 <ng-content></ng-content>
 <ng-template #contextMenu>
-  <div class="tooltip-menu">
-    <button (click)="emitTextCopyEvent()">
-      <mat-icon>content_copy</mat-icon>
-    </button>
-    <button (click)="emitTranslationBtnClickEvent()">
-      <mat-icon>translate</mat-icon>
-    </button>
-    <button (click)="emitDefinitionBtnClickEvent()">
-      <mat-icon>abc</mat-icon>
-    </button>
-    <button matTooltip="Обобщение текста" 
-            matTooltipPosition="above" 
-            (click)="emitTextSumBtnClickEvent()">
-      <mat-icon>functions</mat-icon>
-    </button>
+  <div class="context-menu-container">
+    <div class="tooltip-menu">
+      <button matTooltip="Перевести"
+              matTooltipPosition="above"
+              (click)="emitTextCopyEvent()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button matTooltip="Перевести"
+              matTooltipPosition="above"
+              (click)="emitTranslationBtnClickEvent()">
+        <mat-icon>translate</mat-icon>
+      </button>
+      <button matTooltip="Определение"
+              matTooltipPosition="above"
+              [disabled]="definitionLoading()"
+              (mouseup)="emitDefinitionBtnClickEvent()">
+        <mat-icon>abc</mat-icon>
+      </button>
+      <button matTooltip="Обобщение текста"
+              matTooltipPosition="above"
+              (click)="emitTextSumBtnClickEvent()">
+        <mat-icon>functions</mat-icon>
+      </button>
+    </div>
+    @if (haveDefinitions()) {
+      <div class="word-definition-popup">
+        <div class="word-definition-container">
+          @for (entry of wordDefinitionEntries(); track $index) {
+            <div class="word">{{ entry.word }}</div>
+            <div class="transcription">{{ entry?.transcription }}</div>
+            <ul>
+              @for (definition of entry.definitions; track $index) {
+                <li>
+                  <span class="part-of-speech">{{ definition.partOfSpeech }}</span>
+                  <span class="definition">{{ definition.definition }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <div>
+          <button mat-flat-button color="primary" (click)="emitWordAddBtnClickEvent()">
+            <mat-icon>add</mat-icon>
+            Добавить в словарь
+          </button>
+        </div>
+        <app-loading-spinner-overlay [loading]="definitionLoading()"></app-loading-spinner-overlay>
+      </div>
+    }
   </div>
 </ng-template>

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace BookManager.Application.Services;
 
-public class MerriamWebsterDictionaryProvider(
+public partial class MerriamWebsterDictionaryProvider(
     HttpClient httpClient,
     IOptions<MerriamWebsterOptions> options)
     : IThirdPartyDictionaryProvider
@@ -17,10 +18,11 @@ public class MerriamWebsterDictionaryProvider(
 
     private readonly MerriamWebsterOptions _options = options.Value;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
+    private Regex _wordIdRegex = WordIdRegex();
 
     public string ProviderName => "MerriamWebster";
 
-    public async Task<WordDto?> GetDefinitionAsync(string word)
+    public async Task<IEnumerable<WordDto>> GetDefinitionAsync(string word)
     {
         if (string.IsNullOrEmpty(_options.ApiKey.Trim()))
             throw new NotAvailableException(
@@ -36,27 +38,43 @@ public class MerriamWebsterDictionaryProvider(
             RequestUri = requestUri,
         };
         var responseMessage = await httpClient.SendAsync(requestMessage);
-        var contentStream = await responseMessage.Content.ReadAsStreamAsync();
-        var results = await JsonSerializer.DeserializeAsync<ICollection<MerriamWebsterDefDto>>(
-            contentStream,
-            _jsonSerializerOptions
-        );
-        if (results == null) return null;
-        string? transcription = null;
-        var definitions = new List<WordDefinitionDto>();
-        foreach (var def in results)
+        try
         {
-            if (transcription == null && def.HeadwordInfo?.Pronunciations is { Length: > 0 })
-                transcription = def.HeadwordInfo.Pronunciations[0].WrittenPronunciation;
+            await using var contentStream = await responseMessage.Content.ReadAsStreamAsync();
+            var results = await JsonSerializer.DeserializeAsync<ICollection<MerriamWebsterDefDto>>(
+                contentStream,
+                _jsonSerializerOptions
+            );
+            if (results == null) return new List<WordDto>();
 
-            definitions.Add(new WordDefinitionDto(def.FunctionalLabel, "", def.ShortDefinition));
+            var words = new List<WordDto>();
+            foreach (var def in results)
+            {
+                if (string.IsNullOrEmpty(def.HeadwordInfo.Headword)
+                    || def.ShortDefinition is { Length: 0 }
+                    || def.HeadwordInfo.Pronunciations is { Length: 0 }
+                    || string.IsNullOrEmpty(def.HeadwordInfo.Pronunciations?[0].WrittenPronunciation)
+                   )
+                    continue;
+
+                var definitions = def.ShortDefinition
+                    .Select(definition => new WordDefinitionDto(def.FunctionalLabel, "", definition))
+                    .ToList();
+                var transcription = def.HeadwordInfo.Pronunciations[0].WrittenPronunciation;
+                var normalizedWordId = _wordIdRegex.Replace(def.Meta.Id, string.Empty);
+                var aliases = def.Meta.Stems.Select(stem => new WordAlias(stem)).ToList();
+                words.Add(new WordDto(normalizedWordId, transcription, string.Empty, Aliases: aliases,
+                    Definitions: definitions));
+            }   
+
+            return words;
         }
-
-        return new WordDto(
-            word,
-            transcription,
-            "en",
-            definitions
-        );
+        catch (Exception)
+        {
+            return new List<WordDto>();
+        }
     }
+
+    [GeneratedRegex(":\\d$")]
+    private static partial Regex WordIdRegex();
 }

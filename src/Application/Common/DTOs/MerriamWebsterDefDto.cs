@@ -5,7 +5,7 @@ namespace BookManager.Application.Common.DTOs;
 // https://dictionaryapi.com/products/json
 public sealed record MerriamWebsterDefDto
 {
-    public EntryMetadata? Meta { get; init; }
+    public EntryMetadata Meta { get; init; }
 
     // Homographs are headwords with identical spellings but distinct meanings and origins.
     [JsonPropertyName("hom")]
@@ -22,17 +22,17 @@ public sealed record MerriamWebsterDefDto
     // Заглавное слово (Headword)
     // The headword is the word being defined or translated in a dictionary entry.
     [JsonPropertyName("hwi")]
-    public HeadwordInformation? HeadwordInfo { get; init; }
-    
+    public HeadwordInformation HeadwordInfo { get; init; }
+
     // The definition section groups together all the sense sequences
     // and verb dividers for a headword or defined run-on phrase.
     [JsonPropertyName("def")]
     public object[] DefinitionSection { get; init; } = [];
-    
+
     // A short definition provides a highly abridged version of the main definition section,
     // consisting of just the definition text for the first three senses.
     [JsonPropertyName("shortdef")]
-    public string ShortDefinition { get; init; } = string.Empty;
+    public string[] ShortDefinition { get; init; } = [];
 
     public record EntryMetadata(
         string Id,
@@ -46,26 +46,39 @@ public sealed record MerriamWebsterDefDto
 
     public record HeadwordInformation
     {
-        [JsonPropertyName("prs")] 
+        [JsonPropertyName("hw")]
+        public string Headword { get; init; } = string.Empty;
+
+        [JsonPropertyName("prs")]
         public Pronuciation[]? Pronunciations { get; init; }
-        
-        public object? Sound { get; init; }
     }
 
     public record Pronuciation
     {
         [JsonPropertyName("mw")]
         public string WrittenPronunciation { get; init; } = string.Empty;
+
+        [JsonPropertyName("sound")]
+        public AudioInfo Sound { get; init; } = null!;
+    }
+
+    public record AudioInfo
+    {
+        [JsonPropertyName("audio")]
+        public string FileName { get; init; } = string.Empty;
+
+        public string Ref { get; init; } = string.Empty;
+        public string Stat { get; init; } = string.Empty;
     }
 
     public record Variant
     {
         public string Va { get; init; } = string.Empty;
-        
+
         [JsonPropertyName("vl")]
         public string? VariantLabel { get; init; }
-        
-        [JsonPropertyName("prs")] 
+
+        [JsonPropertyName("prs")]
         public Pronuciation[]? Pronunciations { get; init; }
     }
 }

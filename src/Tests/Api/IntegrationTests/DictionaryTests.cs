@@ -22,6 +22,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "lookup",
             "ˈlu\u0307k-ˌəp",
             "en",
+            new List<WordAlias>(),
             new List<WordDefinitionDto>
             {
                 new("noun",
@@ -40,6 +41,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "",
             null,
             null,
+            new List<WordAlias>(),
             new List<WordDefinitionDto>()
         );
         var responseMessage = await _client.PostAsync("word-dictionary", JsonContent.Create(emptyWord));
@@ -53,6 +55,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "watch",
             "ˈwȯch",
             "en",
+            new List<WordAlias>(),
             new List<WordDefinitionDto>
             {
                 new("verb",
@@ -93,6 +96,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "come on",
             null,
             null,
+            new List<WordAlias>(),
             new List<WordDefinitionDto>()
         );
         var responseMessage = await _client.PutAsync(
@@ -109,6 +113,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "some",
             "ˈsəm",
             "en",
+            new List<WordAlias>(),
             new List<WordDefinitionDto>
             {
                 new("noun", "-", "being an unknown, undetermined, or unspecified unit or thing"),
@@ -128,6 +133,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             "another",
             "",
             "en",
+            new List<WordAlias>(),
             new List<WordDefinitionDto>()
         );
         var responseMessage = await _client.DeleteAsync($"{RequestUri}/{anotherWord.Word}");

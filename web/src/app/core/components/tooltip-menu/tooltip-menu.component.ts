@@ -1,13 +1,10 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostListener,
-  output,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, input, output, viewChild } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
+import { WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { MatButtonModule } from '@angular/material/button';
+import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 
 @Component({
   selector: '[app-tooltip-menu]',
@@ -18,6 +15,8 @@ import { MatIcon } from '@angular/material/icon';
     CdkMenuTrigger,
     MatTooltip,
     MatIcon,
+    MatButtonModule,
+    LoadingSpinnerOverlayComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -25,18 +24,29 @@ export class TooltipMenuComponent {
 
   protected readonly WORD_BREAK_PATTERN = new RegExp(`(-)\n`, 'gm');
   protected readonly NEW_LINE_PATTERN = new RegExp(`(\n|\r\n|\r)`, 'gm');
+  protected readonly WORD_DEFINITION_POPUP_HEIGHT_PX = 240;
 
   public contextMenuTrigger = viewChild(CdkMenuTrigger);
+
+  public wordDefinitionEntries = input<WordDto[]>([]);
+  public haveDefinitions = computed(() => {
+    const entries = this.wordDefinitionEntries();
+    return entries.length > 0;
+  });
+  public definitionLoading = input<boolean>(false);
 
   public selectionEvent = output<string | null>();
   public textCopyEvent = output<string>();
   public translationBtnClickEvent = output<string>();
   public definitionBtnClickEvent = output<string>();
   public textSumBtnClickEvent = output<string>();
+  public definitionAddBtnClickEvent = output<WordDto[]>();
 
   private _selectedText?: string;
 
-  constructor(private readonly _window: Window) {
+  constructor(
+    private readonly _window: Window,
+  ) {
   }
 
   @HostListener('mousedown')
@@ -44,6 +54,7 @@ export class TooltipMenuComponent {
     const selection = this._window.getSelection();
     this.contextMenuTrigger()?.close();
     selection?.removeAllRanges();
+    this.selectionEvent.emit(null);
   }
 
   @HostListener('mouseup', ['$event'])
@@ -67,12 +78,24 @@ export class TooltipMenuComponent {
       originY: 'top',
       overlayX: 'start',
       overlayY: 'top',
-      offsetX: e.pageX,
-      offsetY: e.pageY,
+      offsetX: e.clientX,
+      offsetY: e.clientY,
     });
-
+    
     this._selectedText = this._processText(selectedText);
     contextMenuTrigger.open();
+  }
+
+  @HostListener('scroll', ['$event'])
+  @HostListener('wheel', ['$event'])
+  public closeContextMenu(): void {
+    if (this.contextMenuTrigger()?.isOpen()) {
+      this.contextMenuTrigger()?.close();
+    }
+  }
+  
+  public willBeOffscreenByHeight(e: MouseEvent): boolean {
+    return e.clientY + this.WORD_DEFINITION_POPUP_HEIGHT_PX > window.innerHeight;
   }
 
   public emitTranslationBtnClickEvent(): void {
@@ -91,10 +114,16 @@ export class TooltipMenuComponent {
     if (!this._selectedText) return;
     this.textSumBtnClickEvent.emit(this._selectedText);
   }
-  
+
   public emitDefinitionBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.definitionBtnClickEvent.emit(this._selectedText);
+  }
+
+  public emitWordAddBtnClickEvent(): void {
+    if (!this._selectedText) return;
+    this.definitionAddBtnClickEvent.emit(this.wordDefinitionEntries());
+    this.contextMenuTrigger()?.close();
   }
 
   private _processText(value: string): string {
@@ -102,5 +131,5 @@ export class TooltipMenuComponent {
       .replace(this.WORD_BREAK_PATTERN, '')
       .replace(this.NEW_LINE_PATTERN, ' ');
   }
-  
+
 }

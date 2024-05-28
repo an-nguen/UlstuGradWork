@@ -17,13 +17,31 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<IActionResult> Find(string id, [FromQuery] string? providerName)
+    public async Task<IActionResult> FindAsync(string id, [FromQuery] string? providerName)
     {
         IActionResult? result;
         try
         {
-            var word = await service.FindAsync(id, providerName);
-            result = word == null ? NotFound(id) : Ok(word);
+            var words = await service.FindAsync(id);
+            result = Ok(words);
+        }
+        catch (ArgumentException)
+        {
+            result = BadRequest();
+        }
+
+        return result;
+    }
+
+    [HttpGet]
+    [Route("third-party-dictionary/{id}")]
+    public async Task<IActionResult> FindInThirdPartyDictionaryAsync(string id, [FromQuery] string providerName)
+    {
+        IActionResult? result;
+        try
+        {
+            var words = await service.FindInExtDictAsync(id, providerName);
+            result = Ok(words);
         }
         catch (NotAvailableException e)
         {
@@ -38,7 +56,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddWord([FromBody] WordDto word)
+    public async Task<IActionResult> AddWordAsync([FromBody] WordDto word)
     {
         IActionResult result;
         try
@@ -56,7 +74,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateWord(string id, [FromBody] WordDto word)
+    public async Task<IActionResult> UpdateWordAsync(string id, [FromBody] WordDto word)
     {
         IActionResult result;
         try
@@ -78,7 +96,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
 
     [HttpDelete]
     [Route("{id}")]
-    public async Task<IActionResult> DeleteWord(string id)
+    public async Task<IActionResult> DeleteWordAsync(string id)
     {
         IActionResult result;
         try

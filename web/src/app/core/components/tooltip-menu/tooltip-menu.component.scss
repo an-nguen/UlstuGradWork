@@ -1,15 +1,28 @@
 $menu-button-size: 36px;
 $menu-button-font-size: 22px;
+$definition-tooltip-height: 240px;
+$definition-tooltip-width: 240px;
 
-.tooltip-menu {
-  display: inline-flex;
+@mixin tooltipBlock {
+  display: flex;
   border-radius: 4px;
   flex-direction: row;
   min-width: 100px;
   background-color: #ffffff;
-  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
-  box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+  box-shadow: 2px 2px 5px 0 rgba(0, 0, 0, 0.75);
+}
+
+.context-menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  align-items: start;
+}
+
+.tooltip-menu {
+  @include tooltipBlock();
 
   button {
     background-color: transparent;
@@ -19,7 +32,7 @@ $menu-button-font-size: 22px;
     display: flex;
     align-items: center;
     flex-direction: row;
-    flex-grow: 1;
+    flex-grow: 0;
     width: $menu-button-size;
     height: $menu-button-size;
 
@@ -36,10 +49,28 @@ $menu-button-font-size: 22px;
   }
 }
 
-.translation-tooltip {
-  display: block;
-  min-width: 100px;
-  border: solid 1px #ccc;
-  border-radius: 5px;
-  background: #fff;
+.word-definition-popup {
+  @include tooltipBlock();
+  flex-direction: column;
+  padding: 1em;
+  width: $definition-tooltip-width;
+  height: $definition-tooltip-height;
+  
+  .word {
+    font-size: 1.5em;
+    font-weight: 600;
+  }
+  
+  .word-definition-container {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    margin-bottom: 1em;
+  }
+  
+  .part-of-speech {
+    font-style: italic;
+    font-weight: 500;
+    margin-right: 8px;
+  }
 }

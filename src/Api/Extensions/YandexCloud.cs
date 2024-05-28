@@ -52,10 +52,10 @@ public class JwtCredentialsProvider(string keyId, string serviceAccountId, strin
     private class Data
     {
         [JsonPropertyName("iamToken")]
-        public string IamToken { get; set; }
+        public string IamToken { get; init; } = string.Empty;
 
         [JsonPropertyName("expiresAt")]
-        public string ExpiresAt { get; set; }
+        public string ExpiresAt { get; init; } = string.Empty;
     }
 }
 

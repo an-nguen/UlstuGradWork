@@ -6,7 +6,9 @@ public interface IWordDictionaryService
 {
     public IEnumerable<string> GetThirdPartyProviderNames();
     
-    public Task<WordDto?> FindAsync(string word, string? thirdPartyProviderName);
+    public Task<IEnumerable<WordDto>> FindAsync(string word);
+
+    public Task<IEnumerable<WordDto>> FindInExtDictAsync(string word, string thirdPartyProviderName);
 
     public Task<WordDto> AddWordAsync(WordDto word);
 

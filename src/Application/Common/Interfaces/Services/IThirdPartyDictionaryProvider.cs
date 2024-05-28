@@ -6,5 +6,5 @@ public interface IThirdPartyDictionaryProvider
 {
     public string ProviderName { get; }
     
-    public Task<WordDto?> GetDefinitionAsync(string word);
+    public Task<IEnumerable<WordDto>> GetDefinitionAsync(string word);
 }

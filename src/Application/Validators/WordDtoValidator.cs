@@ -7,6 +7,6 @@ public class WordDtoValidator: AbstractValidator<WordDto>
 {
     public WordDtoValidator()
     {
-        RuleFor(w => w.Word).Matches("\\p{L}*[ -]*").NotEmpty();
+        RuleFor(w => w.Word).Matches(@"^([\p{L}-]*)( ?)([\p{L}-]*)$").NotEmpty();
     }
 }

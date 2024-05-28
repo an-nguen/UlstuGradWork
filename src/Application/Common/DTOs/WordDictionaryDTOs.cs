@@ -17,10 +17,23 @@ public sealed record WordDefinitionDto(string PartOfSpeech, string SubjectName, 
 }
 
 [TranspilationSource]
+public sealed record WordAlias(string Alias)
+{
+    public DictionaryWordAlias ToEntity()
+    {
+        return new DictionaryWordAlias
+        {
+            Alias = Alias
+        };
+    }
+}
+
+[TranspilationSource]
 public sealed record WordDto(
     string Word,
     string? Transcription,
     string? LanguageCode,
+    ICollection<WordAlias> Aliases,
     ICollection<WordDefinitionDto> Definitions)
 {
     public DictionaryWord ToEntity()
@@ -49,6 +62,7 @@ public static class DictionaryWordExtension
             word.Word,
             word.Transcription,
             word.LanguageCode,
+            word.Aliases.Select(a => a.ToDto()).ToList(),
             word.Definitions.Select(wordDef => wordDef.ToDto()).ToList()
         );
     }
@@ -56,6 +70,11 @@ public static class DictionaryWordExtension
     public static WordDefinitionDto ToDto(this DictionaryWordDefinition definition)
     {
         return new WordDefinitionDto(definition.PartOfSpeech, definition.SubjectName, definition.Definition);
+    }
+
+    public static WordAlias ToDto(this DictionaryWordAlias alias)
+    {
+        return new WordAlias(alias.Alias);
     }
 }
 
