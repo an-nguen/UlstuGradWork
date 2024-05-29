@@ -38,19 +38,23 @@
     @for (author of bookForm.value.authors; track $index) {
       <div matListItemLine class="author-item">
         <div matListItemTitle class="author-name">{{ author }}</div>
-        <button mat-icon-button (click)="deleteAuthor($index)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button (click)="deleteAuthor($index)">
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
     }
   </mat-list>
 </div>
 <mat-dialog-actions>
-  <button
-    mat-flat-button
-    color="primary"
-    [disabled]="bookForm.invalid"
-    (click)="saveBook()"
-  >
+  <button mat-flat-button
+          color="primary"
+          [disabled]="bookForm.invalid"
+          (click)="saveBook()">
     Сохранить
   </button>
-  <button mat-flat-button color="warn" (click)="close()">Закрыть</button>
+  <button mat-flat-button
+          color="warn"
+          (click)="close()">
+    Закрыть
+  </button>
 </mat-dialog-actions>

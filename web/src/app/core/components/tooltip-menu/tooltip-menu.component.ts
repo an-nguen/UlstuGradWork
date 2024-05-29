@@ -73,14 +73,24 @@ export class TooltipMenuComponent {
       0,
       contextMenuTrigger.menuPosition.length,
     );
-    contextMenuTrigger.menuPosition.push({
-      originX: 'start',
-      originY: 'top',
-      overlayX: 'start',
-      overlayY: 'top',
-      offsetX: e.clientX,
-      offsetY: e.clientY,
-    });
+    contextMenuTrigger.menuPosition.push(
+      {
+        originX: 'center',
+        originY: 'top',
+        overlayX: 'center',
+        overlayY: 'top',
+        offsetX: e.clientX,
+        offsetY: e.clientY,
+      },
+      {
+        originX: 'start',
+        originY: 'top',
+        overlayX: 'center',
+        overlayY: 'bottom',
+        offsetX: e.clientX,
+        offsetY: e.clientY,
+      },
+    );
     
     this._selectedText = this._processText(selectedText);
     contextMenuTrigger.open();
@@ -93,7 +103,7 @@ export class TooltipMenuComponent {
       this.contextMenuTrigger()?.close();
     }
   }
-  
+
   public willBeOffscreenByHeight(e: MouseEvent): boolean {
     return e.clientY + this.WORD_DEFINITION_POPUP_HEIGHT_PX > window.innerHeight;
   }

@@ -5,7 +5,6 @@ using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
 using BookManager.Domain.Enums;
-using FluentValidation;
 using NodaTime;
 
 namespace BookManager.Application.Services;
@@ -14,8 +13,7 @@ public sealed class BookService(
     IAppDbContext dbContext,
     IFileStorage fileStorage,
     IEnumerable<IBookFileHandler> bookFileHandlers,
-    IValidator<PageRequestDto> pageRequestValidator,
-    IIndexingTaskQueue indexingTaskQueue) 
+    IIndexingTaskQueue indexingTaskQueue)
     : IBookService
 {
     private IIndexingTaskQueue IndexingTaskQueue { get; } = indexingTaskQueue;
@@ -55,6 +53,7 @@ public sealed class BookService(
         {
             query = request.SortOrder == SortOrder.Desc ? query.OrderByDescending(orderExpr) : query.OrderBy(orderExpr);
         }
+
         query = query.Skip((normalizedPageNumber - 1) * request.PageSize)
             .Take(request.PageSize);
         var pageCount = PageDto<BookDto>.CountPage(totalItemCount, request.PageSize);
@@ -86,7 +85,8 @@ public sealed class BookService(
         var filename = $"{id}-{bookMetadata.Filename}";
         var fileInfo = await fileStorage.SaveFileAsync(filename, fileStream);
         var fileType = DocumentFileTypeUtils.GetFileType(fileInfo.FullName);
-        var bookFileHandler = bookFileHandlers.FirstOrDefault(handler => handler.FileType == fileType) ?? throw new Exception();
+        var bookFileHandler = bookFileHandlers.FirstOrDefault(handler => handler.FileType == fileType) ??
+                              throw new Exception();
 
         await using var bookFileStream = fileStorage.GetFileStream(filename);
         var extractedTitle = bookFileHandler.GetBookTitle(bookFileStream);
@@ -124,10 +124,31 @@ public sealed class BookService(
         found.Isbn = details.Isbn;
         found.Authors = details.Authors?.ToArray();
         found.Tags = details.Tags?.ToArray();
-        
+
         var updatedEntityEntry = dbContext.Books.Update(found);
         await dbContext.SaveChangesAsync();
         return updatedEntityEntry.Entity.ToDto();
+    }
+
+    public async Task UpdateTotalTimeAsync(Guid bookId, Guid userId, long seconds)
+    {
+        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
+        if (found != null)
+        {
+            found.TotalReadingTime = seconds;
+        }
+        else
+        {
+            dbContext.BookUserStatsSet.Add(new BookUserStats
+            {
+                BookId = bookId,
+                UserId = userId,
+                TotalReadingTime = seconds,
+                RecentAccess = SystemClock.Instance.GetCurrentInstant()
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task<FileStream> GetBookFileStreamAsync(Guid id, User user)
@@ -188,19 +209,6 @@ public sealed class BookService(
         await dbContext.SaveChangesAsync();
     }
 
-    private string? GetDocumentTitleFromFile(string bookFilepath)
-    {
-        var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
-        var bookFileStream = fileStorage.GetFileStream(bookFilepath);
-        foreach (var bookFileHandler in bookFileHandlers)
-        {
-            if (bookFileHandler.FileType != fileType) continue;
-            return bookFileHandler.GetBookTitle(bookFileStream);
-        }
-
-        return null;
-    }
-
     private int? CountNumberOfPages(string bookFilepath)
     {
         var fileType = DocumentFileTypeUtils.GetFileType(bookFilepath);
@@ -216,7 +224,7 @@ public sealed class BookService(
     }
 
     private async Task<string?> SaveThumbnailImage(
-        IBookFileHandler bookFileHandler, 
+        IBookFileHandler bookFileHandler,
         FileStream bookFileStream,
         string imageFilenameWithoutExt)
     {

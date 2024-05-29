@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { format } from 'date-fns';
+import { format, formatDuration, intervalToDuration, secondsToMinutes } from 'date-fns';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -17,6 +17,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { ru } from 'date-fns/locale';
 
 @Component({
   selector: 'app-book-list-item',
@@ -33,7 +34,7 @@ import { map } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookListItemComponent {
-  
+
   protected readonly EMPTY_PLACEHOLDER = '-';
 
   @Input()
@@ -52,7 +53,7 @@ export class BookListItemComponent {
   public image = computed(() => {
     return (
       this._domSanitizer.bypassSecurityTrustResourceUrl(
-        `${this.bookItem().documentDetails.thumbnailUrl}`
+        `${this.bookItem().documentDetails.thumbnailUrl}`,
       ) ?? '/assets/images/noimage.png'
     );
   });
@@ -64,20 +65,32 @@ export class BookListItemComponent {
     return Math.round((lastViewedPage / pageCount) * 100);
   });
 
+  public totalReadingTime = computed(() => {
+    const item = this.bookItem();
+    const totalReadingTimeInSec = item.stats?.totalReadingTime ?? 0;
+    if (totalReadingTimeInSec === 0) {
+      return '-';
+    }
+
+    const duration = intervalToDuration({ start: 0, end: totalReadingTimeInSec * 1000 });
+    return formatDuration(duration, { zero: true, locale: ru });
+  });
+
   public recentAccessTime = computed(() => {
     const item = this.bookItem();
     if (!item.stats || !item.stats.recentAccessTime)
       return this.EMPTY_PLACEHOLDER;
     return format(item.stats.recentAccessTime, 'dd-MM-yyyy HH:mm');
   });
-  
+
   public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
     .pipe(map((result) => result.matches)));
-  
+
   constructor(
     private readonly _breakpointObserver: BreakpointObserver,
-    private readonly _domSanitizer: DomSanitizer
-  ) {}
+    private readonly _domSanitizer: DomSanitizer,
+  ) {
+  }
 
   public handleEditEvent(event: MouseEvent): void {
     event.stopPropagation();
@@ -91,7 +104,7 @@ export class BookListItemComponent {
 
   public handleInfoClickEvent(event: MouseEvent): void {
     event.stopPropagation();
-    this.infoClickEvent.emit()
+    this.infoClickEvent.emit();
   }
 
 }

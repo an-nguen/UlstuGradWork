@@ -34,5 +34,6 @@ export const CONSTANTS = {
     PIN_CODE: '^[0-9]{4,16}$',
     DICTIONARY_WORD: `^([\\p{L}-]*)( ?)([\\p{L}-]*)$`
   },
+  TOTAL_TIME_UPDATE_INTERVAL_IN_SEC: 60, // 1 minute
   PAGE_SIZE: 7,
 };

@@ -43,6 +43,11 @@ export class BookEditDialogComponent implements OnInit {
   protected readonly EDIT_DIALOG_TITLE = 'Обновление информации о книге';
   
   public isEditMode = signal<boolean>(false);
+  public dialogTitle = computed(() => {
+    return this.isEditMode()
+      ? this.EDIT_DIALOG_TITLE
+      : this.CREATION_DIALOG_TITLE;
+  });
   
   public bookForm = this._fb.group({
     title: this._fb.control<string | null>(null),
@@ -55,12 +60,6 @@ export class BookEditDialogComponent implements OnInit {
   });
 
   public authorNameInputControl = this._fb.control<string | null>(null);
-
-  public dialogTitle = computed(() => {
-    return this.isEditMode()
-      ? this.EDIT_DIALOG_TITLE
-      : this.CREATION_DIALOG_TITLE;
-  });
 
   constructor(
     private readonly _fb: FormBuilder,

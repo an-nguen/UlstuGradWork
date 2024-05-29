@@ -17,6 +17,8 @@ public interface IBookService
 
     public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details);
 
+    public Task UpdateTotalTimeAsync(Guid bookId, Guid userId, long seconds);
+
     public Task<FileStream> GetBookFileStreamAsync(Guid id, User user);
 
     public Task<FileStream?> GetBookCoverImageFileStream(Guid bookId);

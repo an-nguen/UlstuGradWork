@@ -10,19 +10,19 @@ namespace BookManager.Api.Controllers;
 [ApiController]
 [Route("books")]
 public class BookController(
-    IBookService service, 
+    IBookService service,
     ISearchService searchService,
-    UserManager<User> userManager) 
+    UserManager<User> userManager)
     : ControllerBase
 {
     [HttpGet]
     [Authorize]
     public async Task<PageDto<BookDto>> GetBooks(
-        [FromQuery] int pageNumber, 
+        [FromQuery] int pageNumber,
         [FromQuery] int pageSize,
         [FromQuery] string? sortBy = null,
         [FromQuery] SortOrder sortOrder = SortOrder.Asc
-        )
+    )
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         var page = await service.GetPageAsync(new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder), null, user);
@@ -81,20 +81,32 @@ public class BookController(
 
         return page;
     }
-    
+
     [HttpPost]
     [Route("full-text-search")]
     public Task<PageDto<BookTextDto>> Search([FromBody] TextSearchRequestDto request)
     {
         return searchService.SearchByBookTexts(request);
     }
-    
+
     [HttpPost]
     [Authorize]
-    public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata, IFormFile file)
+    public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata,
+        IFormFile file)
     {
         await using var stream = file.OpenReadStream();
         return await service.AddBookAsync(stream, bookMetadata);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [Route("{bookId:guid}/update-total-time")]
+    public async Task<IActionResult> UpdateTotalTime(Guid bookId, [FromBody] TotalTimeUpdateRequestDto updateRequest)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return BadRequest();
+        await service.UpdateTotalTimeAsync(bookId, user.Id, updateRequest.Seconds);
+        return Ok();
     }
 
     [HttpPost]

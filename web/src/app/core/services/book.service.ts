@@ -5,7 +5,8 @@ import {
   BookDto,
   BookMetadataDto,
   LastViewedPageUpdateRequest,
-  PageDto, SearchRequestDto,
+  PageDto,
+  SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
@@ -15,16 +16,17 @@ import { environment } from '../../../environments/environment.development';
   providedIn: 'root',
 })
 export class BookService {
-  
+
   private readonly _url: string = `${environment.BASE_URL}/books`;
 
-  constructor(private readonly _httpClient: HttpClient) {}
+  constructor(private readonly _httpClient: HttpClient) {
+  }
 
   public getPage(
     pageNumber: number,
     pageSize: number,
     sortBy?: string,
-    sortOrder?: SortOrder
+    sortOrder?: SortOrder,
   ): Observable<PageDto<BookDto>> {
     let queryParams = new HttpParams({ fromObject: { pageNumber, pageSize } });
     if (sortBy) queryParams = queryParams.append('sortBy', sortBy);
@@ -40,7 +42,7 @@ export class BookService {
 
   public addBook(
     bookMetadata: BookMetadataDto,
-    file: File
+    file: File,
   ): Observable<BookDto> {
     const formData = new FormData();
     formData.append('bookMetadata', JSON.stringify(bookMetadata));
@@ -50,9 +52,19 @@ export class BookService {
 
   public updateBookDetails(
     id: string,
-    details: BookDetailsUpdateDto
+    details: BookDetailsUpdateDto,
   ): Observable<BookDto> {
     return this._httpClient.put<BookDto>(`${this._url}/${id}`, details);
+  }
+
+  public updateTotalTime(
+    bookId: string,
+    totalTimeSeconds: number,
+  ): Observable<void> {
+    return this._httpClient.post<void>(
+      `${this._url}/${bookId}/update-total-time`,
+      { seconds: totalTimeSeconds },
+    );
   }
 
   public deleteBook(id: string): Observable<void> {
@@ -61,7 +73,7 @@ export class BookService {
 
   public updateLastViewedPage(
     id: string,
-    pageNumber: number
+    pageNumber: number,
   ): Observable<void> {
     return this._httpClient.post<void>(`${this._url}/${id}/last-viewed-page`, {
       pageNumber,

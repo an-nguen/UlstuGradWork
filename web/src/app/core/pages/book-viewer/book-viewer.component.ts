@@ -1,5 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -19,24 +20,12 @@ import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import {
-  catchError,
-  combineLatest,
-  concat,
-  concatAll,
-  finalize,
-  mergeMap,
-  Observable,
-  of,
-  tap,
-  throwError,
-  toArray,
-} from 'rxjs';
+import { catchError, combineLatest, finalize, mergeMap, of, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/dictionary.service';
-import { DictionaryWordEditDialogComponent } from '@core/dialogs/dictionary-word-edit-dialog/dictionary-word-edit-dialog.component';
+import { getSeconds } from 'date-fns';
 
 @Component({
   selector: 'app-book-viewer',
@@ -50,7 +39,7 @@ import { DictionaryWordEditDialogComponent } from '@core/dialogs/dictionary-word
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookViewerComponent implements OnInit, OnDestroy {
+export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly DICTIONARY_PROVIDER_NAME = 'MerriamWebster';
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
@@ -71,6 +60,8 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   private _currentBook?: BookDto;
   private _page?: number;
   private _zoom?: string | number = 100;
+  private _totalTimeInSec = 0;
+  private _openPageDateTime!: Date;
 
   constructor(
     private readonly _service: BookService,
@@ -88,20 +79,35 @@ export class BookViewerComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     pdfDefaultOptions.externalLinkTarget = 2;
     pdfDefaultOptions.enableScripting = false;
-
     this._subscribeToParamMap();
     if (this._authState.accessToken) {
       this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
   }
 
+  public ngAfterViewInit(): void {
+    this._openPageDateTime = new Date();
+  }
+
   public ngOnDestroy(): void {
     this._updateLastViewedPage();
+    this._updateTotalTime();
   }
 
   @HostListener('window:beforeunload', ['$event'])
   public onBeforeUnload(): void {
     this._updateLastViewedPage();
+    this._updateTotalTime();
+  }
+
+  @HostListener('document:visibilitychange')
+  public onVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+      this._openPageDateTime = new Date();
+    } else {
+      this._updateTotalTime();
+    }
+    console.log(new Date(), 'visibilitychange', document.visibilityState, this._totalTimeInSec, this._getCurrentTimeIntervalInSec());
   }
 
   public set page(value: number | undefined) {
@@ -172,6 +178,7 @@ export class BookViewerComponent implements OnInit, OnDestroy {
           if (book.documentDetails.title)
             this._title.setTitle(book.documentDetails.title);
           if (book.stats?.lastViewedPage) this.page = book.stats.lastViewedPage;
+          if (book.stats?.totalReadingTime) this._totalTimeInSec = book.stats.totalReadingTime;
         }),
         catchError((error: Error) => {
           console.error(error);
@@ -212,8 +219,22 @@ export class BookViewerComponent implements OnInit, OnDestroy {
     const requests = words.map((word) => this._dictionaryService.addWord(word));
     combineLatest(requests)
       .subscribe((results) => {
-        this._snackBar.open(`Успешно добавлены ${results.length} слов(а).`, 'OK')
+        this._snackBar.open(`Успешно добавлены ${results.length} слов(а).`, 'OK');
       });
+  }
+
+  private _updateTotalTime(): void {
+    if (this._currentBook) {
+      this._totalTimeInSec += this._getCurrentTimeIntervalInSec();
+      this._service
+        .updateTotalTime(this._currentBook.documentDetails.id, this._totalTimeInSec)
+        .subscribe();
+    }
+  }
+
+  private _getCurrentTimeIntervalInSec(): number {
+    const currentTime = new Date();
+    return Math.round((currentTime.getTime() - this._openPageDateTime.getTime()) / 1000);
   }
 
   private _updateLastViewedPage(): void {
@@ -223,4 +244,5 @@ export class BookViewerComponent implements OnInit, OnDestroy {
         .subscribe();
     }
   }
+
 }

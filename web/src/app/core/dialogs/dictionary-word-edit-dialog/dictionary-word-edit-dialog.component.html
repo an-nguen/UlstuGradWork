@@ -1,0 +1,48 @@
+﻿<h2 mat-dialog-title>{{ dialogTitle() }}</h2>
+<div mat-dialog-content class="word-definition-form" [formGroup]="dictionaryWordEditFormGroup">
+  <mat-form-field>
+    <mat-label>Транскрипция</mat-label>
+    <input matInput formControlName="transcription" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Код языка</mat-label>
+    <input matInput formControlName="languageCode" />
+  </mat-form-field>
+  <div class="definition-form-control" [formGroup]="definitionFormGroup">
+    <mat-form-field>
+      <mat-label>Часть речи</mat-label>
+      <input matInput type="text" formControlName="" />
+    </mat-form-field>
+  </div>
+  <table mat-table [dataSource]="dictionaryWordEditFormGroup.value.definitions!">
+    <ng-container matColumnDef="partOfSpeech">
+      <th mat-header-cell *matHeaderCellDef>Часть речи</th>
+      <td mat-cell *matCellDef="let entry">{{ entry.partOfSpeech }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="subjectName">
+      <th mat-header-cell *matHeaderCellDef>Область деятельности</th>
+      <td mat-cell *matCellDef="let entry">{{ entry.subjectName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="definition">
+      <th mat-header-cell *matHeaderCellDef>Определение</th>
+      <td mat-cell *matCellDef="let entry">{{ entry.definition }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button
+          color="primary"
+          (click)="save()">
+    Сохранить
+  </button>
+  <button mat-flat-button
+          color="warn"
+          (click)="close()">
+    Отмена
+  </button>
+</div>
