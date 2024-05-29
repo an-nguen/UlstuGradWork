@@ -1,0 +1,21 @@
+:host {
+  min-width: 120px;
+  flex-grow: 1;
+}
+
+.title {
+  flex-grow: 1;
+}
+
+.collection-title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.collection-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  overflow: auto;
+}

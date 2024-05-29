@@ -14,7 +14,7 @@ import { map } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {
-  
+
   public routeLinks = [
     {
       iconCode: 'schedule',
@@ -26,19 +26,25 @@ export class MainLayoutComponent {
       name: 'Все книги',
       link: CONSTANTS.ENDPOINTS.EXPLORER,
     },
+    {
+      iconCode: 'category',
+      name: 'Коллекции',
+      link: CONSTANTS.ENDPOINTS.BOOK_COLLECTIONS,
+    },
   ];
 
   public isExpanded = false;
-  
+
   public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
     .pipe(map((result) => result.matches)));
-  
+
   constructor(
     private readonly _authService: AuthService,
     private readonly _snackBar: MatSnackBar,
-    private readonly _breakpointObserver: BreakpointObserver, 
-    private readonly _router: Router
-  ) {}
+    private readonly _breakpointObserver: BreakpointObserver,
+    private readonly _router: Router,
+  ) {
+  }
 
   public toggleSidenav(): void {
     this.isExpanded = !this.isExpanded;
@@ -53,5 +59,5 @@ export class MainLayoutComponent {
       ]);
     });
   }
-  
+
 }

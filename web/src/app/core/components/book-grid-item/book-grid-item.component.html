@@ -12,16 +12,22 @@
   </a>
 </div>
 <mat-menu #actionMenu>
-  <button mat-menu-item (click)="emitInfoClickEvent()">
-    <mat-icon>info</mat-icon>
-    Информация о книге
-  </button>
-  <button mat-menu-item (click)="emitEditEvent()">
-    <mat-icon>edit</mat-icon>
-    Редактировать детали
-  </button>
-  <button mat-menu-item (click)="emitDeleteEvent()">
-    <mat-icon>delete</mat-icon>
-    Удалить
-  </button>
+  @if (isInfoButtonVisible()) {
+    <button mat-menu-item (click)="emitInfoClickEvent()">
+      <mat-icon>info</mat-icon>
+      Информация о книге
+    </button>
+  }
+  @if (isEditButtonVisible()) {
+    <button mat-menu-item (click)="emitEditEvent()">
+      <mat-icon>edit</mat-icon>
+      Редактировать детали
+    </button>
+  }
+  @if (isDeleteButtonVisible()) {
+    <button mat-menu-item (click)="emitDeleteEvent()">
+      <mat-icon>delete</mat-icon>
+      Удалить
+    </button>
+  }
 </mat-menu>

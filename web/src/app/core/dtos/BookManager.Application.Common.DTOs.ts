@@ -25,6 +25,24 @@ export enum AuthenticationStatus {
     Success = 1,
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.BookCollectionDto */
+export type BookCollectionDto = {
+    /** Transpiled from System.Guid */
+    id: string;
+    /** Transpiled from string */
+    name: string;
+    /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.BookDto>? */
+    books?: BookDto[];
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.BookCollectionModRequest */
+export type BookCollectionModRequest = {
+    /** Transpiled from string */
+    name: string;
+    /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.BookDto>? */
+    books?: BookDto[];
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.BookDetailsUpdateDto */
 export type BookDetailsUpdateDto = {
     /** Transpiled from string? */
@@ -203,6 +221,12 @@ export type TextSummarizationRequestDto = {
 export type TextSummarizationResponseDto = {
     /** Transpiled from string */
     summarizedText: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TotalTimeUpdateRequestDto */
+export type TotalTimeUpdateRequestDto = {
+    /** Transpiled from long */
+    seconds: number;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.TranslationRequestDto */

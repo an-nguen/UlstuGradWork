@@ -169,7 +169,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public onSearchInputBlur(): void {
     this.isSearchInFocus.set(false);
   }
-  
+
   public handleNumOfVisibleItemsChange(numOfVisibleItems: number) {
     this.pageSize.set(Math.round(numOfVisibleItems * 2));
     this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
@@ -197,9 +197,9 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       maxHeight: '100vh',
       panelClass: 'fullscreen',
       data: {
-        book
-      }
-    })
+        book,
+      },
+    });
   }
 
   public openBookAddDialog(file: File): void {
@@ -290,7 +290,14 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   }
 
   public deleteBook(book: BookDto): void {
-    const dialogRef = this._dialog.open(DeleteConfirmationDialogComponent);
+    const dialogRef = this._dialog.open(
+      DeleteConfirmationDialogComponent,
+      {
+        data: {
+          message: CONSTANTS.TEXTS.BOOK_DELETE_CONFIRMATION_MESSAGE,
+        },
+      },
+    );
     dialogRef
       .afterClosed()
       .pipe(

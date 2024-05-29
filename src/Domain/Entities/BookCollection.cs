@@ -8,7 +8,7 @@ public class BookCollection
     [Key]
     public Guid Id { get; init; }
     
-    public required string Name { get; init; }
+    public required string Name { get; set; }
 
     public ICollection<Book> Books { get; set; } = new List<Book>();
     

@@ -17,6 +17,12 @@ export const routes: Routes = [
       .then(m => m.LibraryExplorerComponent),
   },
   {
+    path: CONSTANTS.ENDPOINTS.BOOK_COLLECTIONS,
+    canActivate: [authGuard],
+    loadComponent: () => import('@core/pages/book-collections/book-collections.component')
+      .then(m => m.BookCollectionsComponent)
+  },
+  {
     path: CONSTANTS.ENDPOINTS.VIEWER,
     canActivate: [authGuard],
     loadComponent: () => import('@core/pages/book-viewer/book-viewer.component')

@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<ITextSummarizationService, YTextSummarizationService>();
         services.AddScoped<IWordDictionaryService, DictionaryService>();
         services.AddScoped<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
+        services.AddScoped<IBookCollectionService, BookCollectionService>();
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();

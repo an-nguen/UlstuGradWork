@@ -1,0 +1,20 @@
+<section class="collection-title-container">
+  <h3 class="title">{{ bookCollection().name }}</h3>
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+</section>
+<section class="collection-grid">
+  @for (book of bookCollection().books; track $index) {
+    <app-book-grid-item [bookItem]="book"
+                        [isEditButtonVisible]="false"
+                        [isDeleteButtonVisible]="false"
+                        (openEvent)="emitBookOpenBtnClickEvent(book)"
+                        (infoEvent)="emitBookInfoBtnClickEvent(book)">
+    </app-book-grid-item>
+  }
+</section>
+<mat-menu #menu="matMenu">
+  <button mat-menu-item (click)="emitEditBtnClickEvent()">Изменить</button>
+  <button mat-menu-item (click)="emitDeleteBtnClickEvent()">Удалить</button>
+</mat-menu>

@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatButton } from '@angular/material/button';
+
+interface DialogData {
+  message?: string;
+}
 
 @Component({
   selector: 'app-delete-confirmation-dialog',
@@ -17,9 +27,14 @@ import { MatButton } from '@angular/material/button';
 })
 export class DeleteConfirmationDialogComponent {
 
+  public message?: string;
+  
   constructor(
-    private _dialogRef: MatDialogRef<DeleteConfirmationDialogComponent>,
-  ) { }
+    @Inject(MAT_DIALOG_DATA) private readonly _dialogData: DialogData,
+    private readonly _dialogRef: MatDialogRef<DeleteConfirmationDialogComponent>,
+  ) { 
+    this.message = this._dialogData.message;
+  }
   
   public confirm(): void {
     this._dialogRef.close(true);

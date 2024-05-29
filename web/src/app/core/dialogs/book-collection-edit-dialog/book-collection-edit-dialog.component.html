@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>{{ dialogTitle() }}</h2>
+<div mat-dialog-content class="book-add-form">
+  <mat-form-field>
+    <mat-label>Название коллекции</mat-label>
+    <input matInput type="text" [formControl]="nameFormControl" />
+  </mat-form-field>
+  <div class="container">
+    <app-loading-spinner-overlay [loading]="isBooksLoading()"></app-loading-spinner-overlay>
+
+    <div class="books-table-container">
+      <table mat-table [dataSource]="books">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? toggleAllRows() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                          [aria-label]="checkboxLabel(0)">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row; let index = index">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? toggleBookItem(row) : null"
+                          [checked]="isBookSelected(row)"
+                          [aria-label]="checkboxLabel(index, row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell [style.width]="'400px'" *matHeaderCellDef>Название книги</th>
+          <td mat-cell *matCellDef="let book"> {{ book.documentDetails.title }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="authors">
+          <th mat-header-cell *matHeaderCellDef>Авторы</th>
+          <td mat-cell *matCellDef="let book"> {{ book.documentDetails.authors }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <mat-paginator [length]="itemCount"
+                   [pageSize]="10"
+                   [pageSizeOptions]="pageSizeOptions"
+                   showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>
+<mat-dialog-actions>
+  <button mat-flat-button
+          color="primary"
+          [disabled]="nameFormControl.invalid"
+          (click)="save()">
+    Сохранить
+  </button>
+  <button mat-flat-button
+          color="warn"
+          (click)="close()">
+    Закрыть
+  </button>
+</mat-dialog-actions>

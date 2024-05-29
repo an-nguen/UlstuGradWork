@@ -29,7 +29,10 @@ import { NgOptimizedImage } from '@angular/common';
 export class BookGridItemComponent {
   
   public bookItem = input.required<BookDto>();
-
+  public isEditButtonVisible = input<boolean>(true);
+  public isDeleteButtonVisible = input<boolean>(true);
+  public isInfoButtonVisible = input<boolean>(true);
+  
   public openEvent = output();
   public infoEvent = output();
   public editEvent = output();

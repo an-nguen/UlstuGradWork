@@ -1,0 +1,8 @@
+@for (collection of bookCollections(); track collection.name) {
+  <app-book-collection-list-item [bookCollection]="collection"
+                                 (bookOpenBtnClickEvent)="emitBookOpenClickEvent($event)"
+                                 (bookInfoBtnClickEvent)="emitBookInfoClickEvent($event)"
+                                 (editBtnClickEvent)="emitEditEvent(collection)"
+                                 (deleteBtnClickEvent)="emitDeleteEvent(collection)">
+  </app-book-collection-list-item>
+}

@@ -12,6 +12,7 @@ export const CONSTANTS = {
       SIGN_IN: 'sign-in',
     },
     RECENT_BOOKS: '',
+    BOOK_COLLECTIONS: 'collections',
     NO_CONNECTION: 'no-connection',
     VIEWER: 'viewer/:id',
     EDIT_DETAILS: 'edit/:id',
@@ -29,6 +30,10 @@ export const CONSTANTS = {
     USERS: {
       PATH: 'users',
     },
+  },
+  TEXTS: {
+    BOOK_DELETE_CONFIRMATION_MESSAGE: 'Вы уверены, что хотите удалить электронную книгу из базы данных?',
+    BOOK_COLLECTION_DEL_CONFIRM_MESSAGE: 'Вы уверены, что хотите удалить коллекцию книг?'
   },
   REGEX_PATTERN: {
     PIN_CODE: '^[0-9]{4,16}$',
