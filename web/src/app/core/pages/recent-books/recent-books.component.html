@@ -29,6 +29,9 @@
     }
   </div>
 }
+@if (isBooksEmpty()) {
+  <span class="no-items">Пусто</span>
+}
 <app-book-list-view
   [books]="otherBooks()"
   [showEditButton]="false"

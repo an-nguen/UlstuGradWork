@@ -104,6 +104,9 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
   public books = signal<BookDto[]>([]);
+  public isBooksEmpty = computed(() => {
+    return this.books().length === 0;
+  })
 
   public currentPageNumber = signal<number>(1);
   public pageSize = signal<number>(this.DEFAULT_PAGE_SIZE);
@@ -303,14 +306,18 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       .pipe(
         mergeMap((isConfirmed: boolean) => {
           if (!isConfirmed) return of(null);
-          this.books.update((value) =>
-            value.filter((v) => v.documentDetails.id !== book.documentDetails.id),
-          );
           return this._bookService.deleteBook(book.documentDetails.id);
         }),
         takeUntilDestroyed(this._destroyRef),
       )
-      .subscribe();
+      .subscribe(() => {
+        this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
+        this._snackBar.open(
+          `Книга "${book.documentDetails.title} успешно удалена."`,
+          'OK',
+          { duration: 3000 },
+        );
+      });
   }
 
   public async openBook(book: BookDto): Promise<void> {

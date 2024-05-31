@@ -70,6 +70,9 @@
      [scrollWindow]="false"
      (scrolled)="loadNextPage()"
 >
+  @if (isBooksEmpty()) {
+    <div class="no-items">Здесь пусто :(</div>
+  }
   @switch (selectedViewMode()) {
     @case (ViewMode.List) {
       <app-book-list-view
@@ -97,8 +100,5 @@
         </app-loading-spinner-overlay>
       </app-book-grid-view>
     }
-  }
-  @if (books().length === 0) {
-    <div>Здесь пусто :(</div>
   }
 </div>

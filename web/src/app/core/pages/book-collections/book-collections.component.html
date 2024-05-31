@@ -17,4 +17,7 @@
                             (collectionEditClickEvent)="openBookCollectionEditDialog($event)"
                             (collectionDeleteClickEvent)="openDeleteConfirmationDialog($event)">
   </app-book-collection-list>
+  @if (!bookCollections().length) {
+    <div class="no-items">Здесь пусто :(</div>
+  }
 </div>

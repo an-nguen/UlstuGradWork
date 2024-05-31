@@ -33,6 +33,9 @@ export class RecentBooksComponent implements OnInit {
   
   public otherBooks = signal<BookDto[]>([]);
   public mostRecentBook = signal<BookDto | null>(null);
+  public isBooksEmpty = computed(() => {
+    return this.otherBooks().length === 0;
+  })
 
   protected readonly DEFAULT_PAGE_SIZE = 5;
   protected readonly DEFAULT_PAGE_NUMBER = 0;
