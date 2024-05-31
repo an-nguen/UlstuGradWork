@@ -1,0 +1,1 @@
+docker run -it -d -e DbPassword=t130589m -v ${pwd}/src/Api/UploadedDocs:/App/UploadedDocs -p 8080:8080 libmgr-server
