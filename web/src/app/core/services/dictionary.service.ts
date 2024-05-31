@@ -15,6 +15,10 @@ export class DictionaryService {
     private readonly _httpClient: HttpClient,
   ) {
   }
+  
+  public listThirdPartyProviders(): Observable<string[]> {
+    return this._httpClient.get<string[]>(`${this._url}/list-third-party-providers`);
+  }
 
   public find(word: string): Observable<WordDto[]> {
     const url = `${this._url}/${word}`;

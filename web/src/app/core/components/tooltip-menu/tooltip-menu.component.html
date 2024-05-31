@@ -28,6 +28,13 @@
     @if (haveDefinitions()) {
       <div class="word-definition-popup">
         <div class="word-definition-container">
+          <mat-form-field>
+            <mat-select [(ngModel)]="selectedDefinitionProvider">
+              @for (provider of definitionProviders(); track $index) {
+                <mat-option [value]="provider">{{ provider }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
           @for (entry of wordDefinitionEntries(); track $index) {
             <div class="word">{{ entry.word }}</div>
             <div class="transcription">{{ entry?.transcription }}</div>

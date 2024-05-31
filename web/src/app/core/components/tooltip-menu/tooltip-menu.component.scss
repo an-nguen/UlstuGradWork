@@ -55,6 +55,7 @@ $definition-tooltip-width: 240px;
   padding: 1em;
   width: $definition-tooltip-width;
   height: $definition-tooltip-height;
+  position: relative;
   
   .word {
     font-size: 1.5em;

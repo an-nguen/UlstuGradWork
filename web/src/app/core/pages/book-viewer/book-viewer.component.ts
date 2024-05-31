@@ -25,7 +25,7 @@ import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu
 import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/dictionary.service';
-import { getSeconds } from 'date-fns';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-book-viewer',
@@ -36,25 +36,28 @@ import { getSeconds } from 'date-fns';
     NgxExtendedPdfViewerModule,
     TooltipMenuComponent,
     TranslationDialogComponent,
+    FormsModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  protected readonly DICTIONARY_PROVIDER_NAME = 'MerriamWebster';
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
 
+  public definitionProviders = signal<string[]>([]);
   public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
     new ArrayBuffer(0),
   );
   public wordEntries = signal<WordDto[]>([]);
+  public selectedDefinitionProvider = signal<string | null>('MerriamWebster');
 
   public bearerToken?: string;
   public sidebarVisible = false;
   public isDefinitionLoading = false;
+  public selectedWord?: string;
 
   private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
   private _currentBook?: BookDto;
@@ -83,6 +86,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this._authState.accessToken) {
       this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
+    this._loadDefinitionProviders();
   }
 
   public ngAfterViewInit(): void {
@@ -195,18 +199,24 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public showWordDefinition(word: string): void {
     const normalizedWord = word.trim().toLowerCase();
+    this.selectedWord = normalizedWord;
     if (!this._dictionaryWordRegex.test(normalizedWord)) return;
     this.isDefinitionLoading = true;
     this._dictionaryService.find(normalizedWord)
       .pipe(
-        mergeMap((foundWords) =>
-          (foundWords.length === 0)
-            ? this._dictionaryService.findInExtDict(normalizedWord, this.DICTIONARY_PROVIDER_NAME)
-            : of(foundWords)),
+        mergeMap((foundWords) => {
+          const definitionProvider = this.selectedDefinitionProvider();
+          return (foundWords.length === 0 && !!definitionProvider)
+            ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
+            : of(foundWords);
+        }),
         finalize(() => this.isDefinitionLoading = false),
       )
       .subscribe((foundWords) => {
-        if (foundWords.length === 0) return;
+        if (foundWords.length === 0) {
+          this._snackBar.open('Нет результатов.', 'OK');
+          return;
+        }
         this.wordEntries.set(foundWords);
       });
   }
@@ -221,6 +231,12 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((results) => {
         this._snackBar.open(`Успешно добавлены ${results.length} слов(а).`, 'OK');
       });
+  }
+
+  public changeDefinitionProvider(providerName: string | null): void {
+    this.selectedDefinitionProvider.set(providerName);
+    if (!providerName || !this.selectedWord) return;
+    this.showWordDefinition(this.selectedWord);
   }
 
   private _updateTotalTime(): void {
@@ -245,4 +261,10 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private _loadDefinitionProviders(): void {
+    this._dictionaryService.listThirdPartyProviders()
+      .subscribe((providers) => {
+        this.definitionProviders.set(providers);
+      });
+  }
 }

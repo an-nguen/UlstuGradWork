@@ -1,5 +1,6 @@
 ﻿using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
@@ -16,6 +17,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpGet]
+    [Authorize]
     [Route("{id}")]
     public async Task<IActionResult> FindAsync(string id, [FromQuery] string? providerName)
     {
@@ -34,6 +36,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpGet]
+    [Authorize]
     [Route("third-party-dictionary/{id}")]
     public async Task<IActionResult> FindInThirdPartyDictionaryAsync(string id, [FromQuery] string providerName)
     {
@@ -56,6 +59,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddWordAsync([FromBody] WordDto word)
     {
         IActionResult result;
@@ -73,6 +77,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpPut]
+    [Authorize]
     [Route("{id}")]
     public async Task<IActionResult> UpdateWordAsync(string id, [FromBody] WordDto word)
     {
@@ -95,6 +100,7 @@ public class WordDictionaryController(IWordDictionaryService service) : Controll
     }
 
     [HttpDelete]
+    [Authorize]
     [Route("{id}")]
     public async Task<IActionResult> DeleteWordAsync(string id)
     {

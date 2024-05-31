@@ -62,8 +62,9 @@ public static class DependencyInjection
         services.AddScoped<ITranslationService, YTranslationService>();
         services.AddScoped<ITextSummarizationService, YTextSummarizationService>();
         services.AddScoped<IWordDictionaryService, DictionaryService>();
-        services.AddScoped<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
         services.AddScoped<IBookCollectionService, BookCollectionService>();
+        services.AddTransient<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
+        services.AddTransient<IThirdPartyDictionaryProvider, YAiDictionaryProvider>();
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
@@ -73,7 +74,8 @@ public static class DependencyInjection
         {
             httpClient.BaseAddress = new Uri("https://llm.api.cloud.yandex.net");
         });
-        services.AddHttpClient<IThirdPartyDictionaryProvider, MerriamWebsterDictionaryProvider>();
+        services.AddHttpClient<YAiDictionaryProvider>();
+        services.AddHttpClient<MerriamWebsterDictionaryProvider>();
 
         services.AddHostedService<IndexingHostedService>();
 

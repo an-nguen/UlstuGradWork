@@ -18,7 +18,7 @@ public partial class MerriamWebsterDictionaryProvider(
 
     private readonly MerriamWebsterOptions _options = options.Value;
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
-    private Regex _wordIdRegex = WordIdRegex();
+    private readonly Regex _wordIdRegex = WordIdRegex();
 
     public string ProviderName => "MerriamWebster";
 

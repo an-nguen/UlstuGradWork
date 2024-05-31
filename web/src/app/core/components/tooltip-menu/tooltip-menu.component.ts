@@ -1,10 +1,22 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
-import { ChangeDetectionStrategy, Component, computed, HostListener, input, output, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  input,
+  model,
+  output,
+  viewChild,
+} from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
 import { WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
+import { MatFormField } from '@angular/material/form-field';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: '[app-tooltip-menu]',
@@ -17,6 +29,11 @@ import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinn
     MatIcon,
     MatButtonModule,
     LoadingSpinnerOverlayComponent,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    ReactiveFormsModule,
+    FormsModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,7 +51,9 @@ export class TooltipMenuComponent {
     return entries.length > 0;
   });
   public definitionLoading = input<boolean>(false);
-
+  public definitionProviders = input<string[]>([]);
+  public selectedDefinitionProvider = model<string | null>(null);
+  
   public selectionEvent = output<string | null>();
   public textCopyEvent = output<string>();
   public translationBtnClickEvent = output<string>();
