@@ -101,7 +101,9 @@ public sealed class BookService(
                 : string.IsNullOrEmpty(extractedTitle) ? bookMetadata.Filename : extractedTitle,
             ThumbnailFilename = thumbnailImage,
             PageCount = CountNumberOfPages(fileInfo.FullName),
-            Authors = bookFileHandler.GetAuthorList(bookFileStream).ToArray(),
+            Authors = bookMetadata.Authors == null || !bookMetadata.Authors.Any()
+                ? bookFileHandler.GetAuthorList(bookFileStream).ToArray()
+                : bookMetadata.Authors.ToArray()
         };
         var entry = dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
