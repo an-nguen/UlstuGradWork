@@ -17,5 +17,5 @@ public interface IBookFileHandler
 
     public string? GetBookTitle(Stream bookStream);
     
-    public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream);
+    public IAsyncEnumerable<BookText> StreamBookTexts(Guid bookId, Stream stream);
 }

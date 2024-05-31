@@ -13,7 +13,6 @@
         <PackageReference Include="Flurl" Version="4.0.0" />
         <PackageReference Include="Flurl.Http" Version="4.0.2" />
         <PackageReference Include="Google.Cloud.Translation.V2" Version="3.4.0" />
-        <PackageReference Include="Grpc.Core" Version="2.46.6" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
         <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="8.1.5" />
         <PackageReference Include="MediatR" Version="12.2.0" />

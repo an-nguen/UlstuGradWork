@@ -6,6 +6,8 @@ namespace BookManager.Application.Indexing;
 
 public sealed class IndexingService(IAppDbContext dbContext, IEnumerable<IBookFileHandler> bookFileHandlers, IFileStorage storage) : IIndexingService
 {
+    private const int MaxPageCountToSave = 100;
+    
     public async Task IndexDocumentAsync(Guid bookId, CancellationToken cancellationToken)
     {
         var book = await dbContext.Books.FindAsync([bookId], cancellationToken);
@@ -15,9 +17,18 @@ public sealed class IndexingService(IAppDbContext dbContext, IEnumerable<IBookFi
         foreach (var bookFileHandler in bookFileHandlers)
         {
             if (bookFileHandler.FileType != book.FileType) continue;
-            
-            var documentTexts = bookFileHandler.ReadAllText(book.Id, fileStream);
-            dbContext.BookTexts.AddRange(documentTexts);
+
+            var count = 0;
+            await foreach (var bookText in bookFileHandler.StreamBookTexts(book.Id, fileStream).WithCancellation(cancellationToken))
+            {
+                if (count >= MaxPageCountToSave)
+                {
+                    count = 0;
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+                dbContext.BookTexts.Add(bookText);
+                count++;
+            }
             break;
         }
         await fileStream.DisposeAsync();

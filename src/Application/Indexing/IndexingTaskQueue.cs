@@ -10,9 +10,7 @@ public sealed class IndexingTaskQueue: IIndexingTaskQueue
     {
         var options = new BoundedChannelOptions(capacity)
         {
-            FullMode = BoundedChannelFullMode.Wait,
-            SingleReader = true,
-            SingleWriter = false
+            FullMode = BoundedChannelFullMode.Wait
         };
         _queue = Channel.CreateBounded<IndexingWorkItem>(options);
     }

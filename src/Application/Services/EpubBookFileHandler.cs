@@ -37,7 +37,7 @@ public sealed class EpubBookFileHandler: IBookFileHandler
         throw new NotImplementedException();
     }
 
-    public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream)
+    public IAsyncEnumerable<BookText> StreamBookTexts(Guid bookId, Stream stream)
     {
         stream.Seek(0, SeekOrigin.Begin);
         var book = EpubReader.ReadBook(stream);
@@ -47,9 +47,9 @@ public sealed class EpubBookFileHandler: IBookFileHandler
             {
                 BookDocumentId = bookId,
                 Text = PrintTextContentFile(textContent),
-            }).ToList();
+            }).ToAsyncEnumerable();
         stream.Dispose();
-        return contents.AsEnumerable();
+        return contents;
     }
     
     public string? GetBookTitle(Stream bookStream)

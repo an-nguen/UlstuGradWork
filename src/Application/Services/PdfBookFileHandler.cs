@@ -39,7 +39,7 @@ public sealed class PdfBookFileHandler : IBookFileHandler
             stream.ToArray(),
             new PageDimensions(Constants.ThumbnailPreviewWidth, Constants.ThumbnailPreviewHeight
             ));
-              
+
         using var pageReader = docReader.GetPageReader(0);
         var rawBytes = pageReader.GetImage();
         if (rawBytes == null) return null;
@@ -65,17 +65,22 @@ public sealed class PdfBookFileHandler : IBookFileHandler
         return document.Information.Title;
     }
 
-    public IEnumerable<BookText> ReadAllText(Guid bookId, Stream stream)
+    public async IAsyncEnumerable<BookText> StreamBookTexts(Guid bookId, Stream stream)
     {
         stream.Seek(0, SeekOrigin.Begin);
         var document = PdfDocument.Open(stream);
-        var pages = document.GetPages().Select(page => new BookText
-            {
-                BookDocumentId = bookId,
-                Text = page.Text,
-                PageNumber = page.Number
-            }
-        ).ToList().AsEnumerable();
-        return pages;
+        var pages = document.GetPages()
+            .Select(page => new BookText
+                {
+                    BookDocumentId = bookId,
+                    Text = page.Text,
+                    PageNumber = page.Number
+                }
+            );
+        await foreach (var bookText in pages.ToAsyncEnumerable())
+        {
+            yield return bookText;
+        }
+        document.Dispose();
     }
 }

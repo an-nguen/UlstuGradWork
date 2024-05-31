@@ -23,50 +23,55 @@ public sealed class IndexingHostedService(
         {
             var workItem = await queue.DequeueAsync(stoppingToken);
 
-            try
+            await HandleWorkItem(stoppingToken, workItem);
+        }
+    }
+
+    private async Task HandleWorkItem(CancellationToken stoppingToken, IndexingWorkItem workItem)
+    {
+        try
+        {
+            using var scope = serviceProvider.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<IIndexingService>();
+            int deletedCount;
+            switch (workItem.OperationType)
             {
-                using var scope = serviceProvider.CreateScope();
-                var service = scope.ServiceProvider.GetRequiredService<IIndexingService>();
-                int deletedCount;
-                switch (workItem.OperationType)
-                {
-                    case IndexingWorkItemOperationType.Created:
-                        await service.IndexDocumentAsync(workItem.BookDocumentId, stoppingToken);
-                        logger.LogInformation(
-                            "The text of the document {} was added for full-text search.",
-                            workItem.BookDocumentId
-                        );
-                        break;
-                    case IndexingWorkItemOperationType.Replaced:
-                        deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
-                        logger.LogInformation(
-                            "The text of the {} document was deleted successfully. (deleted rows = {})",
-                            workItem.BookDocumentId,
-                            deletedCount
-                        );
-                        await service.IndexDocumentAsync(workItem.BookDocumentId, stoppingToken);
-                        logger.LogInformation(
-                            "The text of the document {} was added for full-text search.",
-                            workItem.BookDocumentId
-                        );
-                        break;
-                    case IndexingWorkItemOperationType.Deleted:
-                        deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
-                        logger.LogInformation(
-                            "The text of {} for indexing was deleted successfully. (deleted rows = {})",
-                            workItem.BookDocumentId,
-                            deletedCount
-                        );
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(stoppingToken));
-                }
+                case IndexingWorkItemOperationType.Created:
+                    await service.IndexDocumentAsync(workItem.BookDocumentId, stoppingToken);
+                    logger.LogInformation(
+                        "The text of the document {} was added for full-text search.",
+                        workItem.BookDocumentId
+                    );
+                    break;
+                case IndexingWorkItemOperationType.Replaced:
+                    deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
+                    logger.LogInformation(
+                        "The text of the {} document was deleted successfully. (deleted rows = {})",
+                        workItem.BookDocumentId,
+                        deletedCount
+                    );
+                    await service.IndexDocumentAsync(workItem.BookDocumentId, stoppingToken);
+                    logger.LogInformation(
+                        "The text of the document {} was added for full-text search.",
+                        workItem.BookDocumentId
+                    );
+                    break;
+                case IndexingWorkItemOperationType.Deleted:
+                    deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
+                    logger.LogInformation(
+                        "The text of {} for indexing was deleted successfully. (deleted rows = {})",
+                        workItem.BookDocumentId,
+                        deletedCount
+                    );
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(stoppingToken));
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex,
-                    "Error occurred executing {WorkItem}.", nameof(workItem));
-            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error occurred executing {WorkItem}.", nameof(workItem));
         }
     }
 }
