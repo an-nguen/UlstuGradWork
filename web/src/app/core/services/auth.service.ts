@@ -40,6 +40,7 @@ export class AuthService {
         map((token) => {
           if (token.accessToken) {
             this._state.accessToken = token.accessToken;
+            this.isSignedIn$.next(true);
           }
         })
       );
@@ -62,6 +63,7 @@ export class AuthService {
             response.accessToken
           ) {
             this._state.accessToken = response.accessToken;
+            this.isSignedIn$.next(true);
           }
           return response.status === AuthenticationStatus.Success;
         }),

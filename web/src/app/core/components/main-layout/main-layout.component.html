@@ -1,5 +1,5 @@
 <mat-sidenav-container>
-  @if (!isHandset()) {
+  @if (!isHandset() && isSignedIn()) {
   <mat-sidenav
     [mode]="!isHandset() ? 'side' : 'over'"
     [class.expanded]="isExpanded"
@@ -48,7 +48,7 @@
   }
   <mat-sidenav-content
     [class.handset]="isHandset()"
-    [class.expanded]="!isHandset() && isExpanded"
+    [class.expanded]="!isHandset() && isSignedIn() && isExpanded"
   >
     <ng-content></ng-content>
   </mat-sidenav-content>

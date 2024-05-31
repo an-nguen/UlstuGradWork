@@ -38,6 +38,8 @@ export class MainLayoutComponent {
   public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
     .pipe(map((result) => result.matches)));
 
+  public isSignedIn = toSignal(this._authService.isSignedIn$);
+
   constructor(
     private readonly _authService: AuthService,
     private readonly _snackBar: MatSnackBar,
@@ -45,19 +47,20 @@ export class MainLayoutComponent {
     private readonly _router: Router,
   ) {
   }
-
+  
   public toggleSidenav(): void {
     this.isExpanded = !this.isExpanded;
   }
 
   public signOut(): void {
-    this._authService.signOut().subscribe(() => {
-      this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
-      this._router.navigate([
-        CONSTANTS.ENDPOINTS.AUTH.PATH,
-        CONSTANTS.ENDPOINTS.AUTH.SIGN_IN,
-      ]);
-    });
+    this._authService.signOut()
+      .subscribe(() => {
+        this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
+        this._router.navigate([
+          CONSTANTS.ENDPOINTS.AUTH.PATH,
+          CONSTANTS.ENDPOINTS.AUTH.SIGN_IN,
+        ]);
+      });
   }
 
 }
