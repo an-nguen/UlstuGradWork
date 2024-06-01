@@ -2,6 +2,11 @@
   position: relative;
 }
 
+.book-add-form {
+  display: flex;
+  flex-direction: column;
+}
+
 .books-table-container {
   max-height: 40vh;
   overflow: auto;

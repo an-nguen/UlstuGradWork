@@ -1,17 +1,17 @@
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
-  Inject,
+  Inject, OnInit,
   signal,
   ViewChild,
 } from '@angular/core';
 import { BookCollectionDto, BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DigitOnlyModule } from '@uiowa/digit-only';
@@ -27,9 +27,11 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CONSTANTS } from '@core/constants';
 
 interface DialogData {
   mode?: 'create' | 'update';
+  allBookCollections: BookCollectionDto[];
   bookCollection?: Omit<BookCollectionDto, 'id'>;
 }
 
@@ -57,15 +59,21 @@ interface DialogData {
   styleUrl: './book-collection-edit-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookCollectionEditDialogComponent implements AfterViewInit {
+export class BookCollectionEditDialogComponent implements OnInit, AfterViewInit {
 
   protected readonly CREATION_DIALOG_TITLE = 'Добавление новой коллекции книг';
   protected readonly EDIT_DIALOG_TITLE = 'Изменить коллекцию книг';
+  protected readonly UNIQUENESS_ERROR_MESSAGE = 'Коллекция с данным названием уже существует!';
 
   @ViewChild(MatPaginator)
   public paginator!: MatPaginator;
 
-  public nameFormControl = this._fb.nonNullable.control<string>('', [Validators.required]);
+  public nameFormControl = this._fb.nonNullable.control<string>(
+    '',
+    [
+      Validators.required,
+    ],
+  );
 
   public isEditMode = signal<boolean>(false);
   public dialogTitle = computed(() => {
@@ -73,26 +81,34 @@ export class BookCollectionEditDialogComponent implements AfterViewInit {
       ? this.EDIT_DIALOG_TITLE
       : this.CREATION_DIALOG_TITLE;
   });
+  public isBooksLoading = signal<boolean>(false);
 
   public itemCount = 0;
   public pageSizeOptions = [10, 25, 50];
   public displayedColumns = ['select', 'title', 'authors'];
   public books: BookDto[] = [];
-  public selection = new SelectionModel<BookDto>(true, 
-    [], 
-    undefined, 
+  public selection = new SelectionModel<BookDto>(true,
+    [],
+    undefined,
     (a, b) => a.documentDetails.id === b.documentDetails.id);
-  public isBooksLoading = signal<boolean>(false);
+  public errorMessage = '';
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private readonly _data: DialogData,
     private readonly _booksService: BookService,
+    private readonly _cdr: ChangeDetectorRef,
     private readonly _fb: FormBuilder,
     private readonly _dialogRef: MatDialogRef<BookCollectionEditDialogComponent>,
     private readonly _destroyRef: DestroyRef,
   ) {
     this._initForm();
     this.isEditMode.set(this._data.mode === 'update');
+  }
+
+  public ngOnInit(): void {
+    this.nameFormControl.valueChanges
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(() => this._updateErrorMessage());
   }
 
   public ngAfterViewInit(): void {
@@ -157,9 +173,32 @@ export class BookCollectionEditDialogComponent implements AfterViewInit {
 
   private _initForm(): void {
     this.nameFormControl.patchValue(this._data.bookCollection?.name ?? '');
+    if (this._data.allBookCollections && this._data.allBookCollections.length) {
+      this.nameFormControl.addValidators(this._createValueExistsValidator(this._data.allBookCollections.map(c => c.name)));
+    }
     if (this._data.bookCollection?.books) {
       this.selection.select(...this._data.bookCollection.books);
     }
+  }
+
+  private _updateErrorMessage(): void {
+    if (this.nameFormControl.hasError('isNotUnique')) {
+      this.errorMessage = this.UNIQUENESS_ERROR_MESSAGE;
+    } else if (this.nameFormControl.hasError('required')) {
+      this.errorMessage = CONSTANTS.TEXTS.FORM_REQUIRED_ERROR_MESSAGE;
+    } else {
+      this.errorMessage = '';
+    }
+    this._cdr.markForCheck();
+  }
+
+  private _createValueExistsValidator(values: string[]): ValidatorFn {
+    return (control) => {
+      if (values.includes(control.value)) {
+        return { isNotUnique: true };
+      }
+      return null;
+    };
   }
 
 }

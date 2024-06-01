@@ -3,6 +3,9 @@
   <mat-form-field>
     <mat-label>Название коллекции</mat-label>
     <input matInput type="text" [formControl]="nameFormControl" />
+    @if (nameFormControl.invalid) {
+      <mat-error>{{ errorMessage }}</mat-error>
+    }
   </mat-form-field>
   <div class="container">
     <app-loading-spinner-overlay [loading]="isBooksLoading()"></app-loading-spinner-overlay>

@@ -33,7 +33,8 @@ export const CONSTANTS = {
   },
   TEXTS: {
     BOOK_DELETE_CONFIRMATION_MESSAGE: 'Вы уверены, что хотите удалить электронную книгу из базы данных?',
-    BOOK_COLLECTION_DEL_CONFIRM_MESSAGE: 'Вы уверены, что хотите удалить коллекцию книг?'
+    BOOK_COLLECTION_DEL_CONFIRM_MESSAGE: 'Вы уверены, что хотите удалить коллекцию книг?',
+    FORM_REQUIRED_ERROR_MESSAGE: 'Обязателен к заполнению'
   },
   REGEX_PATTERN: {
     PIN_CODE: '^[0-9]{4,16}$',

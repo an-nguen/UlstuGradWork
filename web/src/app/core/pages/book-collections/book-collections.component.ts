@@ -55,6 +55,7 @@ export class BookCollectionsComponent implements OnInit {
       minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH,
       data: {
         mode: !collection ? 'create' : 'update',
+        allBookCollections: this.bookCollections(),
         bookCollection: collection,
       },
     });
