@@ -67,6 +67,7 @@ $definition-tooltip-width: 240px;
     flex-direction: column;
     overflow: auto;
     margin-bottom: 1em;
+    flex-grow: 1;
   }
   
   .part-of-speech {

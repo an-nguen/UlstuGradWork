@@ -54,7 +54,7 @@
         <div>
           <button mat-flat-button
                   color="primary"
-                  [disabled]="definitionLoading()"
+                  [disabled]="definitionLoading() || !haveDefinitions()"
                   (click)="emitWordAddBtnClickEvent()">
             <mat-icon>add</mat-icon>
             Добавить в словарь
