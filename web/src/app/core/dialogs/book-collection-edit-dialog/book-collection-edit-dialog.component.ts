@@ -173,7 +173,7 @@ export class BookCollectionEditDialogComponent implements OnInit, AfterViewInit 
 
   private _initForm(): void {
     this.nameFormControl.patchValue(this._data.bookCollection?.name ?? '');
-    if (this._data.allBookCollections && this._data.allBookCollections.length) {
+    if (this._data.allBookCollections && this._data.allBookCollections.length && this._data.mode === 'create') {
       this.nameFormControl.addValidators(this._createValueExistsValidator(this._data.allBookCollections.map(c => c.name)));
     }
     if (this._data.bookCollection?.books) {
