@@ -5,9 +5,10 @@
   [definitionProviders]="definitionProviders()"
   [wordDefinitionEntries]="wordEntries()"
   [definitionLoading]="isDefinitionLoading"
+  [isDefinitionMenuOpen]="isDefinitionMenuOpen"
   (selectionEvent)="clearWordEntries()"
   (textCopyEvent)="copyText($event)"
-  (definitionBtnClickEvent)="showWordDefinition($event)"
+  (definitionBtnClickEvent)="openDefinitionMenu($event)"
   (translationBtnClickEvent)="openTranslationDialog($event)"
   (textSumBtnClickEvent)="openTextSummarizationDialog($event)"
   (definitionAddBtnClickEvent)="addWordsToDictionary($event)"
@@ -16,8 +17,7 @@
   <ngx-extended-pdf-viewer
     #pdfViewer
     [(page)]="page"
-    [(zoom)]="zoom"
-    [sidebarVisible]="sidebarVisible"
+    [sidebarVisible]="false"
     [customToolbar]="customToolbar"
     [contextMenuAllowed]="false"
     [textLayer]="true"

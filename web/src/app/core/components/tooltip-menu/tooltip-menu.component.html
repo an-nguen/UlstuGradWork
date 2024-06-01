@@ -25,7 +25,7 @@
         <mat-icon>functions</mat-icon>
       </button>
     </div>
-    @if (haveDefinitions()) {
+    @if (isDefinitionMenuOpen()) {
       <div class="word-definition-popup">
         <div class="word-definition-container">
           <mat-form-field>
@@ -35,9 +35,12 @@
               }
             </mat-select>
           </mat-form-field>
+          @if (!haveDefinitions()) {
+            <span>Нет результатов для данного определения</span>
+          }
           @for (entry of wordDefinitionEntries(); track $index) {
             <div class="word">{{ entry.word }}</div>
-            <div class="transcription">{{ entry?.transcription }}</div>
+            <div class="transcription">{{ entry.transcription }}</div>
             <ul>
               @for (definition of entry.definitions; track $index) {
                 <li>
@@ -49,7 +52,10 @@
           }
         </div>
         <div>
-          <button mat-flat-button color="primary" (click)="emitWordAddBtnClickEvent()">
+          <button mat-flat-button
+                  color="primary"
+                  [disabled]="definitionLoading()"
+                  (click)="emitWordAddBtnClickEvent()">
             <mat-icon>add</mat-icon>
             Добавить в словарь
           </button>

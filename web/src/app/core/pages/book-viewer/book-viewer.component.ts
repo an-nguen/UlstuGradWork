@@ -1,10 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   DestroyRef,
-  HostListener,
+  HostListener, input, numberAttribute,
   OnDestroy,
   OnInit,
   signal,
@@ -55,20 +55,21 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedDefinitionProvider = signal<string | null>('MerriamWebster');
 
   public bearerToken?: string;
-  public sidebarVisible = false;
+  
   public isDefinitionLoading = false;
+  public isDefinitionMenuOpen = false;
   public selectedWord?: string;
-
+  
   private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
   private _currentBook?: BookDto;
   private _page?: number;
-  private _zoom?: string | number = 100;
   private _totalTimeInSec = 0;
   private _openPageDateTime!: Date;
 
   constructor(
     private readonly _service: BookService,
     private readonly _dictionaryService: DictionaryService,
+    private readonly _cdr: ChangeDetectorRef,
     private readonly _authState: AuthState,
     private readonly _route: ActivatedRoute,
     private readonly _snackBar: MatSnackBar,
@@ -111,25 +112,16 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this._updateTotalTime();
     }
-    console.log(new Date(), 'visibilitychange', document.visibilityState, this._totalTimeInSec, this._getCurrentTimeIntervalInSec());
   }
 
   public set page(value: number | undefined) {
     this._page = value;
   }
-
-  public set zoom(value: string | number | undefined) {
-    this._zoom = value;
-  }
-
+  
   public get page(): number | undefined {
     return this._page;
   }
-
-  public get zoom(): string | number | undefined {
-    return this._zoom;
-  }
-
+  
   public copyText(selectedText: string): void {
     this._clipboard.copy(selectedText);
     this._snackBar.open('Текст скопирован', 'OK', { duration: 3000 });
@@ -196,9 +188,16 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe();
   }
+  
+  public openDefinitionMenu(word: string): void {
+    this.isDefinitionMenuOpen = true;
+    this._cdr.markForCheck();
+    this.showWordDefinition(word);
+  }
 
   public showWordDefinition(word: string): void {
-    const normalizedWord = word.trim().toLowerCase();
+    const normalizedWord = word.trim()
+      .toLowerCase();
     this.selectedWord = normalizedWord;
     if (!this._dictionaryWordRegex.test(normalizedWord)) return;
     this.isDefinitionLoading = true;
@@ -206,14 +205,17 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         mergeMap((foundWords) => {
           const definitionProvider = this.selectedDefinitionProvider();
-          return (foundWords.length === 0 && !!definitionProvider)
+          return (!foundWords.length && !!definitionProvider)
             ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
             : of(foundWords);
         }),
-        finalize(() => this.isDefinitionLoading = false),
+        finalize(() => {
+          this.isDefinitionLoading = false;
+          this._cdr.markForCheck();
+        }),
       )
       .subscribe((foundWords) => {
-        if (foundWords.length === 0) {
+        if (!foundWords.length) {
           this._snackBar.open('Нет результатов.', 'OK');
           return;
         }
@@ -223,6 +225,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public clearWordEntries(): void {
     this.wordEntries.set([]);
+    this.isDefinitionMenuOpen = false;
+    this._cdr.markForCheck();
   }
 
   public addWordsToDictionary(words: WordDto[]): void {

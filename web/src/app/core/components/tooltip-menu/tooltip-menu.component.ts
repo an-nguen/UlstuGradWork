@@ -45,6 +45,7 @@ export class TooltipMenuComponent {
 
   public contextMenuTrigger = viewChild(CdkMenuTrigger);
 
+  public selectedDefinitionProvider = model<string | null>(null);
   public wordDefinitionEntries = input<WordDto[]>([]);
   public haveDefinitions = computed(() => {
     const entries = this.wordDefinitionEntries();
@@ -52,7 +53,7 @@ export class TooltipMenuComponent {
   });
   public definitionLoading = input<boolean>(false);
   public definitionProviders = input<string[]>([]);
-  public selectedDefinitionProvider = model<string | null>(null);
+  public isDefinitionMenuOpen = input<boolean>(false);
   
   public selectionEvent = output<string | null>();
   public textCopyEvent = output<string>();
