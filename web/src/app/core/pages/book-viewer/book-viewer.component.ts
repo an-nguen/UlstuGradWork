@@ -1,10 +1,11 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
   AfterViewInit,
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
-  HostListener, input, numberAttribute,
+  HostListener,
   OnDestroy,
   OnInit,
   signal,
@@ -43,6 +44,7 @@ import { FormsModule } from '@angular/forms';
 export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
+  private readonly SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY = 'selected_definition_provider';
 
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
@@ -55,11 +57,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedDefinitionProvider = signal<string | null>('MerriamWebster');
 
   public bearerToken?: string;
-  
+
   public isDefinitionLoading = false;
   public isDefinitionMenuOpen = false;
   public selectedWord?: string;
-  
+
   private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
   private _currentBook?: BookDto;
   private _page?: number;
@@ -92,17 +94,20 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public ngAfterViewInit(): void {
     this._openPageDateTime = new Date();
+    this._loadSettings();
   }
 
   public ngOnDestroy(): void {
     this._updateLastViewedPage();
     this._updateTotalTime();
+    this._saveSettings();
   }
 
   @HostListener('window:beforeunload', ['$event'])
   public onBeforeUnload(): void {
     this._updateLastViewedPage();
     this._updateTotalTime();
+    this._saveSettings();
   }
 
   @HostListener('document:visibilitychange')
@@ -117,11 +122,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public set page(value: number | undefined) {
     this._page = value;
   }
-  
+
   public get page(): number | undefined {
     return this._page;
   }
-  
+
   public copyText(selectedText: string): void {
     this._clipboard.copy(selectedText);
     this._snackBar.open('Текст скопирован', 'OK', { duration: 3000 });
@@ -188,7 +193,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe();
   }
-  
+
   public openDefinitionMenu(word: string): void {
     this.isDefinitionMenuOpen = true;
     this._cdr.markForCheck();
@@ -262,6 +267,20 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this._service
         .updateLastViewedPage(this._currentBook.documentDetails.id, this._page)
         .subscribe();
+    }
+  }
+
+  private _saveSettings(): void {
+    const selectedDefProvider = this.selectedDefinitionProvider();
+    if (selectedDefProvider) {
+      sessionStorage.setItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY, selectedDefProvider);
+    }
+  }
+
+  private _loadSettings(): void {
+    const selectedDefProvider = sessionStorage.getItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY);
+    if (selectedDefProvider) {
+      this.selectedDefinitionProvider.set(selectedDefProvider);
     }
   }
 
