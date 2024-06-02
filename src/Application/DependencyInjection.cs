@@ -1,9 +1,9 @@
-﻿using System.Reflection;
-using BookManager.Application.Common.Config;
+﻿using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
+using BookManager.Application.Notification;
 using BookManager.Application.Persistence;
 using BookManager.Application.Persistence.FileSystem;
 using BookManager.Application.Services;
@@ -12,6 +12,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using Npgsql;
 using Constants = BookManager.Application.Common.Constants;
 
@@ -52,6 +54,10 @@ public static class DependencyInjection
         
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
+        services.ConfigureHttpJsonOptions(jsonOptions =>
+        {
+            jsonOptions.SerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+        });
 
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<IUserService, UserService>();

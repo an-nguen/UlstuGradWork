@@ -1,6 +1,9 @@
 using BookManager.Api.Extensions;
+using BookManager.Api.Hubs;
+using BookManager.Api.Services;
 using BookManager.Application;
 using BookManager.Application.Common;
+using BookManager.Application.Notification;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -10,6 +13,7 @@ builder.Services
     .AddApplicationServices(builder.Configuration);
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer()
     .AddSwaggerGen();
 builder.Services.AddCors(options =>
@@ -26,6 +30,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddYandexCloudSdk(builder.Configuration);
 builder.Services.AddTokenBasedSecurity(builder.Configuration);
+builder.Services.AddSingleton<INotificationService, PushNotificationService>();
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = Constants.Default.MaxFileSize;
@@ -41,13 +46,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.UseHttpsRedirection();
-
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseWebSockets();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notification");
 
 app.Run();
 

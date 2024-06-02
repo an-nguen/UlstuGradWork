@@ -26,6 +26,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.5.2" />
+        <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.2.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.4" />
         <PackageReference Include="PdfPig" Version="0.1.8" />

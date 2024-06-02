@@ -73,7 +73,7 @@ public sealed class PdfBookFileHandler : IBookFileHandler
             .Select(page => new BookText
                 {
                     BookDocumentId = bookId,
-                    Text = page.Text,
+                    Text = page.Text.Replace("\u0000", string.Empty),
                     PageNumber = page.Number
                 }
             );

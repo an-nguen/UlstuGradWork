@@ -1,14 +1,18 @@
 ﻿using BookManager.Application.Common.Interfaces.Services;
+using BookManager.Application.Notification;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 
 namespace BookManager.Application.Indexing;
 
 public sealed class IndexingHostedService(
     ILogger<IndexingHostedService> logger,
+    IEnumerable<INotificationService> notificationServices,
     IIndexingTaskQueue queue,
-    IServiceProvider serviceProvider) : BackgroundService
+    IServiceProvider serviceProvider
+) : BackgroundService
 {
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
@@ -42,6 +46,11 @@ public sealed class IndexingHostedService(
                         "The text of the document {} was added for full-text search.",
                         workItem.BookDocumentId
                     );
+                    var bookIndexedNotification = new Notification.Notification(
+                        $"The text of the document {workItem.BookDocumentId} was added for full-text search.",
+                        SystemClock.Instance.GetCurrentInstant()
+                    );
+                    await Notify(bookIndexedNotification, stoppingToken);
                     break;
                 case IndexingWorkItemOperationType.Replaced:
                     deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
@@ -55,6 +64,11 @@ public sealed class IndexingHostedService(
                         "The text of the document {} was added for full-text search.",
                         workItem.BookDocumentId
                     );
+                    var updatedNotification = new Notification.Notification(
+                        $"The text of the document {workItem.BookDocumentId} was updated for full-text search.",
+                        SystemClock.Instance.GetCurrentInstant()
+                    );
+                    await Notify(updatedNotification, stoppingToken);
                     break;
                 case IndexingWorkItemOperationType.Deleted:
                     deletedCount = await service.DeleteDocumentTextsAsync(workItem.BookDocumentId, stoppingToken);
@@ -63,6 +77,11 @@ public sealed class IndexingHostedService(
                         workItem.BookDocumentId,
                         deletedCount
                     );
+                    var bookTextDeletedNotification = new Notification.Notification(
+                        $"The text of {workItem.BookDocumentId} for indexing was deleted successfully.",
+                        SystemClock.Instance.GetCurrentInstant()
+                    );
+                    await Notify(bookTextDeletedNotification, stoppingToken);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(stoppingToken));
@@ -72,6 +91,14 @@ public sealed class IndexingHostedService(
         {
             logger.LogError(ex,
                 "Error occurred executing {WorkItem}.", nameof(workItem));
+        }
+    }
+
+    private async Task Notify(Notification.Notification notification, CancellationToken cancellationToken)
+    {
+        foreach (var service in notificationServices)
+        {
+            await service.SendAsync(notification, cancellationToken);
         }
     }
 }
