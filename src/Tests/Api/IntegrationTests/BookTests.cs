@@ -13,6 +13,7 @@ public class BookControllerTests(ApiFixture apiFixture)
 {
     private const string RequestUri = "books";
     private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient();
+
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -21,10 +22,11 @@ public class BookControllerTests(ApiFixture apiFixture)
     [Fact]
     public async Task GetBooks_ReturnsBookList()
     {
-        await AddBookDocumentAsync(Constants.TestFilepath);
+        await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
         var response = await _client.GetAsync($"{RequestUri}?pageNumber=1&pageSize=10");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var books = await JsonSerializer.DeserializeAsync<PageDto<BookDto>>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var books = await JsonSerializer.DeserializeAsync<PageDto<BookDto>>(await response.Content.ReadAsStreamAsync(),
+            _jsonSerializerOptions);
         Assert.NotNull(books);
         Assert.NotEmpty(books.Items);
         apiFixture.Cleanup();
@@ -33,7 +35,7 @@ public class BookControllerTests(ApiFixture apiFixture)
     [Fact]
     public async Task AddBook_ReturnsBook()
     {
-        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath, Constants.TestFileTitle);
         var fileInfo = new FileInfo(Constants.TestFilepath);
         Assert.NotNull(bookDto);
         Assert.Equal(fileInfo.Length, bookDto.FileMetadata.Size);
@@ -41,12 +43,12 @@ public class BookControllerTests(ApiFixture apiFixture)
         Assert.Equal(Constants.TestFileTitle, bookDto.DocumentDetails.Title);
         apiFixture.Cleanup();
     }
-    
+
     [Fact]
     public async Task DownloadBook_ReturnsFile()
     {
         const string filenameOfTmp = "temp.pdf";
-        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
         Assert.NotNull(bookDto);
         var expectedHash = await GetHash(Constants.TestFilepath);
         await using var stream = await _client.GetStreamAsync($"{RequestUri}/download/{bookDto.DocumentDetails.Id}");
@@ -54,6 +56,7 @@ public class BookControllerTests(ApiFixture apiFixture)
         {
             await stream.CopyToAsync(fs);
         }
+
         Assert.Equal(expectedHash, await GetHash(filenameOfTmp));
         File.Delete(filenameOfTmp);
         apiFixture.Cleanup();
@@ -66,14 +69,19 @@ public class BookControllerTests(ApiFixture apiFixture)
         const string expectedDescription = "Some description text";
         const string expectedIsbn = "isbn";
         const string expectedPublisherName = "noname";
-        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
         Assert.NotNull(bookDto);
         bookDto.DocumentDetails.Title = expectedTitle;
         bookDto.DocumentDetails.Description = expectedDescription;
         bookDto.DocumentDetails.Isbn = expectedIsbn;
         bookDto.DocumentDetails.PublisherName = expectedPublisherName;
-        var response = await _client.PutAsync($"{RequestUri}/{bookDto.DocumentDetails.Id}", JsonContent.Create(bookDto.DocumentDetails));
-        var modifiedBookDto = await JsonSerializer.DeserializeAsync<BookDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+        var response = await _client.PutAsync($"{RequestUri}/{bookDto.DocumentDetails.Id}",
+            JsonContent.Create(bookDto.DocumentDetails)
+        );
+        var modifiedBookDto = await JsonSerializer.DeserializeAsync<BookDto>(
+            await response.Content.ReadAsStreamAsync(),
+            _jsonSerializerOptions
+        );
         Assert.Equivalent(bookDto, modifiedBookDto);
         apiFixture.Cleanup();
     }
@@ -81,20 +89,18 @@ public class BookControllerTests(ApiFixture apiFixture)
     [Fact]
     public async Task DeleteBook_ReturnsHttpOk()
     {
-        var bookDto = await AddBookDocumentAsync(Constants.TestFilepath);
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
         Assert.NotNull(bookDto);
         var response = await _client.DeleteAsync($"books/{bookDto.DocumentDetails.Id}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    private static async Task<string> GetHash(string filePath)
-    {
-        var hasher = Hasher.New();
-        hasher.Update(await File.ReadAllBytesAsync(filePath));
-        return hasher.Finalize().ToString();
-    }
-
-    private async Task<BookDto?> AddBookDocumentAsync(string filepath)
+    public static async Task<BookDto?> AddBookAsync(
+        HttpClient client,
+        JsonSerializerOptions serializerOptions,
+        string filepath,
+        string? bookTitle = null
+    )
     {
         var formData = new MultipartFormDataContent();
         var bookMetadata = new BookMetadataDto
@@ -102,16 +108,25 @@ public class BookControllerTests(ApiFixture apiFixture)
             Filename = Path.GetFileName(filepath),
             FileType = BookFileType.Pdf,
             FileSizeInBytes = new FileInfo(filepath).Length,
-            Title = "PDF Specification"
+            Title = bookTitle ?? Path.GetFileName(filepath)
         };
         var binaryContent = new StreamContent(File.OpenRead(filepath));
         formData.Add(JsonContent.Create(bookMetadata), "bookMetadata");
         formData.Add(binaryContent, "file", Path.GetFileName(filepath));
-        var response = await _client.PostAsync("/books", formData);
+        var response = await client.PostAsync("/books", formData);
         if (response.StatusCode != HttpStatusCode.OK)
         {
             throw new Exception("Failed to add book!");
         }
-        return await JsonSerializer.DeserializeAsync<BookDto>(await response.Content.ReadAsStreamAsync(), _jsonSerializerOptions);
+
+        return await JsonSerializer.DeserializeAsync<BookDto>(await response.Content.ReadAsStreamAsync(),
+            serializerOptions);
+    }
+
+    private static async Task<string> GetHash(string filePath)
+    {
+        var hasher = Hasher.New();
+        hasher.Update(await File.ReadAllBytesAsync(filePath));
+        return hasher.Finalize().ToString();
     }
 }
