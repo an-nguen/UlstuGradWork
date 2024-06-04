@@ -59,16 +59,12 @@ public class ApiFixture : IDisposable
         dbContext.BookTexts.ExecuteDelete();
         dbContext.DictionaryWords.ExecuteDelete();
     }
-    
+
     private void AddUser()
     {
         using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var userService = ServiceProviderServiceExtensions.GetRequiredService<IUserService>(scope.ServiceProvider);
-        var user = userService.CreateUser(new UserAddRequest
-        {
-            Name = Constants.UserName,
-            PinCode = Constants.UserPinCode,
-        }).Result;
+        var user = userService.CreateUserAsync(new UserAddRequest(Constants.UserName, Constants.UserPinCode)).Result;
         Console.WriteLine($"The user ${user.Name} created.");
     }
 }

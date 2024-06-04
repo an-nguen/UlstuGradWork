@@ -2,7 +2,6 @@
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 namespace BookManager.Api.Controllers;
 

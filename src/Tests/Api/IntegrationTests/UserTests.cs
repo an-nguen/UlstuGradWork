@@ -58,11 +58,7 @@ public class UserTests(ApiFixture apiFixture)
         var authResponse = await SignInAsync(username, pinCode);
         Assert.NotNull(authResponse);
         var authenticatedClient = CreateAuthenticatedClient(authResponse);
-        var updateRequest = new UserAddRequest
-        {
-            Name = username,
-            PinCode = updatedPinCode
-        };
+        var updateRequest = new UserUpdateRequest(pinCode, updatedPinCode);
         var responseMessage =
             await authenticatedClient.PutAsync($"/users/{createdUser.Id}", JsonContent.Create(updateRequest));
         Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
@@ -85,11 +81,8 @@ public class UserTests(ApiFixture apiFixture)
         const string updatedPinCode = "4321";
         var createdUser = await CreateUserAsync(username, pinCode);
         Assert.NotNull(createdUser);
-        var updateRequest = new UserAddRequest
-        {
-            Name = username,
-            PinCode = updatedPinCode
-        };
+        var updateRequest = new UserUpdateRequest(pinCode, updatedPinCode);
+        // Send update request to try to update PIN-code by another user
         var responseMessage =
             await _authClient.PutAsync($"/users/{createdUser.Id}", JsonContent.Create(updateRequest));
         Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
@@ -104,18 +97,17 @@ public class UserTests(ApiFixture apiFixture)
         Assert.NotNull(createdUser);
         var authResponse = await SignInAsync(username, pinCode);
         var authenticatedClient = CreateAuthenticatedClient(authResponse);
+        var requestBody = new UserDeleteRequest(pinCode);
+        var request = new HttpRequestMessage()
+        {
+            Content = JsonContent.Create(requestBody),
+            Method = HttpMethod.Delete,
+            RequestUri = new Uri($"{authenticatedClient.BaseAddress}users/{createdUser.Id}"),
+        };
+        request.Headers.Authorization = authenticatedClient.DefaultRequestHeaders.Authorization;
         var responseMessage =
-            await authenticatedClient.DeleteAsync($"/users/{createdUser.Id}");
+            await authenticatedClient.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
-    }
-
-    private HttpClient CreateAuthenticatedClient(AuthenticationResponseDto? authResponse)
-    {
-        var authenticatedClient = apiFixture.CreateClient();
-        Assert.NotNull(authResponse);
-        authenticatedClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", authResponse.AccessToken);
-        return authenticatedClient;
     }
 
     [Fact]
@@ -125,9 +117,25 @@ public class UserTests(ApiFixture apiFixture)
         const string pinCode = "1234";
         var createdUser = await CreateUserAsync(username, pinCode);
         Assert.NotNull(createdUser);
-        var responseMessage =
-            await _authClient.DeleteAsync($"/users/{createdUser.Id}");
+        var requestBody = new UserDeleteRequest(pinCode);
+        var request = new HttpRequestMessage()
+        {
+            Content = JsonContent.Create(requestBody),
+            Method = HttpMethod.Delete,
+            RequestUri = new Uri($"{_authClient.BaseAddress}users/{createdUser.Id}"),
+        };
+        request.Headers.Authorization = _authClient.DefaultRequestHeaders.Authorization;
+        var responseMessage = await _authClient.SendAsync(request);
         Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
+    }
+
+    private HttpClient CreateAuthenticatedClient(AuthenticationResponseDto? authResponse)
+    {
+        var authenticatedClient = apiFixture.CreateClient();
+        Assert.NotNull(authResponse);
+        authenticatedClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authResponse.AccessToken);
+        return authenticatedClient;
     }
 
     private async Task<AuthenticationResponseDto?> SignInAsync(string name, string pinCode)
@@ -142,11 +150,7 @@ public class UserTests(ApiFixture apiFixture)
 
     private async Task<UserDto?> CreateUserAsync(string name, string pinCode)
     {
-        var request = new UserAddRequest
-        {
-            Name = name,
-            PinCode = pinCode,
-        };
+        var request = new UserAddRequest(name, pinCode);
         var responseMessage = await _client.PostAsync("/users", JsonContent.Create(request));
         var createdUser = await JsonSerializer.DeserializeAsync<UserDto>(
             await responseMessage.Content.ReadAsStreamAsync(),

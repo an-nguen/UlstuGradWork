@@ -27,7 +27,7 @@ public sealed class UserController(
         IActionResult actionResult;
         try
         {
-            var createdUser = await service.CreateUser(request);
+            var createdUser = await service.CreateUserAsync(request);
             actionResult = Ok(createdUser);
         }
         catch (ArgumentException e)
@@ -41,17 +41,17 @@ public sealed class UserController(
     [HttpPut]
     [Authorize]
     [Route("{id:guid}")]
-    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserAddRequest request)
+    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateRequest request)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null || user.Id != id)
         {
             return Forbid();
-        } 
+        }
         IActionResult actionResult;
         try
         {
-            var updatedUser = await service.UpdateUser(id, request);
+            var updatedUser = await service.UpdateUserAsync(id, request);
             actionResult = Ok(updatedUser);
         }
         catch (ArgumentException e)
@@ -69,16 +69,16 @@ public sealed class UserController(
     [HttpDelete]
     [Authorize]
     [Route("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, [FromBody] UserDeleteRequest request)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null || user.Id != id)
         {
             return Forbid();
-        } 
+        }
         try
         {
-            await service.DeleteUser(id);
+            await service.DeleteUserAsync(id, request);
         }
         catch (EntityNotFoundException)
         {

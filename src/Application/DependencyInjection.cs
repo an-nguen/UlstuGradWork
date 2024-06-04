@@ -51,7 +51,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.Configure<MerriamWebsterOptions>(configuration.GetSection(MerriamWebsterOptions.MerriamWebster));
-        
+
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
         services.ConfigureHttpJsonOptions(jsonOptions =>
@@ -74,6 +74,7 @@ public static class DependencyInjection
 
         services.AddScoped<IValidator<PageRequestDto>, PageRequestValidator>();
         services.AddScoped<IValidator<UserAddRequest>, UserAddRequestValidator>();
+        services.AddScoped<IValidator<UserUpdateRequest>, UserUpdateRequestValidator>();
         services.AddScoped<IValidator<WordDto>, WordDtoValidator>();
 
         services.AddHttpClient<ITextSummarizationService, YTextSummarizationService>(httpClient =>

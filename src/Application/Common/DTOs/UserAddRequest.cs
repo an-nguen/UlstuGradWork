@@ -3,8 +3,10 @@
 namespace BookManager.Application.Common.DTOs;
 
 [TranspilationSource]
-public record UserAddRequest
-{
-    public required string Name { get; init; }
-    public required string PinCode { get; init; }
-}
+public record UserAddRequest(string Name, string PinCode);
+
+[TranspilationSource]
+public record UserUpdateRequest(string CurrentPINCode, string NewPINCode);
+
+[TranspilationSource]
+public record UserDeleteRequest(string CurrentPINCode);
