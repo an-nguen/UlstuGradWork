@@ -26,6 +26,7 @@
     "@angular/router": "^17.3.10",
     "@microsoft/signalr": "^7.0.14",
     "@ngneat/hotkeys": "^4.0.0",
+    "jwt-decode": "^4.0.0",
     "ngx-extended-pdf-viewer": "^20.2.0",
     "ngx-infinite-scroll": "^17.0.0",
     "pdfjs-dist": "^4.2.67",

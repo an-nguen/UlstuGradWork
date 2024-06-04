@@ -1,0 +1,29 @@
+<h2>Настройки аккаунта пользователя</h2>
+<section class="password-section" [formGroup]="passwordFormGroup">
+  <h3>Изменение пароля</h3>
+
+  <mat-form-field>
+    <mat-label>Ваш PIN-код</mat-label>
+    <input matInput
+           digitOnly
+           type="password"
+           formControlName="currentPINCode" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Новый PIN-код</mat-label>
+    <input matInput
+           digitOnly
+           type="password"
+           formControlName="newPINCode" />
+  </mat-form-field>
+
+  <div>
+    <button mat-flat-button
+            color="primary"
+            [disabled]="passwordFormGroup.invalid || passwordFormGroup.pristine"
+            (click)="changePassword()">
+      Применить изменения
+    </button>
+  </div>
+</section>

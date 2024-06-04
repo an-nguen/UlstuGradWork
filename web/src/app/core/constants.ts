@@ -16,6 +16,7 @@ export const CONSTANTS = {
     NO_CONNECTION: 'no-connection',
     VIEWER: 'viewer/:id',
     EDIT_DETAILS: 'edit/:id',
+    USER_SETTINGS: 'settings'
   },
   SERVER_URL: {
     BOOKS: {

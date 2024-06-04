@@ -131,6 +131,16 @@ export type BookMetadataDto = {
     tags?: string[];
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.BookTextDto */
+export type BookTextDto = {
+    /** Transpiled from System.Guid */
+    bookDocumentId: string;
+    /** Transpiled from string */
+    text: string;
+    /** Transpiled from int */
+    pageNumber?: number;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.DetectLanguageRequestDto */
 export type DetectLanguageRequestDto = {
     /** Transpiled from string */
@@ -141,6 +151,16 @@ export type DetectLanguageRequestDto = {
 export type DetectLanguageResponseDto = {
     /** Transpiled from string */
     detectedLanguageCode: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.FullTextSearchTreeEntryDto */
+export type FullTextSearchTreeEntryDto = {
+    /** Transpiled from System.Guid */
+    bookId: string;
+    /** Transpiled from BookManager.Application.Common.DTOs.BookDto.Details? */
+    bookDetails?: Details;
+    /** Transpiled from System.Collections.Generic.IEnumerable<BookManager.Application.Common.DTOs.BookTextDto> */
+    texts: BookTextDto[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.LanguageDto */
@@ -255,6 +275,20 @@ export type UserAddRequest = {
     name: string;
     /** Transpiled from string */
     pinCode: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.UserUpdateRequest */
+export type UserUpdateRequest = {
+    /** Transpiled from string */
+    currentPINCode: string;
+    /** Transpiled from string */
+    newPINCode: string;
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.UserDeleteRequest */
+export type UserDeleteRequest = {
+    /** Transpiled from string */
+    currentPINCode: string;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.UserDto */

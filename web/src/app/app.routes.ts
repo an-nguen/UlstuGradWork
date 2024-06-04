@@ -35,10 +35,14 @@ export const routes: Routes = [
       .then(m => m.LoginComponent),
   },
   {
+    path: CONSTANTS.ENDPOINTS.USER_SETTINGS,
+    canActivate: [authGuard],
+    loadComponent: () => import('./core/pages/user-settings/user-settings.component')
+      .then((m) => m.UserSettingsComponent)
+  },
+  {
     path: CONSTANTS.ENDPOINTS.NO_CONNECTION,
-    loadComponent: () =>
-      import('./core/pages/no-connection/no-connection.component').then(
-        (m) => m.NoConnectionComponent
-      ),
+    loadComponent: () => import('./core/pages/no-connection/no-connection.component')
+      .then((m) => m.NoConnectionComponent),
   },
 ];
