@@ -1,0 +1,26 @@
+secrets:
+  db_password:
+    environment: "DB_PASSWORD"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind 
+        source: "/c/Users/an/Documents/Projects/BLibMgr/src/Api/UploadedDocs"
+        target: "/App/UploadedDocs"
+    environment:
+      DbPassword: /run/secrets/db_password
+    secrets:
+      - db_password
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+  web:
+    depends_on:
+      - api
+    build: ./web
+    ports: 
+      - "4200:80"
