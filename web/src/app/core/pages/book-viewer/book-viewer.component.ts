@@ -60,6 +60,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public isDefinitionLoading = false;
   public isDefinitionMenuOpen = false;
+  public isWordInDictionary = false;
   public selectedWord?: string;
 
   private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
@@ -210,6 +211,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         mergeMap((foundWords) => {
           const definitionProvider = this.selectedDefinitionProvider();
+          this.isWordInDictionary = !!foundWords.length;
           return (!foundWords.length && !!definitionProvider)
             ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
             : of(foundWords);
@@ -225,6 +227,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           return;
         }
         this.wordEntries.set(foundWords);
+        this._cdr.markForCheck();
       });
   }
 

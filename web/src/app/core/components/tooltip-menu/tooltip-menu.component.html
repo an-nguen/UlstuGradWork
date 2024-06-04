@@ -1,7 +1,8 @@
-<div [cdkMenuTriggerFor]="contextMenu"></div>
 <ng-content></ng-content>
 <ng-template #contextMenu>
-  <div class="context-menu-container">
+  <div class="context-menu-container"
+       [style.width]="TOOLTIP_CONTAINER_WIDTH + 'px'"
+       [style.flex-direction]="flexDirection">
     <div class="tooltip-menu">
       <button matTooltip="Перевести"
               matTooltipPosition="above"
@@ -26,7 +27,9 @@
       </button>
     </div>
     @if (isDefinitionMenuOpen()) {
-      <div class="word-definition-popup">
+      <div class="word-definition-popup"
+           [style.height]="DEFINITION_POPUP_HEIGHT + 'px'"
+           [style.width]="TOOLTIP_CONTAINER_WIDTH + 'px'">
         <div class="word-definition-container">
           <mat-form-field>
             <mat-select [(ngModel)]="selectedDefinitionProvider">
@@ -51,15 +54,17 @@
             </ul>
           }
         </div>
-        <div>
-          <button mat-flat-button
-                  color="primary"
-                  [disabled]="definitionLoading() || !haveDefinitions()"
-                  (click)="emitWordAddBtnClickEvent()">
-            <mat-icon>add</mat-icon>
-            Добавить в словарь
-          </button>
-        </div>
+        @if (!isWordInDictionary()) {
+          <div>
+            <button mat-flat-button
+                    color="primary"
+                    [disabled]="definitionLoading() || !haveDefinitions()"
+                    (click)="emitWordAddBtnClickEvent()">
+              <mat-icon>add</mat-icon>
+              Добавить в словарь
+            </button>
+          </div>
+        }
         <app-loading-spinner-overlay [loading]="definitionLoading()"></app-loading-spinner-overlay>
       </div>
     }

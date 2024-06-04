@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
-  Component, computed,
+  Component,
+  computed,
   DestroyRef,
-  ElementRef,
+  ElementRef, HostListener,
   OnDestroy,
-  OnInit, Signal,
+  OnInit,
+  Signal,
   signal,
   viewChild,
 } from '@angular/core';
@@ -24,14 +26,15 @@ import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirma
 import {
   BookDetailsUpdateDto,
   BookDto,
-  BookMetadataDto, SearchRequestDto,
+  BookMetadataDto,
+  SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { debounceTime, finalize, map, mergeMap, Observable, of, tap } from 'rxjs';
+import { debounceTime, finalize, map, mergeMap, of, tap } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatIcon } from '@angular/material/icon';
-import { MatButton, MatButtonModule, MatIconButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
@@ -106,7 +109,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public books = signal<BookDto[]>([]);
   public isBooksEmpty = computed(() => {
     return this.books().length === 0;
-  })
+  });
 
   public currentPageNumber = signal<number>(1);
   public pageSize = signal<number>(this.DEFAULT_PAGE_SIZE);
@@ -144,6 +147,11 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
+    this._saveViewSettings();
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  public onBeforeUnload(): void {
     this._saveViewSettings();
   }
 

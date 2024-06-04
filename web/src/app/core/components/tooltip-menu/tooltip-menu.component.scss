@@ -1,7 +1,6 @@
 $menu-button-size: 36px;
 $menu-button-font-size: 22px;
 $definition-tooltip-height: 240px;
-$definition-tooltip-width: 240px;
 
 @mixin tooltipBlock {
   display: flex;
@@ -18,7 +17,7 @@ $definition-tooltip-width: 240px;
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  align-items: start;
+  align-items: center;
 }
 
 .tooltip-menu {
@@ -53,8 +52,6 @@ $definition-tooltip-width: 240px;
   @include tooltipBlock();
   flex-direction: column;
   padding: 1em;
-  width: $definition-tooltip-width;
-  height: $definition-tooltip-height;
   position: relative;
   
   .word {

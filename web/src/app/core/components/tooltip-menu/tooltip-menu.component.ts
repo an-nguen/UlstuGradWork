@@ -1,13 +1,16 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   HostListener,
   input,
   model,
   output,
+  TemplateRef,
   viewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
@@ -17,6 +20,8 @@ import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinn
 import { MatFormField } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
+import { CdkPortal, TemplatePortal } from '@angular/cdk/portal';
 
 @Component({
   selector: '[app-tooltip-menu]',
@@ -34,6 +39,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatOption,
     ReactiveFormsModule,
     FormsModule,
+    OverlayModule,
+    CdkPortal,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,10 +48,10 @@ export class TooltipMenuComponent {
 
   protected readonly WORD_BREAK_PATTERN = new RegExp(`(-)\n`, 'gm');
   protected readonly NEW_LINE_PATTERN = new RegExp(`(\n|\r\n|\r)`, 'gm');
-  protected readonly WORD_DEFINITION_POPUP_HEIGHT_PX = 240;
+  protected readonly DEFINITION_POPUP_HEIGHT = 240;
+  protected readonly TOOLTIP_CONTAINER_WIDTH = 320;
 
-  public contextMenuTrigger = viewChild(CdkMenuTrigger);
-
+  public contextMenuTemplateRef = viewChild<TemplateRef<unknown>>('contextMenu');
   public selectedDefinitionProvider = model<string | null>(null);
   public wordDefinitionEntries = input<WordDto[]>([]);
   public haveDefinitions = computed(() => {
@@ -54,7 +61,7 @@ export class TooltipMenuComponent {
   public definitionLoading = input<boolean>(false);
   public definitionProviders = input<string[]>([]);
   public isDefinitionMenuOpen = input<boolean>(false);
-  
+  public isWordInDictionary = input<boolean>(false);
   public selectionEvent = output<string | null>();
   public textCopyEvent = output<string>();
   public translationBtnClickEvent = output<string>();
@@ -62,82 +69,101 @@ export class TooltipMenuComponent {
   public textSumBtnClickEvent = output<string>();
   public definitionAddBtnClickEvent = output<WordDto[]>();
 
+  public flexDirection: 'column' | 'column-reverse' = 'column';
+
   private _selectedText?: string;
+  private _overlayRef: OverlayRef | null = null;
 
   constructor(
+    private readonly _overlayPositionBuilder: OverlayPositionBuilder,
+    private readonly _overlay: Overlay,
     private readonly _window: Window,
+    private readonly _vcr: ViewContainerRef,
+    private readonly _cdr: ChangeDetectorRef,
   ) {
   }
 
   @HostListener('mousedown')
   public clearSelection(): void {
     const selection = this._window.getSelection();
-    this.contextMenuTrigger()?.close();
     selection?.removeAllRanges();
     this.selectionEvent.emit(null);
+    this.closeContextMenu();
   }
 
   @HostListener('mouseup', ['$event'])
   public showTooltipMenu(e: MouseEvent) {
     const selection = this._window.getSelection();
     const selectedText = selection?.toString().trim();
-    const contextMenuTrigger = this.contextMenuTrigger()!;
     this.selectionEvent.emit(selectedText ?? null);
     if (!selection || !selectedText || selection.rangeCount === 0) {
       return;
     }
-    if (!contextMenuTrigger.menuPosition) {
-      contextMenuTrigger.menuPosition = [];
+
+    console.log('selection:', selection);
+    console.log('range:', selection.getRangeAt(0));
+    console.log('focusNode: ', selection.focusNode);
+    console.log('anchorNode: ', selection.anchorNode);
+    if (selection.focusNode instanceof Text && selection.focusNode.parentElement) {
+      const focusElement = selection.focusNode.parentElement;
+      const anchorElement = selection.anchorNode!.parentElement as Element;
+      const willBeOffscreen = this.willBeOffscreenByHeight(e);
+      this._setDefMenuFlexDirection(willBeOffscreen);
+      const positionStrategy = willBeOffscreen
+        ? this._overlayPositionBuilder.flexibleConnectedTo(anchorElement)
+          .withPositions([
+            {
+              originX: 'start',
+              originY: 'top',
+              overlayX: 'center',
+              overlayY: 'bottom',
+              offsetX: e.offsetX,
+            },
+          ])
+        : this._overlayPositionBuilder.flexibleConnectedTo(focusElement)
+          .withPositions([
+            {
+              originX: 'start',
+              originY: 'bottom',
+              overlayX: 'center',
+              overlayY: 'top',
+              offsetX: e.offsetX,
+            },
+          ]);
+
+      this._overlayRef = this._overlay.create({
+        positionStrategy,
+        scrollStrategy: this._overlay.scrollStrategies.close(),
+      });
+      const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
+      this._selectedText = this._processText(selectedText);
+      this._overlayRef.attach(portal);
     }
-    contextMenuTrigger.menuPosition.splice(
-      0,
-      contextMenuTrigger.menuPosition.length,
-    );
-    contextMenuTrigger.menuPosition.push(
-      {
-        originX: 'center',
-        originY: 'top',
-        overlayX: 'center',
-        overlayY: 'top',
-        offsetX: e.clientX,
-        offsetY: e.clientY,
-      },
-      {
-        originX: 'start',
-        originY: 'top',
-        overlayX: 'center',
-        overlayY: 'bottom',
-        offsetX: e.clientX,
-        offsetY: e.clientY,
-      },
-    );
-    
-    this._selectedText = this._processText(selectedText);
-    contextMenuTrigger.open();
   }
 
   @HostListener('scroll', ['$event'])
   @HostListener('wheel', ['$event'])
   public closeContextMenu(): void {
-    if (this.contextMenuTrigger()?.isOpen()) {
-      this.contextMenuTrigger()?.close();
+    if (this._overlayRef) {
+      this._overlayRef.dispose();
+      this._overlayRef = null;
     }
   }
 
   public willBeOffscreenByHeight(e: MouseEvent): boolean {
-    return e.clientY + this.WORD_DEFINITION_POPUP_HEIGHT_PX > window.innerHeight;
+    return e.clientY + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
   }
 
   public emitTranslationBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.translationBtnClickEvent.emit(this._selectedText);
-    this.contextMenuTrigger()?.close();
+    this.closeContextMenu();
   }
 
   public emitTextCopyEvent(): void {
     if (!this._selectedText) return;
     this.textCopyEvent.emit(this._selectedText);
-    this.contextMenuTrigger()?.close();
+    this.closeContextMenu();
   }
 
   public emitTextSumBtnClickEvent(): void {
@@ -153,13 +179,17 @@ export class TooltipMenuComponent {
   public emitWordAddBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.definitionAddBtnClickEvent.emit(this.wordDefinitionEntries());
-    this.contextMenuTrigger()?.close();
+    this.closeContextMenu();
   }
 
   private _processText(value: string): string {
     return value.trim()
       .replace(this.WORD_BREAK_PATTERN, '')
       .replace(this.NEW_LINE_PATTERN, ' ');
+  }
+
+  private _setDefMenuFlexDirection(reverse: boolean): void {
+    this.flexDirection = reverse ? 'column-reverse' : 'column';
   }
 
 }

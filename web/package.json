@@ -24,7 +24,7 @@
     "@angular/platform-browser": "^17.3.10",
     "@angular/platform-browser-dynamic": "^17.3.10",
     "@angular/router": "^17.3.10",
-    "@microsoft/signalr": "^8.0.0",
+    "@microsoft/signalr": "^7.0.14",
     "@ngneat/hotkeys": "^4.0.0",
     "ngx-extended-pdf-viewer": "^20.2.0",
     "ngx-infinite-scroll": "^17.0.0",
