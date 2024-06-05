@@ -60,8 +60,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public isDefinitionLoading = false;
   public isDefinitionMenuOpen = false;
-  public isWordInDictionary = false;
   public selectedWord?: string;
+  public foundWordsInDict: string[] = [];
 
   private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
   private _currentBook?: BookDto;
@@ -211,7 +211,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         mergeMap((foundWords) => {
           const definitionProvider = this.selectedDefinitionProvider();
-          this.isWordInDictionary = !!foundWords.length;
+          this.foundWordsInDict = foundWords.map(w => w.word);
           return (!foundWords.length && !!definitionProvider)
             ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
             : of(foundWords);
@@ -237,11 +237,12 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this._cdr.markForCheck();
   }
 
-  public addWordsToDictionary(words: WordDto[]): void {
-    const requests = words.map((word) => this._dictionaryService.addWord(word));
-    combineLatest(requests)
-      .subscribe((results) => {
-        this._snackBar.open(`Успешно добавлены ${results.length} слов(а).`, 'OK');
+  public addWordsToDictionary(word: WordDto): void {
+    this._dictionaryService.addWord(word)
+      .subscribe(() => {
+        this.foundWordsInDict.push(word.word);
+        this._cdr.markForCheck();
+        this._snackBar.open(`Успешно добавлено '${word.word}' слов(а).`, 'OK');
       });
   }
 
@@ -250,6 +251,17 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!providerName || !this.selectedWord) return;
     this.showWordDefinition(this.selectedWord);
   }
+
+  public delDefFromDictionary(word: WordDto) {
+    this._dictionaryService.deleteWord(word.word)
+      .subscribe(() => {
+        const index = this.foundWordsInDict.indexOf(word.word)
+        this.foundWordsInDict.splice(index, 1);
+        this.foundWordsInDict = [...this.foundWordsInDict];
+        this._cdr.markForCheck();
+        this._snackBar.open(`Слово '${word.word}' успешно удалена из словаря.`, 'OK');
+      });
+  }  
 
   private _updateTotalTime(): void {
     if (this._currentBook) {

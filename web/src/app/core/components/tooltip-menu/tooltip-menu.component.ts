@@ -1,7 +1,6 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   HostListener,
@@ -61,13 +60,14 @@ export class TooltipMenuComponent {
   public definitionLoading = input<boolean>(false);
   public definitionProviders = input<string[]>([]);
   public isDefinitionMenuOpen = input<boolean>(false);
-  public isWordInDictionary = input<boolean>(false);
   public selectionEvent = output<string | null>();
   public textCopyEvent = output<string>();
   public translationBtnClickEvent = output<string>();
   public definitionBtnClickEvent = output<string>();
   public textSumBtnClickEvent = output<string>();
-  public definitionAddBtnClickEvent = output<WordDto[]>();
+  public definitionAddBtnClickEvent = output<WordDto>();
+  public definitionDelBtnClickEvent = output<WordDto>();
+  public foundWords = input<string[]>([]);
 
   public flexDirection: 'column' | 'column-reverse' = 'column';
 
@@ -78,8 +78,7 @@ export class TooltipMenuComponent {
     private readonly _overlayPositionBuilder: OverlayPositionBuilder,
     private readonly _overlay: Overlay,
     private readonly _window: Window,
-    private readonly _vcr: ViewContainerRef,
-    private readonly _cdr: ChangeDetectorRef,
+    private readonly _vcr: ViewContainerRef
   ) {
   }
 
@@ -107,7 +106,7 @@ export class TooltipMenuComponent {
     if (selection.focusNode instanceof Text && selection.focusNode.parentElement) {
       const focusElement = selection.focusNode.parentElement;
       const anchorElement = selection.anchorNode!.parentElement as Element;
-      const willBeOffscreen = this.willBeOffscreenByHeight(e);
+      const willBeOffscreen = this._willBeOffscreenByHeight(e);
       this._setDefMenuFlexDirection(willBeOffscreen);
       const positionStrategy = willBeOffscreen
         ? this._overlayPositionBuilder.flexibleConnectedTo(anchorElement)
@@ -150,46 +149,55 @@ export class TooltipMenuComponent {
     }
   }
 
-  public willBeOffscreenByHeight(e: MouseEvent): boolean {
-    return e.clientY + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
+  public isWordInDictionary(word: string): boolean {
+    return this.foundWords().includes(word);
   }
-
+  
   public emitTranslationBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.translationBtnClickEvent.emit(this._selectedText);
     this.closeContextMenu();
   }
-
+  
   public emitTextCopyEvent(): void {
     if (!this._selectedText) return;
     this.textCopyEvent.emit(this._selectedText);
     this.closeContextMenu();
   }
-
+  
   public emitTextSumBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.textSumBtnClickEvent.emit(this._selectedText);
   }
-
+  
   public emitDefinitionBtnClickEvent(): void {
     if (!this._selectedText) return;
     this.definitionBtnClickEvent.emit(this._selectedText);
   }
-
-  public emitWordAddBtnClickEvent(): void {
+  
+  public emitWordAddBtnClickEvent(word: WordDto): void {
     if (!this._selectedText) return;
-    this.definitionAddBtnClickEvent.emit(this.wordDefinitionEntries());
+    this.definitionAddBtnClickEvent.emit(word);
+  }
+
+  public emitWordDelBtnClickEvent(word: WordDto): void {
+    if (!this._selectedText) return;
+    this.definitionDelBtnClickEvent.emit(word);
     this.closeContextMenu();
   }
-
+  
   private _processText(value: string): string {
     return value.trim()
-      .replace(this.WORD_BREAK_PATTERN, '')
-      .replace(this.NEW_LINE_PATTERN, ' ');
+    .replace(this.WORD_BREAK_PATTERN, '')
+    .replace(this.NEW_LINE_PATTERN, ' ');
   }
-
+  
   private _setDefMenuFlexDirection(reverse: boolean): void {
     this.flexDirection = reverse ? 'column-reverse' : 'column';
   }
 
+  private _willBeOffscreenByHeight(e: MouseEvent): boolean {
+    return e.clientY + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
+  }
+  
 }

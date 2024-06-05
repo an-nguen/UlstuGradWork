@@ -309,12 +309,6 @@ export type WordDefinitionDto = {
     definition: string;
 }
 
-/** Transpiled from BookManager.Application.Common.DTOs.WordAlias */
-export type WordAlias = {
-    /** Transpiled from string */
-    alias: string;
-}
-
 /** Transpiled from BookManager.Application.Common.DTOs.WordDto */
 export type WordDto = {
     /** Transpiled from string */
@@ -323,8 +317,8 @@ export type WordDto = {
     transcription?: string;
     /** Transpiled from string? */
     languageCode?: string;
-    /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.WordAlias> */
-    aliases: WordAlias[];
+    /** Transpiled from string[]? */
+    stems?: string[];
     /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.WordDefinitionDto> */
     definitions: WordDefinitionDto[];
 }

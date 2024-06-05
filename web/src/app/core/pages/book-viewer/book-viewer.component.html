@@ -1,32 +1,31 @@
 <div
-  id="pdf-viewer-container"
-  app-tooltip-menu
-  [selectedDefinitionProvider]="selectedDefinitionProvider()"
-  [definitionProviders]="definitionProviders()"
-  [wordDefinitionEntries]="wordEntries()"
-  [definitionLoading]="isDefinitionLoading"
-  [isDefinitionMenuOpen]="isDefinitionMenuOpen"
-  [isWordInDictionary]="isWordInDictionary"
-  (selectionEvent)="clearWordEntries()"
-  (textCopyEvent)="copyText($event)"
-  (definitionBtnClickEvent)="openDefinitionMenu($event)"
-  (translationBtnClickEvent)="openTranslationDialog($event)"
-  (textSumBtnClickEvent)="openTextSummarizationDialog($event)"
-  (definitionAddBtnClickEvent)="addWordsToDictionary($event)"
-  (selectedDefinitionProviderChange)="changeDefinitionProvider($event)"
->
+     id="pdf-viewer-container"
+     app-tooltip-menu
+     [selectedDefinitionProvider]="selectedDefinitionProvider()"
+     [definitionProviders]="definitionProviders()"
+     [wordDefinitionEntries]="wordEntries()"
+     [definitionLoading]="isDefinitionLoading"
+     [isDefinitionMenuOpen]="isDefinitionMenuOpen"
+     [foundWords]="foundWordsInDict"
+     (selectionEvent)="clearWordEntries()"
+     (textCopyEvent)="copyText($event)"
+     (definitionBtnClickEvent)="openDefinitionMenu($event)"
+     (translationBtnClickEvent)="openTranslationDialog($event)"
+     (textSumBtnClickEvent)="openTextSummarizationDialog($event)"
+     (definitionAddBtnClickEvent)="addWordsToDictionary($event)"
+     (definitionDelBtnClickEvent)="delDefFromDictionary($event)"
+     (selectedDefinitionProviderChange)="changeDefinitionProvider($event)">
   <ngx-extended-pdf-viewer
-    #pdfViewer
-    [(page)]="page"
-    [sidebarVisible]="false"
-    [customToolbar]="customToolbar"
-    [contextMenuAllowed]="false"
-    [textLayer]="true"
-    [src]="documentSource()"
-    [authorization]="bearerToken"
-    [showHandToolButton]="true"
-    [handTool]="false"
-  >
+                           #pdfViewer
+                           [(page)]="page"
+                           [sidebarVisible]="false"
+                           [customToolbar]="customToolbar"
+                           [contextMenuAllowed]="false"
+                           [textLayer]="true"
+                           [src]="documentSource()"
+                           [authorization]="bearerToken"
+                           [showHandToolButton]="true"
+                           [handTool]="false">
   </ngx-extended-pdf-viewer>
 </div>
 
@@ -45,8 +44,7 @@
       <pdf-zoom-in></pdf-zoom-in>
       <pdf-zoom-out></pdf-zoom-out>
       <pdf-zoom-dropdown
-        [zoomLevels]="pdfViewer.zoomLevels"
-      ></pdf-zoom-dropdown>
+                         [zoomLevels]="pdfViewer.zoomLevels"></pdf-zoom-dropdown>
     </div>
     <div class="right">
       <pdf-hand-tool></pdf-hand-tool>

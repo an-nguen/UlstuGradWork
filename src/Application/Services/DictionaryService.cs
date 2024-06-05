@@ -19,7 +19,7 @@ public sealed class DictionaryService(
     public async Task<IEnumerable<WordDto>> FindAsync(string word)
     {
         return await dbContext.DictionaryWords
-            .Where(w => w.Word == word || w.Stems == null || w.Stems.Any(s => EF.Functions.Like(s, $"%{word} %")))
+            .Where(w => w.Word == word || w.Stems == null || w.Stems.Any(s => EF.Functions.Like(s, $"%{word}%")))
             .Select(w => w.ToDto())
             .ToListAsync();
     }
