@@ -64,6 +64,7 @@ public class ApiFixture : IDisposable
     {
         using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var userService = ServiceProviderServiceExtensions.GetRequiredService<IUserService>(scope.ServiceProvider);
+        if (userService.GetUserByNameAsync(Constants.UserName).Result != null) return;
         var user = userService.CreateUserAsync(new UserAddRequest(Constants.UserName, Constants.UserPinCode)).Result;
         Console.WriteLine($"The user ${user.Name} created.");
     }

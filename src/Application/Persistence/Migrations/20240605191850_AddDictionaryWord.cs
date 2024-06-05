@@ -17,7 +17,8 @@ namespace BookManager.Application.Persistence.Migrations
                 {
                     word = table.Column<string>(type: "text", nullable: false),
                     transcription = table.Column<string>(type: "text", nullable: true),
-                    language_code = table.Column<string>(type: "text", nullable: true)
+                    language_code = table.Column<string>(type: "text", nullable: true),
+                    stems = table.Column<string[]>(type: "text[]", nullable: true)
                 },
                 constraints: table =>
                 {

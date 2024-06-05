@@ -5,6 +5,8 @@ namespace BookManager.Application.Common.Interfaces.Services;
 public interface IUserService
 {
     public IAsyncEnumerable<UserDto> GetAllUsers();
+    public Task<UserDto?> GetUserByIdAsync(Guid id);
+    public Task<UserDto?> GetUserByNameAsync(string userName);
     public Task<UserDto> CreateUserAsync(UserAddRequest request);
     public Task<UserDto> UpdateUserAsync(Guid id, UserUpdateRequest request);
     public Task DeleteUserAsync(Guid id, UserDeleteRequest request);

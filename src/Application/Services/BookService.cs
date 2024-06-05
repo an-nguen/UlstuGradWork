@@ -22,7 +22,7 @@ public sealed class BookService(
     {
         ["title"] = b => b.Title!,
         ["isbn"] = b => b.Isbn!,
-        ["recent_access"] = b => b.Stats.FirstOrDefault()!.RecentAccess
+        ["recent_access"] = b => b.Stats.FirstOrDefault()!.RecentAccess!
     };
 
     public async Task<PageDto<BookDto>> GetPageAsync(
@@ -44,7 +44,7 @@ public sealed class BookService(
             : BookAvailableSortOptions["recent_access"];
         if (request.SortBy == "recent_access")
         {
-            Expression<Func<Book, object>> orderByNullExpr = b => b.Stats.FirstOrDefault().RecentAccess == null;
+            Expression<Func<Book, object>> orderByNullExpr = b => b.Stats.FirstOrDefault()!.RecentAccess == null;
             query = request.SortOrder == SortOrder.Desc
                 ? query.OrderBy(orderByNullExpr).ThenByDescending(orderExpr)
                 : query.OrderBy(orderByNullExpr).ThenBy(orderExpr);

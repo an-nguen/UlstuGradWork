@@ -7,7 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityUserContext<User, Guid>(options), IAppDbContext
 {
     public DbSet<BookCollection> BookCollections => Set<BookCollection>();
-    
+
     public DbSet<Book> Books => Set<Book>();
 
     public DbSet<BookText> BookTexts => Set<BookText>();

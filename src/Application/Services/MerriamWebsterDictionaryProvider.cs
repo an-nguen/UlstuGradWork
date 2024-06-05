@@ -45,7 +45,7 @@ public partial class MerriamWebsterDictionaryProvider(
                 contentStream,
                 _jsonSerializerOptions
             );
-            if (results == null) return new List<WordDto>();
+            if (results == null) return [];
 
             var words = new List<WordDto>();
             foreach (var def in results)
@@ -57,15 +57,34 @@ public partial class MerriamWebsterDictionaryProvider(
                    )
                     continue;
 
+                var normalizedWordId = _wordIdRegex.Replace(def.Meta.Id, string.Empty);
+                var transcription = def.HeadwordInfo.Pronunciations[0].WrittenPronunciation;
                 var definitions = def.ShortDefinition
                     .Select(definition => new WordDefinitionDto(def.FunctionalLabel, "", definition))
                     .ToList();
-                var transcription = def.HeadwordInfo.Pronunciations[0].WrittenPronunciation;
-                var normalizedWordId = _wordIdRegex.Replace(def.Meta.Id, string.Empty);
-                var aliases = def.Meta.Stems.Select(stem => new WordAlias(stem)).ToList();
-                words.Add(new WordDto(normalizedWordId, transcription, string.Empty, Aliases: aliases,
-                    Definitions: definitions));
-            }   
+                var stems = def.Meta.Stems.ToArray();
+                var similarWord = words.FirstOrDefault(w => w.Word == normalizedWordId);
+                if (similarWord != null)
+                {
+                    similarWord.Stems = new List<string>([.. similarWord.Stems, .. stems])
+                                            .Distinct()
+                                            .ToArray();
+                    definitions.ForEach(similarWord.Definitions.Add);
+                }
+                else
+                {
+                    words.Add(
+                        new WordDto
+                        {
+                            Word = normalizedWordId,
+                            Transcription = transcription,
+                            LanguageCode = string.Empty,
+                            Stems = stems,
+                            Definitions = definitions
+                        }
+                    );
+                }
+            }
 
             return words;
         }

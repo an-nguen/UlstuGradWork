@@ -17,40 +17,24 @@ public sealed record WordDefinitionDto(string PartOfSpeech, string SubjectName, 
 }
 
 [TranspilationSource]
-public sealed record WordAlias(string Alias)
+public sealed class WordDto
 {
-    public DictionaryWordAlias ToEntity()
-    {
-        return new DictionaryWordAlias
-        {
-            Alias = Alias
-        };
-    }
-}
+    public required string Word { get; set; }
+    public string? Transcription { get; set; }
+    public string? LanguageCode { get; set; }
+    public string[]? Stems { get; set; }
+    public ICollection<WordDefinitionDto> Definitions { get; set; } = [];
 
-[TranspilationSource]
-public sealed record WordDto(
-    string Word,
-    string? Transcription,
-    string? LanguageCode,
-    ICollection<WordAlias> Aliases,
-    ICollection<WordDefinitionDto> Definitions)
-{
     public DictionaryWord ToEntity()
     {
-        var word = new DictionaryWord
+        return new DictionaryWord
         {
             Word = Word,
             Transcription = Transcription,
-            LanguageCode = LanguageCode
+            LanguageCode = LanguageCode,
+            Stems = Stems,
+            Definitions = Definitions.Select(d => d.ToEntity()).ToList(),
         };
-
-        foreach (var definition in Definitions.Select(def => def.ToEntity()))
-        {
-            word.Definitions.Add(definition);
-        }
-
-        return word;
     }
 }
 
@@ -58,23 +42,19 @@ public static class DictionaryWordExtension
 {
     public static WordDto ToDto(this DictionaryWord word)
     {
-        return new WordDto(
-            word.Word,
-            word.Transcription,
-            word.LanguageCode,
-            word.Aliases.Select(a => a.ToDto()).ToList(),
-            word.Definitions.Select(wordDef => wordDef.ToDto()).ToList()
-        );
+        return new WordDto
+        {
+            Word = word.Word,
+            Transcription = word.Transcription,
+            LanguageCode = word.LanguageCode,
+            Stems = word.Stems,
+            Definitions = word.Definitions.Select(wordDef => wordDef.ToDto()).ToList()
+        };
     }
 
     public static WordDefinitionDto ToDto(this DictionaryWordDefinition definition)
     {
         return new WordDefinitionDto(definition.PartOfSpeech, definition.SubjectName, definition.Definition);
-    }
-
-    public static WordAlias ToDto(this DictionaryWordAlias alias)
-    {
-        return new WordAlias(alias.Alias);
     }
 }
 

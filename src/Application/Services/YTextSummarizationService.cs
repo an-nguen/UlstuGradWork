@@ -14,7 +14,7 @@ namespace BookManager.Application.Services;
 
 public sealed class CompletionResponse
 {
-    public ResponseResult Result { get; set; }
+    public ResponseResult Result { get; set; } = null!;
 
     public class ResponseResult
     {
@@ -24,7 +24,7 @@ public sealed class CompletionResponse
 
         public class Alternative
         {
-            public AMessage Message { get; set; }
+            public AMessage Message { get; set; } = null!;
             public string? Status { get; set; }
 
             public record AMessage(string Role, string Text);

@@ -10,7 +10,7 @@ public sealed record BookDto
     public required Details DocumentDetails { get; init; }
 
     public required BookFileMetadata FileMetadata { get; init; }
-    
+
     public UserStats? Stats { get; init; }
 
     public Book ToEntity()
@@ -54,7 +54,7 @@ public sealed record BookDto
         public string[]? Authors { get; set; }
         public string[]? Tags { get; set; }
     }
-    
+
     [TranspilationSource]
     public class UserStats
     {
@@ -99,7 +99,7 @@ public static class BookDocumentEntityExtensions
             Stats = stats != null ? new BookDto.UserStats
             {
                 TotalReadingTime = stats.TotalReadingTime,
-                RecentAccessTime = stats.RecentAccess.ToDateTimeOffset(),
+                RecentAccessTime = stats.RecentAccess?.ToDateTimeOffset(),
                 LastViewedPage = stats.LastViewedPage
             } : null
         };

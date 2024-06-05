@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookManager.Application.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240528092849_AddDictionaryWordAlias")]
-    partial class AddDictionaryWordAlias
+    [Migration("20240605191850_AddDictionaryWord")]
+    partial class AddDictionaryWord
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,6 +203,10 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("language_code");
 
+                    b.Property<string[]>("Stems")
+                        .HasColumnType("text[]")
+                        .HasColumnName("stems");
+
                     b.Property<string>("Transcription")
                         .HasColumnType("text")
                         .HasColumnName("transcription");
@@ -211,25 +215,6 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasName("pk_dictionary_words");
 
                     b.ToTable("dictionary_words", (string)null);
-                });
-
-            modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWordAlias", b =>
-                {
-                    b.Property<string>("Alias")
-                        .HasColumnType("text")
-                        .HasColumnName("alias");
-
-                    b.Property<string>("DictionaryWordWord")
-                        .HasColumnType("text")
-                        .HasColumnName("dictionary_word_word");
-
-                    b.HasKey("Alias")
-                        .HasName("pk_dictionary_word_alias");
-
-                    b.HasIndex("DictionaryWordWord")
-                        .HasDatabaseName("ix_dictionary_word_alias_dictionary_word_word");
-
-                    b.ToTable("dictionary_word_alias", (string)null);
                 });
 
             modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWordDefinition", b =>
@@ -490,16 +475,6 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasConstraintName("fk_book_user_stats_set_users_user_id");
                 });
 
-            modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWordAlias", b =>
-                {
-                    b.HasOne("BookManager.Domain.Entities.DictionaryWord", "DictionaryWord")
-                        .WithMany("Aliases")
-                        .HasForeignKey("DictionaryWordWord")
-                        .HasConstraintName("fk_dictionary_word_alias_dictionary_words_dictionary_word_word");
-
-                    b.Navigation("DictionaryWord");
-                });
-
             modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWordDefinition", b =>
                 {
                     b.HasOne("BookManager.Domain.Entities.DictionaryWord", "Word")
@@ -549,8 +524,6 @@ namespace BookManager.Application.Persistence.Migrations
 
             modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWord", b =>
                 {
-                    b.Navigation("Aliases");
-
                     b.Navigation("Definitions");
                 });
 

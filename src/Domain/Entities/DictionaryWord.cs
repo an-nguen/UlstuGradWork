@@ -11,7 +11,8 @@ public sealed class DictionaryWord
 
     public string? LanguageCode { get; set; } = string.Empty;
 
-    public ICollection<DictionaryWordAlias> Aliases { get; } = new List<DictionaryWordAlias>();
+    // Основы слова (лингвистика)
+    public string[]? Stems { get; set; }
 
-    public ICollection<DictionaryWordDefinition> Definitions { get; } = new List<DictionaryWordDefinition>();
+    public ICollection<DictionaryWordDefinition> Definitions { get; init; } = [];
 }

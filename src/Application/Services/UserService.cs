@@ -19,6 +19,16 @@ public sealed class UserService(
         return dbContext.Users.Select(u => u.ToDto()).AsAsyncEnumerable();
     }
 
+    public async Task<UserDto?> GetUserByIdAsync(Guid id)
+    {
+        return (await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id))?.ToDto();
+    }
+
+    public async Task<UserDto?> GetUserByNameAsync(string userName)
+    {
+        return (await dbContext.Users.FirstOrDefaultAsync(u => u.UserName == userName))?.ToDto();
+    }
+
     public async Task<UserDto> CreateUserAsync(UserAddRequest request)
     {
         var validationResult = await userAddRequestValidator.ValidateAsync(request);
@@ -72,4 +82,5 @@ public sealed class UserService(
         dbContext.Users.Remove(foundUser);
         await dbContext.SaveChangesAsync();
     }
+
 }
