@@ -8,7 +8,7 @@ RUN corepack enable && yarn && yarn build
 
 FROM nginx:stable-bookworm
 
-COPY --from=build /usr/local/app/dist/arbitrage-scanner-fe/browser /usr/share/nginx/html
+COPY --from=build /usr/local/app/dist/libmgr-app/browser /usr/share/nginx/html
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
