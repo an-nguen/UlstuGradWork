@@ -5,6 +5,8 @@ using BookManager.Application;
 using BookManager.Application.Common;
 using BookManager.Application.Notification;
 
+string[] DevOrigins = ["https://localhost:4200", "http://localhost:4200"];
+
 var builder = WebApplication.CreateBuilder();
 
 builder.Services
@@ -12,6 +14,7 @@ builder.Services
     .ConfigureDataPersistence(builder.Configuration)
     .AddApplicationServices(builder.Configuration);
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer()
@@ -20,9 +23,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy => policy
         .WithOrigins(
-            "https://localhost:4200",
-            "http://localhost:4200"
-            )
+            allowedOrigins ?? DevOrigins
+        )
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
