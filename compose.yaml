@@ -1,14 +1,14 @@
 secrets:
   db_password:
-    environment: "DB_PASSWORD"
+    environment: "DbPassword"
 
 services:
-  api:
+  libmgr-server:
     build: .
     ports:
       - "8080:8080"
     volumes:
-      - type: bind 
+      - type: bind
         source: "/c/Users/an/Documents/Projects/BLibMgr/src/Api/UploadedDocs"
         target: "/App/UploadedDocs"
     environment:
@@ -17,10 +17,10 @@ services:
       - db_password
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    
-  web:
+
+  libmgr-client:
     depends_on:
-      - api
+      - libmgr-server
     build: ./web
-    ports: 
+    ports:
       - "4200:80"

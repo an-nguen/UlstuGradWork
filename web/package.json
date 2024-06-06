@@ -8,8 +8,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --base-href ./",
-    "watch": "ng build --base-href ./ --watch --configuration development",
+    "build": "ng build --base-href /",
+    "watch": "ng build --base-href / --watch --configuration development",
     "lint": "ng lint",
     "docker:build": "docker build -t libmgr-client ."
   },
