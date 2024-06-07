@@ -19,8 +19,11 @@ import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinn
 import { MatFormField } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
+import { FlexibleConnectedPositionStrategyOrigin, Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, TemplatePortal } from '@angular/cdk/portal';
+import { debounceTime, fromEvent, map } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: '[app-tooltip-menu]',
@@ -71,27 +74,63 @@ export class TooltipMenuComponent {
 
   public flexDirection: 'column' | 'column-reverse' = 'column';
 
-  private _selectedText?: string;
   private _overlayRef: OverlayRef | null = null;
+  private _selectedText?: string;
+  private _pointerPosition?: {x: number, y: number, offsetX: number, offsetY: number};
+  private _isPointerDown = false;
+  private _isTouchscreen = false;
 
   constructor(
+    private readonly _breakpointerObserver: BreakpointObserver,
     private readonly _overlayPositionBuilder: OverlayPositionBuilder,
     private readonly _overlay: Overlay,
     private readonly _window: Window,
     private readonly _vcr: ViewContainerRef
   ) {
+    fromEvent(document, 'selectionchange')
+      .pipe(
+        debounceTime(400),
+        takeUntilDestroyed(),
+      )
+      .subscribe((e: Event) => {
+        console.log('selectionchange', e);
+        if (this._isTouchscreen) {
+          this.showTooltipMenuOnMobile();
+        }
+      });
+    _breakpointerObserver.observe('(pointer:coarse)')
+      .pipe(
+         map((state) => state.matches),
+         takeUntilDestroyed()
+      )
+      .subscribe((isMatch) => {
+        this._isTouchscreen = isMatch;
+      });
   }
 
-  @HostListener('mousedown')
-  public clearSelection(): void {
+  @HostListener("pointermove", ['$event'])
+  public updatePointerPosition({x, y, offsetX, offsetY}: PointerEvent): void {
+    this._pointerPosition = {x, y, offsetX, offsetY};
+  }
+
+  @HostListener("pointerdown", ["$event"])
+  public clearSelection(e: PointerEvent ): void {
+    this._isPointerDown = true;
+    if (e.button === 2) {
+      return;
+    }
     const selection = this._window.getSelection();
     selection?.removeAllRanges();
     this.selectionEvent.emit(null);
     this.closeContextMenu();
   }
 
-  @HostListener('mouseup', ['$event'])
-  public showTooltipMenu(e: MouseEvent) {
+  @HostListener("pointerup", ['$event'])
+  public showTooltipMenu(e: PointerEvent) {
+    this._isPointerDown = false;
+    if (this._overlayRef) {
+      this.closeContextMenu();
+    }
     const selection = this._window.getSelection();
     const selectedText = selection?.toString().trim();
     this.selectionEvent.emit(selectedText ?? null);
@@ -99,55 +138,76 @@ export class TooltipMenuComponent {
       return;
     }
 
-    console.log('selection:', selection);
-    console.log('range:', selection.getRangeAt(0));
-    console.log('focusNode: ', selection.focusNode);
-    console.log('anchorNode: ', selection.anchorNode);
-    if (selection.focusNode instanceof Text && selection.focusNode.parentElement) {
-      const focusElement = selection.focusNode.parentElement;
-      const anchorElement = selection.anchorNode!.parentElement as Element;
-      const willBeOffscreen = this._willBeOffscreenByHeight(e);
-      this._setDefMenuFlexDirection(willBeOffscreen);
-      const positionStrategy = willBeOffscreen
-        ? this._overlayPositionBuilder.flexibleConnectedTo(anchorElement)
-          .withPositions([
-            {
-              originX: 'start',
-              originY: 'top',
-              overlayX: 'center',
-              overlayY: 'bottom',
-              offsetX: e.offsetX,
-            },
-          ])
-        : this._overlayPositionBuilder.flexibleConnectedTo(focusElement)
-          .withPositions([
-            {
-              originX: 'start',
-              originY: 'bottom',
-              overlayX: 'center',
-              overlayY: 'top',
-              offsetX: e.offsetX,
-            },
-          ]);
-
-      this._overlayRef = this._overlay.create({
-        positionStrategy,
-        scrollStrategy: this._overlay.scrollStrategies.close(),
-      });
-      const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
-      this._selectedText = this._processText(selectedText);
-      this._overlayRef.attach(portal);
-    }
+    const origin = { x: e.x, y: e.y, height: e.height, width: e.width };
+    console.log('e', e)
+    const willBeOffscreen = this._willBeOffscreenByHeight();
+    this._setDefMenuFlexDirection(willBeOffscreen);
+    const positionStrategy = willBeOffscreen || this._isTouchscreen
+      ? this._overlayPositionBuilder.flexibleConnectedTo(origin)
+        .withPositions([
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'center',
+            overlayY: 'bottom',
+          },
+        ])
+      : this._overlayPositionBuilder.flexibleConnectedTo(origin)
+        .withPositions([
+          {
+            originX: 'start',
+            originY: 'bottom',
+            overlayX: 'center',
+            overlayY: 'top',
+          },
+        ]);
+    this._overlayRef = this._overlay.create({
+      positionStrategy,
+      scrollStrategy: this._overlay.scrollStrategies.close(),
+    });
+    const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
+    this._selectedText = this._processText(selectedText);
+    this._overlayRef.attach(portal);
   }
 
   @HostListener('scroll', ['$event'])
   @HostListener('wheel', ['$event'])
   public closeContextMenu(): void {
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._overlayRef = null;
-    }
+    this._overlayRef?.dispose();
+    this._overlayRef = null;
   }
+
+  public showTooltipMenuOnMobile(): void {
+    const selection = window.getSelection();
+    if (this._overlayRef) {
+      this.closeContextMenu();
+    }
+    const selectedText = selection?.toString().trim();
+    this.selectionEvent.emit(selectedText ?? null);
+    if (!selection || !selectedText) return;
+
+    const rangeRect = selection.getRangeAt(0).getBoundingClientRect();
+    console.log('rangeRect', rangeRect);
+    const firstElement = selection.anchorNode!.parentElement as Element;
+    const willBeOffscreen = this._willBeOffscreenByHeight();
+    this._setDefMenuFlexDirection(willBeOffscreen);
+    const positionStrategy =  this._overlayPositionBuilder.flexibleConnectedTo(rangeRect)
+        .withPositions([
+          {
+            originX: 'center',
+            originY: 'top',
+            overlayX: 'center',
+            overlayY: 'bottom',
+          },
+        ]);
+    this._overlayRef = this._overlay.create({
+      positionStrategy,
+      scrollStrategy: this._overlay.scrollStrategies.reposition(),
+    });
+    const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
+    this._selectedText = this._processText(selectedText);
+    this._overlayRef.attach(portal);
+  } 
 
   public isWordInDictionary(word: string): boolean {
     return this.foundWords().includes(word);
@@ -196,8 +256,8 @@ export class TooltipMenuComponent {
     this.flexDirection = reverse ? 'column-reverse' : 'column';
   }
 
-  private _willBeOffscreenByHeight(e: MouseEvent): boolean {
-    return e.clientY + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
+  private _willBeOffscreenByHeight(): boolean {
+    return (this._pointerPosition?.y ?? 0) + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
   }
   
 }

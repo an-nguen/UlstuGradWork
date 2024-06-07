@@ -21,7 +21,7 @@ import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, combineLatest, finalize, mergeMap, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, mergeMap, of, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
