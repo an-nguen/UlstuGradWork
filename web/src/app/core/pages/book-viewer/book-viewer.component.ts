@@ -118,6 +118,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this._updateTotalTime();
     }
+    this._updateLastViewedPage();
   }
 
   public set page(value: number | undefined) {
