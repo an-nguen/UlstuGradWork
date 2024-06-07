@@ -4,6 +4,8 @@ WORKDIR /usr/local/app
 
 COPY ./ /usr/local/app/
 
+ARG BASE_URL
+ENV BASE_URL $BASE_URL
 RUN corepack enable && yarn && yarn build
 
 FROM nginx:1.26.1

@@ -1,0 +1,16 @@
+# Client
+**/node_modules
+**/dist
+**/.nx
+**/.angular
+
+# Server
+**/obj
+**/bin
+**/UploadedDocs
+/web
+
+/docs
+/scripts
+**/.idea
+**/.vscode

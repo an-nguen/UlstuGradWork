@@ -6,13 +6,14 @@ services:
   libmgr-server:
     build: .
     ports:
-      - "8080:8080"
+      - 8080:8080
     volumes:
       - type: bind
         source: "/c/Users/an/Documents/Projects/BLibMgr/src/Api/UploadedDocs"
         target: "/App/UploadedDocs"
     environment:
-      DbPassword: /run/secrets/db_password
+      - DbPassword=/run/secrets/db_password
+      - Cors__AllowedOrigins=${CorsAllowedOrigins}
     secrets:
       - db_password
     extra_hosts:

@@ -13,8 +13,7 @@ builder.Services
     .Configure<FileStorageOptions>(builder.Configuration.GetSection(FileStorageOptions.FileStorage))
     .ConfigureDataPersistence(builder.Configuration)
     .AddApplicationServices(builder.Configuration);
-
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string>()?.Split(";");
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer()
@@ -25,6 +24,7 @@ builder.Services.AddCors(options =>
         .WithOrigins(
             allowedOrigins ?? DevOrigins
         )
+        .SetIsOriginAllowedToAllowWildcardSubdomains()
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
@@ -39,6 +39,15 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
+
+var logger = app.Services.GetService<ILogger<Program>>();
+if (allowedOrigins != null)
+{
+    foreach (var allowedOrigin in allowedOrigins)
+    {
+        logger?.LogInformation("Allowed origin: {}", allowedOrigin);
+    }
+}
 
 app.DbMigrate();
 

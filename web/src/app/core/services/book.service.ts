@@ -10,7 +10,7 @@ import {
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
