@@ -136,6 +136,10 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openTranslationDialog(selectedText: string): void {
     if (!selectedText) return;
+    if (selectedText.length > CONSTANTS.TRANSLATION_TEXT_MAX_LENGTH) {
+      this._snackBar.open('Размер текста не должна превышать больше 1000 символов.');
+      return;
+    }
 
     this._dialog.open(TranslationDialogComponent, {
       minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,

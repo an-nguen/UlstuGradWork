@@ -42,5 +42,6 @@ export const CONSTANTS = {
     DICTIONARY_WORD: `^([\\p{L}-]*)( ?)([\\p{L}-]*)$`
   },
   TOTAL_TIME_UPDATE_INTERVAL_IN_SEC: 60, // 1 minute
+  TRANSLATION_TEXT_MAX_LENGTH: 1000,
   PAGE_SIZE: 7,
 };
