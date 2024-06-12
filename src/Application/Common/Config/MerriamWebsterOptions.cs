@@ -3,6 +3,6 @@
 public class MerriamWebsterOptions
 {
     public const string MerriamWebster = "MerriamWebster";
-    
-    public string ApiKey { get; init; }
+
+    public string ApiKey { get; init; } = string.Empty;
 }

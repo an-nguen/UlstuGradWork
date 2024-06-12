@@ -2,7 +2,13 @@
   "protoc": {
     "options": ["--proto_path=${workspaceRoot}/src/Protos"]
   },
-  "rust-analyzer.linkedProjects": [
-    "client/libmgr-desktop-app/src-tauri/Cargo.toml"
-  ]
+  "eslint.workingDirectories": [
+    "web"    
+  ],
+  "js-beautify-for-vscode.html.templating": [
+    "angular"
+  ],
+  "html.format.indentHandlebars": true,
+  "html.format.wrapAttributes": "preserve-aligned",
+  "editor.fontFamily": "Fira Code, Fira Code Regular,'JetBrains Mono Regular'"
 }

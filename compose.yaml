@@ -1,6 +1,16 @@
 secrets:
+  db_user:
+    environment: "DbUser"
   db_password:
     environment: "DbPassword"
+  ycloud_key_id:
+    environment: "YandexCloud__KeyId"
+  ycloud_service_account_id:
+    environment: "YandexCloud__ServiceAccountId"
+  ycloud_folder_path:
+    environment: "YandexCloud__FolderPath"
+  merriam_webster_api_key:
+    environment: "MerriamWebster__ApiKey"
 
 services:
   libmgr-server:
@@ -9,13 +19,26 @@ services:
       - 8080:8080
     volumes:
       - type: bind
-        source: "/c/Users/an/Documents/Projects/BLibMgr/src/Api/UploadedDocs"
+        source: "${KeysPath}"
+        target: "/App/Keys"
+      - type: bind
+        source: "${StoragePath}"
         target: "/App/UploadedDocs"
     environment:
+      - DbUser=/run/secrets/db_user
       - DbPassword=/run/secrets/db_password
       - Cors__AllowedOrigins=${CorsAllowedOrigins}
+      - YandexCloud__KeyId=/run/secrets/ycloud_key_id
+      - YandexCloud__ServiceAccountId=/run/secrets/ycloud_service_account_id
+      - YandexCloud__FolderPath=/run/secrets/ycloud_folder_path
+      - MerriamWebster__ApiKey=/run/secrets/merriam_webster_api_key
     secrets:
+      - db_user
       - db_password
+      - ycloud_key_id
+      - ycloud_service_account_id
+      - ycloud_folder_path
+      - merriam_webster_api_key
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
