@@ -1,26 +1,24 @@
 <button
-  mat-icon-button
-  [matMenuTriggerFor]="sortMenu"
-  matTooltip="Меню сортировки по критерию"
->
+        mat-icon-button
+        matTooltip="Меню сортировки по критерию"
+        [disabled]="disabled()"
+        [matMenuTriggerFor]="sortMenu">
   <mat-icon>sort</mat-icon>
 </button>
 <button
-  mat-icon-button
-  (click)="changeSortOrder()"
-  matTooltip="Порядок сортировки"
->
-  <mat-icon> @if(sortOrder()) { north } @else { south } </mat-icon>
+        mat-icon-button
+        matTooltip="Порядок сортировки"
+        [disabled]="disabled()"
+        (click)="changeSortOrder()">
+  <mat-icon> {{ sortOrderIconName() }} </mat-icon>
 </button>
 <mat-menu #sortMenu>
   @for (option of sortOptions(); track $index) {
-  <button
-    mat-menu-item
-    class="sort-option"
-    (click)="onSortOptionSelected(option)"
-  >
-    <mat-icon> @if (sortOption() === option) { check } </mat-icon>
-    <span>{{ option.name }}</span>
-  </button>
+    <button mat-menu-item
+            class="sort-option"
+            (click)="onSortOptionSelected(option)">
+      <mat-icon> @if (sortOption() === option) { check } </mat-icon>
+      <span>{{ option.name }}</span>
+    </button>
   }
 </mat-menu>

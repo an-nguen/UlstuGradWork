@@ -3,7 +3,6 @@ using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Indexing;
-using BookManager.Application.Notification;
 using BookManager.Application.Persistence;
 using BookManager.Application.Persistence.FileSystem;
 using BookManager.Application.Services;
@@ -27,6 +26,7 @@ public static class DependencyInjection
     {
         var conStrBuilder = new NpgsqlConnectionStringBuilder(configuration.GetConnectionString("Main"))
         {
+            Username = configuration["DbUser"],
             Password = configuration["DbPassword"]
         };
         var connection = conStrBuilder.ConnectionString;

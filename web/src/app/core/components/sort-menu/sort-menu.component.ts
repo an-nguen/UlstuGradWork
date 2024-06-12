@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   output,
 } from '@angular/core';
@@ -35,9 +36,14 @@ export class SortMenuComponent {
   public sortOptions = input.required<SortOption[]>();
   public sortOption = input<SortOption>();
   public sortOrder = input<SortOrder>(SortOrder.Asc);
+  public disabled = input<boolean>(false)
 
   public sortOptionChange = output<SortOption>();
   public sortOrderChange = output<SortOrder>();
+
+  public sortOrderIconName = computed(() => 
+    this.sortOrder() ? 'north' : 'south'
+  );
 
   public onSortOptionSelected(option: SortOption): void {
     this.sortOptionChange.emit(option);

@@ -1,41 +1,42 @@
 <div class="toolbar mat-primary" [class.handset]="isHandset()">
   <div class="left-section">
     @if (isHandset()) {
-      <button mat-mini-fab color="primary" (click)="bookFileInput.click()">
+      <button mat-mini-fab
+              [disabled]="isLoading()"
+              color="primary"
+              (click)="bookFileInput.click()">
         <mat-icon>add</mat-icon>
       </button>
     } @else {
-      <button mat-flat-button (click)="bookFileInput.click()">
+      <button mat-flat-button
+              [disabled]="isLoading()"
+              (click)="bookFileInput.click()">
         <mat-icon>add</mat-icon>
         Добавить
       </button>
     }
-    <input
-      #bookFileInput
-      class="book-file-input"
-      type="file"
-      accept="application/pdf"
-      (change)="onFileInputChange()"
-    />
+    <input #bookFileInput
+           class="book-file-input"
+           type="file"
+           accept="application/pdf"
+           (change)="onFileInputChange()" />
     <div class="toggle-view-panel">
       <button mat-icon-button
               [class.active]="selectedViewMode() === ViewMode.List"
-              (click)="setViewMode(ViewMode.List)"
-      >
+              [disabled]="isLoading()"
+              (click)="setViewMode(ViewMode.List)">
         <mat-icon>view_list</mat-icon>
       </button>
       <button mat-icon-button
               [class.active]="selectedViewMode() === ViewMode.Grid"
-              (click)="setViewMode(ViewMode.Grid)"
-      >
+              [disabled]="isLoading()"
+              (click)="setViewMode(ViewMode.Grid)">
         <mat-icon>grid_view</mat-icon>
       </button>
     </div>
-    <app-sort-menu
-      [sortOptions]="SORT_OPTIONS"
-      [(sortOption)]="selectedSortOption"
-      [(sortOrder)]="selectedSortOrder"
-    >
+    <app-sort-menu [sortOptions]="SORT_OPTIONS"
+                   [(sortOption)]="selectedSortOption"
+                   [(sortOrder)]="selectedSortOrder">
     </app-sort-menu>
   </div>
 
@@ -43,15 +44,14 @@
     <mat-form-field class="search-form-field"
                     appearance="outline"
                     subscriptSizing="dynamic"
-                    [@searchFocus]="isInSearchMode() && !isHandset()"
-    >
+                    [@searchFocus]="isInSearchMode() && !isHandset()">
       <input matInput
              type="text"
              placeholder="Поиск"
              [formControl]="searchFormControl"
+             [disabled]="isLoading()"
              (focus)="onSearchInputFocus()"
-             (blur)="onSearchInputBlur()"
-      />
+             (blur)="onSearchInputBlur()" />
       <mat-icon matPrefix>search</mat-icon>
       @if (searchFormControl.value) {
         <button mat-icon-button matSuffix (click)="searchFormControl.reset()">
@@ -68,37 +68,33 @@
      [infiniteScrollUpDistance]="1.5"
      [infiniteScrollThrottle]="50"
      [scrollWindow]="false"
-     (scrolled)="loadNextPage()"
->
+     (scrolled)="loadNextPage()">
   @if (isBooksEmpty()) {
     <div class="no-items">Здесь пусто :(</div>
   }
   @switch (selectedViewMode()) {
     @case (ViewMode.List) {
       <app-book-list-view
-        [books]="books()"
-        (openItemEvent)="openBook($event)"
-        (infoItemEvent)="openBookInfoDialog($event)"
-        (editItemEvent)="editBook($event)"
-        (deleteItemEvent)="deleteBook($event)"
-        (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
-      >
-        <app-loading-spinner-overlay [loading]="isLoading()">
-        </app-loading-spinner-overlay>
+                          [books]="books()"
+                          (openItemEvent)="openBook($event)"
+                          (infoItemEvent)="openBookInfoDialog($event)"
+                          (editItemEvent)="editBook($event)"
+                          (deleteItemEvent)="deleteBook($event)"
+                          (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)">
+
       </app-book-list-view>
     }
     @case (ViewMode.Grid) {
       <app-book-grid-view
-        [books]="books()"
-        (openItemEvent)="openBook($event)"
-        (infoItemEvent)="openBookInfoDialog($event)"
-        (editItemEvent)="editBook($event)"
-        (deleteItemEvent)="deleteBook($event)"
-        (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)"
-      >
-        <app-loading-spinner-overlay [loading]="isLoading()">
-        </app-loading-spinner-overlay>
+                          [books]="books()"
+                          (openItemEvent)="openBook($event)"
+                          (infoItemEvent)="openBookInfoDialog($event)"
+                          (editItemEvent)="editBook($event)"
+                          (deleteItemEvent)="deleteBook($event)"
+                          (numOfVisibleItemsChangeEvent)="handleNumOfVisibleItemsChange($event)">
       </app-book-grid-view>
     }
   }
+  <app-loading-spinner-overlay [loading]="isLoading()">
+  </app-loading-spinner-overlay>
 </div>
