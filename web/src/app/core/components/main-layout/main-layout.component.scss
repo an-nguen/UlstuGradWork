@@ -47,10 +47,15 @@ mat-sidenav {
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  a[mat-list-item] {
+  [mat-list-item] {
     display: flex;
     flex-direction: row;
     width: auto;
     margin-bottom: 0.25em;
+
+
+  }
+
+  .app-name {
   }
 }

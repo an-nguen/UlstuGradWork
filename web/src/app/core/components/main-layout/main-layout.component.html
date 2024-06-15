@@ -1,55 +1,60 @@
 <mat-sidenav-container>
   @if (!isHandset() && isSignedIn()) {
-  <mat-sidenav
-    [mode]="!isHandset() ? 'side' : 'over'"
-    [class.expanded]="isExpanded"
-    [fixedInViewport]="true"
-    [(opened)]="isExpanded"
-  >
-    <div class="internal-sidenav">
-      <mat-nav-list>
-        <a mat-list-item 
-           matTooltip="Раскрыть панель"
-           matTooltipPosition="right"
-           [matTooltipDisabled]="isExpanded"
-           (click)="toggleSidenav()">
-          <mat-icon matListItemIcon>menu</mat-icon>
-          <div matListItemTitle *ngIf="isExpanded">Закрыть панель</div>
-        </a>
+    <mat-sidenav [mode]="!isHandset() ? 'side' : 'over'"
+                 [class.expanded]="isExpanded"
+                 [fixedInViewport]="true"
+                 [(opened)]="isExpanded">
+      <div class="internal-sidenav">
+        <mat-nav-list>
+          <a mat-list-item
+             class="app-name"
+             matTooltip="BLibMgr"
+             matTooltipPosition="right"
+             routerLink=""
+             [matTooltipDisabled]="isExpanded">
+            <mat-icon matListItemIcon>books</mat-icon>
+            <div matListItemTitle *ngIf="isExpanded">BLibMgr</div>
+          </a>
+          <a mat-list-item
+             matTooltip="Раскрыть панель"
+             matTooltipPosition="right"
+             [matTooltipDisabled]="isExpanded"
+             (click)="toggleSidenav()">
+            <mat-icon matListItemIcon>menu</mat-icon>
+            <div matListItemTitle *ngIf="isExpanded">Закрыть панель</div>
+          </a>
 
-        @for (route of routeLinks; track $index) {
-        <a
-          mat-list-item
-          routerLinkActive="active"
-          matTooltipPosition="right"
-          [matTooltip]="route.name"
-          [matTooltipDisabled]="isExpanded"
-          [routerLinkActiveOptions]="{ exact: true }"
-          [routerLink]="route.link"
-        >
-          <mat-icon matListItemIcon>{{ route.iconCode }}</mat-icon>
-          <div matListItemTitle *ngIf="isExpanded">{{ route.name }}</div>
-        </a>
-        }
-      </mat-nav-list>
-      <div class="spacer"></div>
-      <mat-nav-list>
-        <a mat-list-item
-           matTooltip="Выйти из системы"
-           matTooltipPosition="right"
-           [matTooltipDisabled]="isExpanded"
-           (click)="signOut()">
-          <mat-icon matListItemIcon>logout</mat-icon>
-          <div matListItemTitle *ngIf="isExpanded">Выйти из системы</div>
-        </a>
-      </mat-nav-list>
-    </div>
-  </mat-sidenav>
+          @for (route of routeLinks; track $index) {
+            <a
+               mat-list-item
+               routerLinkActive="active"
+               matTooltipPosition="right"
+               [matTooltip]="route.name"
+               [matTooltipDisabled]="isExpanded"
+               [routerLinkActiveOptions]="{ exact: true }"
+               [routerLink]="route.link">
+              <mat-icon matListItemIcon>{{ route.iconCode }}</mat-icon>
+              <div matListItemTitle *ngIf="isExpanded">{{ route.name }}</div>
+            </a>
+          }
+        </mat-nav-list>
+        <div class="spacer"></div>
+        <mat-nav-list>
+          <a mat-list-item
+             matTooltip="Выйти из системы"
+             matTooltipPosition="right"
+             [matTooltipDisabled]="isExpanded"
+             (click)="signOut()">
+            <mat-icon matListItemIcon>logout</mat-icon>
+            <div matListItemTitle *ngIf="isExpanded">Выйти из системы</div>
+          </a>
+        </mat-nav-list>
+      </div>
+    </mat-sidenav>
   }
   <mat-sidenav-content
-    [class.handset]="isHandset()"
-    [class.expanded]="!isHandset() && isSignedIn() && isExpanded"
-  >
+                       [class.handset]="isHandset()"
+                       [class.expanded]="!isHandset() && isSignedIn() && isExpanded">
     <ng-content></ng-content>
   </mat-sidenav-content>
 </mat-sidenav-container>
