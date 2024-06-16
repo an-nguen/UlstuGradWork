@@ -39,7 +39,8 @@ import { MatIcon } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit {
-  
+
+  protected readonly UNAUTHORIZED_MESSAGE = 'Неверный ПИН-код.';
   public users = signal<UserDto[]>([]);
 
   public loginForm = this._fb.group({
@@ -59,7 +60,7 @@ export class LoginComponent implements OnInit {
     private readonly _fb: NonNullableFormBuilder,
     private readonly _router: Router,
     private readonly _destroyRef: DestroyRef
-  ) {}
+  ) { }
 
   public ngOnInit(): void {
     if (this._authState.isSignedIn()) {
@@ -135,7 +136,7 @@ export class LoginComponent implements OnInit {
 
   private _handleSignInError(err: unknown): Observable<never> {
     if (err instanceof HttpErrorResponse && err.status === 401) {
-      const errorMessage = (err.error as Record<string, string>)['message'];
+      const errorMessage = this.UNAUTHORIZED_MESSAGE;
       this.loginForm.setErrors({
         invalidUsernameOrPassword: errorMessage,
       });
@@ -143,5 +144,5 @@ export class LoginComponent implements OnInit {
     }
     return throwError(() => err);
   }
-  
+
 }
