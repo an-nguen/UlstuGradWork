@@ -215,7 +215,14 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public openBookAddDialog(file: File): void {
     this._dialog
-      .open(BookEditDialogComponent, { minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH })
+      .open(
+        BookEditDialogComponent,
+        {
+          minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH,
+          data: {
+            bookFile: file,
+          }
+        })
       .afterClosed()
       .pipe(
         mergeMap((data: BookEditDialogData | undefined) => {
@@ -258,6 +265,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
         authors: details.authors,
         tags: details.tags,
       },
+      thumbnailUrl: details.thumbnailUrl,
     };
     this._dialog
       .open(BookEditDialogComponent, {

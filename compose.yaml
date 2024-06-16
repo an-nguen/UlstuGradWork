@@ -1,6 +1,4 @@
 secrets:
-  db_user:
-    environment: "DbUser"
   db_password:
     environment: "DbPassword"
   ycloud_key_id:
@@ -25,7 +23,7 @@ services:
         source: "${StoragePath}"
         target: "/App/UploadedDocs"
     environment:
-      - DbUser=/run/secrets/db_user
+      - DbUser=${DbUser}
       - DbPassword=/run/secrets/db_password
       - Cors__AllowedOrigins=${CorsAllowedOrigins}
       - YandexCloud__KeyId=/run/secrets/ycloud_key_id
@@ -33,7 +31,6 @@ services:
       - YandexCloud__FolderPath=/run/secrets/ycloud_folder_path
       - MerriamWebster__ApiKey=/run/secrets/merriam_webster_api_key
     secrets:
-      - db_user
       - db_password
       - ycloud_key_id
       - ycloud_service_account_id

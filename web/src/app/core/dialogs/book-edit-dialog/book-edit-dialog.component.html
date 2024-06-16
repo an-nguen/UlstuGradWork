@@ -1,49 +1,59 @@
 <h2 mat-dialog-title>{{ dialogTitle() }}</h2>
-<div mat-dialog-content class="book-add-form" [formGroup]="bookForm">
-  <mat-form-field>
-    <mat-label>Название книги</mat-label>
-    <input matInput type="text" formControlName="title" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Описание</mat-label>
-    <textarea matInput type="text" formControlName="description"></textarea>
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>ISBN (Международный стандартный книжный номер)</mat-label>
-    <input
-      matInput
-      type="text"
-      formControlName="isbn"
-      placeholder="0123456789"
-      matTooltip="Должен содержать 10-значное или 13-значное число"
-      digitOnly
-    />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Издатель книги</mat-label>
-    <input matInput type="text" placeholder="Рога и копыта" formControlName="publisherName" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Добавить автора книги</mat-label>
-    <input matInput type="text" [formControl]="authorNameInputControl">
-    <button mat-icon-button
-            matSuffix
-            [disabled]="authorNameInputControl.invalid || authorNameInputControl.pristine"
-            (click)="addAuthor()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-form-field>
-  <h3 class="list-title">Список авторов книги</h3>
-  <mat-list>
-    @for (author of bookForm.value.authors; track $index) {
-      <div matListItemLine class="author-item">
-        <div matListItemTitle class="author-name">{{ author }}</div>
-        <button mat-icon-button (click)="deleteAuthor($index)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
+<div mat-dialog-content class="dialog-content">
+  <div class="book-add-form"
+       [formGroup]="bookForm">
+    <mat-form-field>
+      <mat-label>Название книги</mat-label>
+      <input matInput type="text" formControlName="title" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Описание</mat-label>
+      <textarea matInput type="text" formControlName="description"></textarea>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>ISBN (Международный стандартный книжный номер)</mat-label>
+      <input
+             matInput
+             type="text"
+             formControlName="isbn"
+             placeholder="0123456789"
+             matTooltip="Должен содержать 10-значное или 13-значное число"
+             digitOnly />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Издатель книги</mat-label>
+      <input matInput type="text" placeholder="Рога и копыта" formControlName="publisherName" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Добавить автора книги</mat-label>
+      <input matInput type="text" [formControl]="authorNameInputControl">
+      <button mat-icon-button
+              matSuffix
+              [disabled]="authorNameInputControl.invalid || authorNameInputControl.pristine"
+              (click)="addAuthor()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-form-field>
+    <h3 class="list-title">Список авторов книги</h3>
+    <mat-list>
+      @for (author of bookForm.value.authors; track $index) {
+        <div matListItemLine class="author-item">
+          <div matListItemTitle class="author-name">{{ author }}</div>
+          <button mat-icon-button (click)="deleteAuthor($index)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </mat-list>
+  </div>
+  <div class="preview-container">
+    @if (isEditMode()) {
+      <img [src]="thumbnailUrl()" alt="Предосмотр не доступен" />
+    } @else {
+      <canvas #previewCanvas></canvas>
     }
-  </mat-list>
+    <app-loading-spinner-overlay [loading]="isPreviewLoading()"></app-loading-spinner-overlay>
+  </div>
 </div>
 <mat-dialog-actions>
   <button mat-flat-button

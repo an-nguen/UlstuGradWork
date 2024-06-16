@@ -14,11 +14,11 @@ export class AppComponent {
     const connection = new HubConnectionBuilder()
       .withUrl(`${environment.BASE_URL}/notification`)
       .build();
-    
+
     connection.on('book-indexing', (result) => {
       console.log(result);
     });
-    
+
     connection.start().then()
   }
 
