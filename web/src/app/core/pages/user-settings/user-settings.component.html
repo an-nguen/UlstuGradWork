@@ -8,6 +8,9 @@
            digitOnly
            type="password"
            formControlName="currentPINCode" />
+    @if (passwordFormGroup.controls.currentPINCode.hasError('invalid')) {
+      <mat-error>{{ INVALID_PIN_ERR_MSG }}</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field>

@@ -15,6 +15,8 @@ import { map } from 'rxjs';
 })
 export class MainLayoutComponent {
 
+  protected readonly USER_SETTINGS_ROUTER_LINK = CONSTANTS.ENDPOINTS.USER_SETTINGS;
+
   public routeLinks = [
     {
       iconCode: 'schedule',
@@ -47,7 +49,7 @@ export class MainLayoutComponent {
     private readonly _router: Router,
   ) {
   }
-  
+
   public toggleSidenav(): void {
     this.isExpanded = !this.isExpanded;
   }
