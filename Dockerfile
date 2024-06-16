@@ -16,5 +16,5 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 COPY --from=build-env /App/out .
-COPY ./src/Api/yc.pem .
+COPY ./src/Api/Keys .
 ENTRYPOINT ["dotnet", "BookManager.Api.dll"]
