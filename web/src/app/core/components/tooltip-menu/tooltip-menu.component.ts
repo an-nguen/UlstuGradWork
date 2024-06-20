@@ -4,9 +4,6 @@ import {
   Component,
   computed,
   HostListener,
-  input,
-  model,
-  output,
   TemplateRef,
   viewChild,
   ViewContainerRef,
@@ -19,11 +16,13 @@ import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinn
 import { MatFormField } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FlexibleConnectedPositionStrategyOrigin, Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
+import { Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, TemplatePortal } from '@angular/cdk/portal';
 import { debounceTime, fromEvent, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { TooltipMenuEventService } from '@core/services/tooltip-menu-event.service';
+import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
 
 @Component({
   selector: '[app-tooltip-menu]',
@@ -53,35 +52,28 @@ export class TooltipMenuComponent {
   protected readonly DEFINITION_POPUP_HEIGHT = 240;
   protected readonly TOOLTIP_CONTAINER_WIDTH = 320;
 
+  public readonly definitionLoading = this._state.isDefinitionLoadingSignal;
+  public readonly definitionProviders = this._state.definitionProvidersSignal;
+  public readonly isDefinitionPanelOpen = this._state.isDefinitionPanelOpenSignal;
+  public readonly foundWords = this._state.savedWordsSignal;
+  public readonly definitionEntries = this._state.definitionEntriesSignal;
+
   public contextMenuTemplateRef = viewChild<TemplateRef<unknown>>('contextMenu');
-  public selectedDefinitionProvider = model<string | null>(null);
-  public wordDefinitionEntries = input<WordDto[]>([]);
   public haveDefinitions = computed(() => {
-    const entries = this.wordDefinitionEntries();
+    const entries = this._state.definitionEntriesSignal();
     return entries.length > 0;
   });
-  public definitionLoading = input<boolean>(false);
-  public definitionProviders = input<string[]>([]);
-  public isDefinitionMenuOpen = input<boolean>(false);
-  public selectionEvent = output<string | null>();
-  public textCopyEvent = output<string>();
-  public translationBtnClickEvent = output<string>();
-  public definitionBtnClickEvent = output<string>();
-  public textSumBtnClickEvent = output<string>();
-  public definitionAddBtnClickEvent = output<WordDto>();
-  public definitionDelBtnClickEvent = output<WordDto>();
-  public foundWords = input<string[]>([]);
-
   public flexDirection: 'column' | 'column-reverse' = 'column';
 
   private _overlayRef: OverlayRef | null = null;
   private _selectedText?: string;
-  private _pointerPosition?: {x: number, y: number, offsetX: number, offsetY: number};
-  private _isPointerDown = false;
+  private _pointerPosition?: { x: number, y: number, offsetX: number, offsetY: number };
   private _isTouchscreen = false;
 
   constructor(
-    private readonly _breakpointerObserver: BreakpointObserver,
+    private readonly _eventService: TooltipMenuEventService,
+    private readonly _state: TooltipMenuStateService,
+    private readonly _breakpointObserver: BreakpointObserver,
     private readonly _overlayPositionBuilder: OverlayPositionBuilder,
     private readonly _overlay: Overlay,
     private readonly _window: Window,
@@ -92,54 +84,58 @@ export class TooltipMenuComponent {
         debounceTime(400),
         takeUntilDestroyed(),
       )
-      .subscribe((e: Event) => {
-        console.log('selectionchange', e);
+      .subscribe(() => {
         if (this._isTouchscreen) {
           this.showTooltipMenuOnMobile();
         }
       });
-    _breakpointerObserver.observe('(pointer:coarse)')
+    this._breakpointObserver.observe('(pointer:coarse)')
       .pipe(
-         map((state) => state.matches),
-         takeUntilDestroyed()
+        map((state) => state.matches),
+        takeUntilDestroyed()
       )
       .subscribe((isMatch) => {
         this._isTouchscreen = isMatch;
       });
   }
 
+  public get currentDefinitionProvider(): string | null {
+    return this._state.currentDefinitionProvider;
+  }
+
+  public set currentDefinitionProvider(value: string | null) {
+    this._state.currentDefinitionProvider = value;
+  }
+
   @HostListener("pointermove", ['$event'])
-  public updatePointerPosition({x, y, offsetX, offsetY}: PointerEvent): void {
-    this._pointerPosition = {x, y, offsetX, offsetY};
+  public updatePointerPosition({ x, y, offsetX, offsetY }: PointerEvent): void {
+    this._pointerPosition = { x, y, offsetX, offsetY };
   }
 
   @HostListener("pointerdown", ["$event"])
-  public clearSelection(e: PointerEvent ): void {
-    this._isPointerDown = true;
+  public clearSelection(e: PointerEvent): void {
     if (e.button === 2) {
       return;
     }
     const selection = this._window.getSelection();
     selection?.removeAllRanges();
-    this.selectionEvent.emit(null);
+    this._eventService.emitSelectionEvent(null);
     this.closeContextMenu();
   }
 
   @HostListener("pointerup", ['$event'])
   public showTooltipMenu(e: PointerEvent) {
-    this._isPointerDown = false;
     if (this._overlayRef) {
       this.closeContextMenu();
     }
     const selection = this._window.getSelection();
     const selectedText = selection?.toString().trim();
-    this.selectionEvent.emit(selectedText ?? null);
+    this._eventService.emitSelectionEvent(selectedText ?? null);
     if (!selection || !selectedText || selection.rangeCount === 0) {
       return;
     }
 
     const origin = { x: e.x, y: e.y, height: e.height, width: e.width };
-    console.log('e', e)
     const willBeOffscreen = this._willBeOffscreenByHeight();
     this._setDefMenuFlexDirection(willBeOffscreen);
     const positionStrategy = willBeOffscreen || this._isTouchscreen
@@ -183,23 +179,22 @@ export class TooltipMenuComponent {
       this.closeContextMenu();
     }
     const selectedText = selection?.toString().trim();
-    this.selectionEvent.emit(selectedText ?? null);
+    this._eventService.emitSelectionEvent(selectedText ?? null);
     if (!selection || !selectedText) return;
 
     const rangeRect = selection.getRangeAt(0).getBoundingClientRect();
     console.log('rangeRect', rangeRect);
-    const firstElement = selection.anchorNode!.parentElement as Element;
     const willBeOffscreen = this._willBeOffscreenByHeight();
     this._setDefMenuFlexDirection(willBeOffscreen);
-    const positionStrategy =  this._overlayPositionBuilder.flexibleConnectedTo(rangeRect)
-        .withPositions([
-          {
-            originX: 'center',
-            originY: 'top',
-            overlayX: 'center',
-            overlayY: 'bottom',
-          },
-        ]);
+    const positionStrategy = this._overlayPositionBuilder.flexibleConnectedTo(rangeRect)
+      .withPositions([
+        {
+          originX: 'center',
+          originY: 'top',
+          overlayX: 'center',
+          overlayY: 'bottom',
+        },
+      ]);
     this._overlayRef = this._overlay.create({
       positionStrategy,
       scrollStrategy: this._overlay.scrollStrategies.reposition(),
@@ -207,51 +202,51 @@ export class TooltipMenuComponent {
     const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
     this._selectedText = this._processText(selectedText);
     this._overlayRef.attach(portal);
-  } 
+  }
 
   public isWordInDictionary(word: string): boolean {
-    return this.foundWords().includes(word);
+    return this._state.savedWords.includes(word);
   }
-  
+
   public emitTranslationBtnClickEvent(): void {
     if (!this._selectedText) return;
-    this.translationBtnClickEvent.emit(this._selectedText);
+    this._eventService.emitTranslationEvent(this._selectedText);
     this.closeContextMenu();
   }
-  
+
   public emitTextCopyEvent(): void {
     if (!this._selectedText) return;
-    this.textCopyEvent.emit(this._selectedText);
+    this._eventService.emitTextCopyEvent(this._selectedText);
     this.closeContextMenu();
   }
-  
+
   public emitTextSumBtnClickEvent(): void {
     if (!this._selectedText) return;
-    this.textSumBtnClickEvent.emit(this._selectedText);
+    this._eventService.emitTextSummarizationEvent(this._selectedText);
   }
-  
+
   public emitDefinitionBtnClickEvent(): void {
     if (!this._selectedText) return;
-    this.definitionBtnClickEvent.emit(this._selectedText);
+    this._eventService.emitDefineEvent(this._selectedText);
   }
-  
+
   public emitWordAddBtnClickEvent(word: WordDto): void {
     if (!this._selectedText) return;
-    this.definitionAddBtnClickEvent.emit(word);
+    this._eventService.emitAddDefinitionEvent(word);
   }
 
   public emitWordDelBtnClickEvent(word: WordDto): void {
     if (!this._selectedText) return;
-    this.definitionDelBtnClickEvent.emit(word);
+    this._eventService.emitDeleteDefinitionEvent(word);
     this.closeContextMenu();
   }
-  
+
   private _processText(value: string): string {
     return value.trim()
-    .replace(this.WORD_BREAK_PATTERN, '')
-    .replace(this.NEW_LINE_PATTERN, ' ');
+      .replace(this.WORD_BREAK_PATTERN, '')
+      .replace(this.NEW_LINE_PATTERN, ' ');
   }
-  
+
   private _setDefMenuFlexDirection(reverse: boolean): void {
     this.flexDirection = reverse ? 'column-reverse' : 'column';
   }
@@ -259,5 +254,5 @@ export class TooltipMenuComponent {
   private _willBeOffscreenByHeight(): boolean {
     return (this._pointerPosition?.y ?? 0) + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
   }
-  
+
 }

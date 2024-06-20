@@ -6,6 +6,7 @@ import {
   Component,
   DestroyRef,
   HostListener,
+  inject,
   OnDestroy,
   OnInit,
   signal,
@@ -27,6 +28,8 @@ import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/dictionary.service';
 import { FormsModule } from '@angular/forms';
+import { TooltipMenuEventService } from '@core/services/tooltip-menu-event.service';
+import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
 
 @Component({
   selector: 'app-book-viewer',
@@ -49,17 +52,12 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(NgxExtendedPdfViewerComponent)
   public pdfViewer!: NgxExtendedPdfViewerComponent;
 
-  public definitionProviders = signal<string[]>([]);
   public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
     new ArrayBuffer(0),
   );
-  public wordEntries = signal<WordDto[]>([]);
-  public selectedDefinitionProvider = signal<string | null>('MerriamWebster');
 
   public bearerToken?: string;
 
-  public isDefinitionLoading = false;
-  public isDefinitionMenuOpen = false;
   public selectedWord?: string;
   public foundWordsInDict: string[] = [];
 
@@ -69,8 +67,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private _totalTimeInSec = 0;
   private _openPageDateTime!: Date;
 
+  private readonly _tooltipMenuState = inject(TooltipMenuStateService);
+
   constructor(
     private readonly _service: BookService,
+    private readonly _tooltipMenuEventService: TooltipMenuEventService,
     private readonly _dictionaryService: DictionaryService,
     private readonly _cdr: ChangeDetectorRef,
     private readonly _authState: AuthState,
@@ -91,6 +92,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
     this._loadDefinitionProviders();
+    this._subscribeToTooltipMenuEvents();
   }
 
   public ngAfterViewInit(): void {
@@ -170,6 +172,117 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  public openDefinitionMenu(word: string): void {
+    this._tooltipMenuState.isDefinitionPanelOpen = true;
+    this._cdr.markForCheck();
+    this.showDefinition(word);
+  }
+
+  public showDefinition(word: string): void {
+    const normalizedWord = word.trim()
+      .toLowerCase();
+    this.selectedWord = normalizedWord;
+    if (!this._dictionaryWordRegex.test(normalizedWord)) return;
+    this._tooltipMenuState.isDefinitionLoading = true;
+    this._dictionaryService.find(normalizedWord)
+      .pipe(
+        mergeMap((savedWords) => {
+          const definitionProvider = this._tooltipMenuState.currentDefinitionProvider;
+          this._tooltipMenuState.savedWords = savedWords.map(w => w.word);
+          return (!savedWords.length && !!definitionProvider)
+            ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
+            : of(savedWords);
+        }),
+        finalize(() => {
+          this._tooltipMenuState.isDefinitionLoading = false;
+          this._cdr.markForCheck();
+        }),
+      )
+      .subscribe((foundWords) => {
+        if (!foundWords.length) {
+          this._snackBar.open('Нет результатов.', 'OK');
+          return;
+        }
+        this._tooltipMenuState.definitionEntries = foundWords;
+        this._cdr.markForCheck();
+      });
+  }
+
+  public clearWordEntries(): void {
+    this._tooltipMenuState.definitionEntries = [];
+    this._tooltipMenuState.isDefinitionPanelOpen = false;
+    this._cdr.markForCheck();
+  }
+
+  public saveDefinition(word: WordDto): void {
+    this._dictionaryService.addWord(word)
+      .subscribe(() => {
+        this.foundWordsInDict.push(word.word);
+        this._cdr.markForCheck();
+        this._snackBar.open(`Успешно добавлено '${word.word}' слов(а).`, 'OK');
+      });
+  }
+
+  public changeDefinitionProvider(providerName: string | null): void {
+    this._tooltipMenuState.currentDefinitionProvider = providerName;
+    if (!providerName || !this.selectedWord) return;
+    this.showDefinition(this.selectedWord);
+  }
+
+  public deleteDefinition(word: WordDto) {
+    this._dictionaryService.deleteWord(word.word)
+      .subscribe(() => {
+        const index = this.foundWordsInDict.indexOf(word.word)
+        this.foundWordsInDict.splice(index, 1);
+        this.foundWordsInDict = [...this.foundWordsInDict];
+        this._cdr.markForCheck();
+        this._snackBar.open(`Слово '${word.word}' успешно удалена из словаря.`, 'OK');
+      });
+  }
+
+  private _updateTotalTime(): void {
+    if (this._currentBook) {
+      this._totalTimeInSec += this._getCurrentTimeIntervalInSec();
+      this._service
+        .updateTotalTime(this._currentBook.documentDetails.id, this._totalTimeInSec)
+        .subscribe();
+    }
+  }
+
+  private _getCurrentTimeIntervalInSec(): number {
+    const currentTime = new Date();
+    return Math.round((currentTime.getTime() - this._openPageDateTime.getTime()) / 1000);
+  }
+
+  private _updateLastViewedPage(): void {
+    if (this._currentBook && this._page) {
+      this._service
+        .updateLastViewedPage(this._currentBook.documentDetails.id, this._page)
+        .subscribe();
+    }
+  }
+
+  private _saveSettings(): void {
+    const selectedDefProvider = this._tooltipMenuState.currentDefinitionProviderSignal();
+    if (selectedDefProvider) {
+      sessionStorage.setItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY, selectedDefProvider);
+    }
+  }
+
+  private _loadSettings(): void {
+    const selectedDefProvider = sessionStorage.getItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY);
+    if (selectedDefProvider) {
+      this._tooltipMenuState.currentDefinitionProvider = selectedDefProvider;
+    }
+  }
+
+  private _loadDefinitionProviders(): void {
+    this._dictionaryService.listThirdPartyProviders()
+      .subscribe((providers) => {
+        this._tooltipMenuState.definitionProviders = providers;
+      });
+  }
+
   private _subscribeToParamMap(): void {
     this._route.paramMap
       .pipe(
@@ -200,114 +313,22 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe();
   }
 
-  public openDefinitionMenu(word: string): void {
-    this.isDefinitionMenuOpen = true;
-    this._cdr.markForCheck();
-    this.showWordDefinition(word);
+  private _subscribeToTooltipMenuEvents(): void {
+    const tmes = this._tooltipMenuEventService;
+    tmes.selectionEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(() => this.clearWordEntries());
+    tmes.textCopyEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((selectedText) => this.copyText(selectedText));
+    tmes.defineEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((word) => this.openDefinitionMenu(word))
+    tmes.translationEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((selectedText) => this.openTranslationDialog(selectedText));
+    tmes.textSummarizationEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((selectedText) => this.openTextSummarizationDialog(selectedText));
+    tmes.addDefinitionEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((wordDto) => this.saveDefinition(wordDto));
+    tmes.deleteDefinitionEvent$.pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((wordDto) => this.deleteDefinition(wordDto));
   }
 
-  public showWordDefinition(word: string): void {
-    const normalizedWord = word.trim()
-      .toLowerCase();
-    this.selectedWord = normalizedWord;
-    if (!this._dictionaryWordRegex.test(normalizedWord)) return;
-    this.isDefinitionLoading = true;
-    this._dictionaryService.find(normalizedWord)
-      .pipe(
-        mergeMap((foundWords) => {
-          const definitionProvider = this.selectedDefinitionProvider();
-          this.foundWordsInDict = foundWords.map(w => w.word);
-          return (!foundWords.length && !!definitionProvider)
-            ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
-            : of(foundWords);
-        }),
-        finalize(() => {
-          this.isDefinitionLoading = false;
-          this._cdr.markForCheck();
-        }),
-      )
-      .subscribe((foundWords) => {
-        if (!foundWords.length) {
-          this._snackBar.open('Нет результатов.', 'OK');
-          return;
-        }
-        this.wordEntries.set(foundWords);
-        this._cdr.markForCheck();
-      });
-  }
-
-  public clearWordEntries(): void {
-    this.wordEntries.set([]);
-    this.isDefinitionMenuOpen = false;
-    this._cdr.markForCheck();
-  }
-
-  public addWordsToDictionary(word: WordDto): void {
-    this._dictionaryService.addWord(word)
-      .subscribe(() => {
-        this.foundWordsInDict.push(word.word);
-        this._cdr.markForCheck();
-        this._snackBar.open(`Успешно добавлено '${word.word}' слов(а).`, 'OK');
-      });
-  }
-
-  public changeDefinitionProvider(providerName: string | null): void {
-    this.selectedDefinitionProvider.set(providerName);
-    if (!providerName || !this.selectedWord) return;
-    this.showWordDefinition(this.selectedWord);
-  }
-
-  public delDefFromDictionary(word: WordDto) {
-    this._dictionaryService.deleteWord(word.word)
-      .subscribe(() => {
-        const index = this.foundWordsInDict.indexOf(word.word)
-        this.foundWordsInDict.splice(index, 1);
-        this.foundWordsInDict = [...this.foundWordsInDict];
-        this._cdr.markForCheck();
-        this._snackBar.open(`Слово '${word.word}' успешно удалена из словаря.`, 'OK');
-      });
-  }  
-
-  private _updateTotalTime(): void {
-    if (this._currentBook) {
-      this._totalTimeInSec += this._getCurrentTimeIntervalInSec();
-      this._service
-        .updateTotalTime(this._currentBook.documentDetails.id, this._totalTimeInSec)
-        .subscribe();
-    }
-  }
-
-  private _getCurrentTimeIntervalInSec(): number {
-    const currentTime = new Date();
-    return Math.round((currentTime.getTime() - this._openPageDateTime.getTime()) / 1000);
-  }
-
-  private _updateLastViewedPage(): void {
-    if (this._currentBook && this._page) {
-      this._service
-        .updateLastViewedPage(this._currentBook.documentDetails.id, this._page)
-        .subscribe();
-    }
-  }
-
-  private _saveSettings(): void {
-    const selectedDefProvider = this.selectedDefinitionProvider();
-    if (selectedDefProvider) {
-      sessionStorage.setItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY, selectedDefProvider);
-    }
-  }
-
-  private _loadSettings(): void {
-    const selectedDefProvider = sessionStorage.getItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY);
-    if (selectedDefProvider) {
-      this.selectedDefinitionProvider.set(selectedDefProvider);
-    }
-  }
-
-  private _loadDefinitionProviders(): void {
-    this._dictionaryService.listThirdPartyProviders()
-      .subscribe((providers) => {
-        this.definitionProviders.set(providers);
-      });
-  }
 }

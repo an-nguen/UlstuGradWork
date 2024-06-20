@@ -4,7 +4,7 @@
        [style.width]="TOOLTIP_CONTAINER_WIDTH + 'px'"
        [style.flex-direction]="flexDirection">
     <div class="tooltip-menu">
-      <button matTooltip="Перевести"
+      <button matTooltip="Копировать"
               matTooltipPosition="above"
               (click)="emitTextCopyEvent()">
         <mat-icon>content_copy</mat-icon>
@@ -26,14 +26,14 @@
         <mat-icon>functions</mat-icon>
       </button>
     </div>
-    @if (isDefinitionMenuOpen()) {
+    @if (isDefinitionPanelOpen()) {
       <div class="word-definition-popup"
            [style.height]="DEFINITION_POPUP_HEIGHT + 'px'"
            [style.width]="TOOLTIP_CONTAINER_WIDTH + 'px'">
         <div class="word-definition-container">
           @if (!foundWords().length) {
             <mat-form-field>
-              <mat-select [(ngModel)]="selectedDefinitionProvider">
+              <mat-select [(ngModel)]="currentDefinitionProvider">
                 @for (provider of definitionProviders(); track $index) {
                   <mat-option [value]="provider">{{ provider }}</mat-option>
                 }
@@ -43,7 +43,7 @@
           @if (!haveDefinitions()) {
             <span>Нет результатов для данного определения</span>
           }
-          @for (entry of wordDefinitionEntries(); track $index) {
+          @for (entry of definitionEntries(); track $index) {
             <div class="word">{{ entry.word }}</div>
             <div class="transcription">{{ entry.transcription }}</div>
             <ul>
@@ -74,7 +74,8 @@
             </div>
           }
         </div>
-        <app-loading-spinner-overlay [loading]="definitionLoading()"></app-loading-spinner-overlay>
+        <app-loading-spinner-overlay [loading]="definitionLoading()">
+        </app-loading-spinner-overlay>
       </div>
     }
   </div>
