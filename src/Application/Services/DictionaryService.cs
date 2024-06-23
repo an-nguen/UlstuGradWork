@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace BookManager.Application.Services;
 
-public sealed class DictionaryService(
+internal sealed class DictionaryService(
     IAppDbContext dbContext,
     IEnumerable<IThirdPartyDictionaryProvider> extDictProvider,
     IValidator<WordDto> validator

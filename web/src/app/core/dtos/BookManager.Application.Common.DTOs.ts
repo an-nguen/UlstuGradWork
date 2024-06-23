@@ -94,11 +94,13 @@ export type Details = {
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.UserStats */
 export type UserStats = {
     /** Transpiled from long */
-    totalReadingTime: number;
+    totalReadingTime?: number;
     /** Transpiled from System.DateTimeOffset */
     recentAccessTime?: (Date | string);
     /** Transpiled from int */
     lastViewedPage?: number;
+    /** Transpiled from System.Collections.Generic.IEnumerable<BookManager.Application.Common.DTOs.TotalReadingTimeDto>? */
+    totalReadingTimes?: TotalReadingTimeDto[];
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.BookDto.BookFileMetadata */
@@ -243,8 +245,28 @@ export type TextSummarizationResponseDto = {
     summarizedText: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.TicketDto */
+export type TicketDto = {
+    /** Transpiled from System.Guid */
+    id: string;
+    /** Transpiled from System.Guid */
+    userId: string;
+    /** Transpiled from System.DateTimeOffset */
+    issuedAt: (Date | string);
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TotalReadingTimeDto */
+export type TotalReadingTimeDto = {
+    /** Transpiled from System.Guid */
+    ticketId: string;
+    /** Transpiled from long */
+    timeInSeconds: number;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.TotalTimeUpdateRequestDto */
 export type TotalTimeUpdateRequestDto = {
+    /** Transpiled from System.Guid */
+    ticketId: string;
     /** Transpiled from long */
     seconds: number;
 }

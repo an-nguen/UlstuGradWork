@@ -11,7 +11,7 @@ using UglyToad.PdfPig;
 
 namespace BookManager.Application.Services;
 
-public sealed class PdfBookFileHandler : IBookFileHandler
+internal sealed class PdfBookFileHandler : IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Pdf;
 
@@ -71,11 +71,11 @@ public sealed class PdfBookFileHandler : IBookFileHandler
         var document = PdfDocument.Open(stream);
         var pages = document.GetPages()
             .Select(page => new BookText
-                {
-                    BookDocumentId = bookId,
-                    Text = page.Text.Replace("\u0000", string.Empty),
-                    PageNumber = page.Number
-                }
+            {
+                BookDocumentId = bookId,
+                Text = page.Text.Replace("\u0000", string.Empty),
+                PageNumber = page.Number
+            }
             );
         await foreach (var bookText in pages.ToAsyncEnumerable())
         {

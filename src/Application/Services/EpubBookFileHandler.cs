@@ -7,7 +7,7 @@ using VersOne.Epub;
 
 namespace BookManager.Application.Services;
 
-public sealed class EpubBookFileHandler: IBookFileHandler
+internal sealed class EpubBookFileHandler : IBookFileHandler
 {
     public BookFileType FileType => BookFileType.Epub;
 
@@ -51,14 +51,14 @@ public sealed class EpubBookFileHandler: IBookFileHandler
         stream.Dispose();
         return contents;
     }
-    
+
     public string? GetBookTitle(Stream bookStream)
     {
         bookStream.Seek(0, SeekOrigin.Begin);
         using var document = EpubReader.OpenBook(bookStream);
         return string.IsNullOrEmpty(document.Title) ? null : document.Title;
     }
-    
+
     private static string PrintTextContentFile(EpubLocalTextContentFile textContentFile)
     {
         HtmlDocument htmlDocument = new();

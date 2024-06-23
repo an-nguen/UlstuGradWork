@@ -18,7 +18,7 @@ export class TooltipMenuStateService {
   private _isDefinitionPanelOpenSignal = signal<boolean>(false);
   private _savedWordsSignal = signal<string[]>([]);
   private _definitionEntriesSignal = signal<WordDto[]>([]);
-  private _currentDefinitionProviderSignal = signal<string | null>(CONSTANTS.DEFAULTS.DEFAULT_DEFINITION_PROVIDER);
+  private _currentDefinitionProviderSignal = signal<string | null>(CONSTANTS.DEFAULTS.DEFINITION_PROVIDER);
   private _definitionProvidersSignal = signal<string[]>([]);
 
   constructor() {

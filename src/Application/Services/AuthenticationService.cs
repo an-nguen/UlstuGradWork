@@ -9,7 +9,7 @@ using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredCla
 
 namespace BookManager.Application.Services;
 
-public class AuthenticationService(
+internal class AuthenticationService(
     UserManager<User> userManager,
     IOptions<JwtTokenOptions> options,
     TokenValidationParameters tokenValidationParameters,
@@ -26,7 +26,7 @@ public class AuthenticationService(
             return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
         var verificationResult = userManager.PasswordHasher
             .VerifyHashedPassword(user, user.PasswordHash!, request.PinCode);
-        if (verificationResult == PasswordVerificationResult.Failed) 
+        if (verificationResult == PasswordVerificationResult.Failed)
             return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
         var accessToken = GenerateToken(user, _jwtOptions.AccessTokenLifetimeInMinutes);
         var refreshToken = GenerateToken(user, _jwtOptions.RefreshTokenLifetimeInMinutes);
@@ -41,7 +41,7 @@ public class AuthenticationService(
     {
         var token = _tokenHandler.ReadJsonWebToken(refreshTokenString);
         var validationResult = await _tokenHandler.ValidateTokenAsync(token, tokenValidationParameters);
-        if (!validationResult.IsValid || validationResult.Claims[JwtRegisteredClaimNames.Sub] is not string userId) 
+        if (!validationResult.IsValid || validationResult.Claims[JwtRegisteredClaimNames.Sub] is not string userId)
             return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) return new AuthenticationResponseDto { Status = AuthenticationStatus.Failed };
@@ -50,8 +50,8 @@ public class AuthenticationService(
             AccessToken = GenerateToken(user, _jwtOptions.AccessTokenLifetimeInMinutes)
         };
     }
-    
-    
+
+
     private string GenerateToken(User user, double lifetimeInMinutes)
     {
         var credentials = new SigningCredentials(jsonWebKey, SecurityAlgorithms.EcdsaSha256Signature);

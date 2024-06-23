@@ -8,7 +8,7 @@ public sealed class Book
     [Key] public Guid Id { get; init; }
 
     [Required] public required BookFileType FileType { get; init; }
-    
+
     [Required] public required string Filename { get; init; }
 
     [Required] public required long FileSize { get; init; }
@@ -22,14 +22,16 @@ public sealed class Book
     [MaxLength(256)] public string? PublisherName { get; set; }
 
     public string[]? Authors { get; set; }
-    
+
     public string[]? Tags { get; set; }
-    
+
     public int? PageCount { get; set; }
-    
+
     public string? ThumbnailFilename { get; init; }
 
-    public ICollection<BookCollection> Collections { get; set; } = new List<BookCollection>();
-    
-    public IEnumerable<BookUserStats> Stats { get; } = new List<BookUserStats>();
+    public IList<BookCollection> Collections { get; set; } = [];
+
+    public IList<BookUserStats> Stats { get; } = [];
+
+    public IList<TotalReadingTime> TotalReadingTimes { get; } = [];
 }

@@ -17,13 +17,16 @@ public interface IBookService
 
     public Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details);
 
-    public Task UpdateTotalTimeAsync(Guid bookId, Guid userId, long seconds);
-
     public Task<FileStream> GetBookFileStreamAsync(Guid id, User user);
 
     public Task<FileStream?> GetBookCoverImageFileStream(Guid bookId);
 
     public Task DeleteBookAsync(Guid id);
+
+    //* Tracking feature
+    public Task<TicketDto> CreateTicketAsync(Guid userId);
+
+    public Task UpdateTotalTimeAsync(Guid bookId, Guid ticketId, long seconds);
 
     public Task UpdateLastViewedPageAsync(int page, Guid userId, Guid bookId);
 }

@@ -95,6 +95,55 @@ public class BookControllerTests(ApiFixture apiFixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Fact]
+    public async Task CreateTicket_ReturnsTicketDto()
+    {
+        var response = await _client.PostAsync($"{RequestUri}/tickets", null);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var ticketDto = JsonSerializer.Deserialize<TicketDto>(response.Content.ReadAsStream(), _jsonSerializerOptions);
+        Assert.NotNull(ticketDto);
+    }
+
+    [Fact]
+    public async Task UpdateTotalReadingTime_ReturnsHttpOk()
+    {
+        // * Add book
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
+        Assert.NotNull(bookDto);
+        // * Get ticket for updating total reading time
+        var response = await _client.PostAsync($"{RequestUri}/tickets", null);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var ticketDto = JsonSerializer.Deserialize<TicketDto>(response.Content.ReadAsStream(), _jsonSerializerOptions);
+        Assert.NotNull(ticketDto);
+        // * Update total reading time
+        var updateTotalReadingTimeRequest = new TotalTimeUpdateRequestDto()
+        {
+            TicketId = ticketDto.Id,
+            Seconds = 360,
+        };
+        response = await _client.PostAsync($"{RequestUri}/{bookDto.DocumentDetails.Id}/update-total-time", JsonContent.Create(updateTotalReadingTimeRequest));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        // * Find book
+        response = await _client.GetAsync($"{RequestUri}/{bookDto.DocumentDetails.Id}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        bookDto = JsonSerializer.Deserialize<BookDto>(response.Content.ReadAsStream(), _jsonSerializerOptions);
+        Assert.NotNull(bookDto);
+        Assert.NotNull(bookDto.Stats);
+        Assert.Equal(360, bookDto.Stats.TotalReadingTime);
+    }
+
+    [Fact]
+    public async Task UpdateLastViewedPage()
+    {
+        // * Add book
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
+        Assert.NotNull(bookDto);
+        // * Update last viewed page
+        var updateLastViewedPageRequest = new LastViewedPageUpdateRequest(10);
+        var response = await _client.PostAsync($"{RequestUri}/{bookDto.DocumentDetails.Id}/last-viewed-page", JsonContent.Create(updateLastViewedPageRequest));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
     public static async Task<BookDto?> AddBookAsync(
         HttpClient client,
         JsonSerializerOptions serializerOptions,

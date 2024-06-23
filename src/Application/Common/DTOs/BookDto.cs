@@ -58,9 +58,10 @@ public sealed record BookDto
     [TranspilationSource]
     public class UserStats
     {
-        public long TotalReadingTime { get; set; }
+        public long? TotalReadingTime { get; init; }
         public DateTimeOffset? RecentAccessTime { get; set; }
         public int? LastViewedPage { get; set; }
+        public IEnumerable<TotalReadingTimeDto>? TotalReadingTimes { get; init; }
     }
 
     [TranspilationSource]
@@ -72,7 +73,7 @@ public sealed record BookDto
     }
 }
 
-public static class BookDocumentEntityExtensions
+public static class BookEntityExtensions
 {
     public static BookDto ToDto(this Book entity)
     {
@@ -96,12 +97,13 @@ public static class BookDocumentEntityExtensions
                 Size = entity.FileSize,
                 Type = entity.FileType
             },
-            Stats = stats != null ? new BookDto.UserStats
+            Stats = new BookDto.UserStats
             {
-                TotalReadingTime = stats.TotalReadingTime,
-                RecentAccessTime = stats.RecentAccess?.ToDateTimeOffset(),
-                LastViewedPage = stats.LastViewedPage
-            } : null
+                TotalReadingTime = entity.TotalReadingTimes.Sum(trt => trt.TimeInSeconds),
+                RecentAccessTime = stats?.RecentAccess?.ToDateTimeOffset() ?? null,
+                LastViewedPage = stats?.LastViewedPage ?? null,
+                TotalReadingTimes = entity.TotalReadingTimes.Select(trt => trt.ToDto()),
+            },
         };
     }
 }

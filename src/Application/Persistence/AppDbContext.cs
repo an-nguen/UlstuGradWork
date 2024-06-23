@@ -16,6 +16,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<DictionaryWord> DictionaryWords => Set<DictionaryWord>();
 
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+
+    public DbSet<TotalReadingTime> TotalReadingTimes => Set<TotalReadingTime>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -35,6 +39,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .WithMany(bc => bc.Books);
         modelBuilder.Entity<DictionaryWord>()
             .Navigation(w => w.Definitions)
+            .AutoInclude();
+        modelBuilder.Entity<TotalReadingTime>()
+            .HasKey(trt => new { trt.BookId, trt.TicketId });
+        modelBuilder.Entity<TotalReadingTime>()
+            .Navigation(trt => trt.Ticket)
             .AutoInclude();
     }
 }

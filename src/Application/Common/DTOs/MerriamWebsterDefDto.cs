@@ -5,7 +5,7 @@ namespace BookManager.Application.Common.DTOs;
 // https://dictionaryapi.com/products/json
 public sealed record MerriamWebsterDefDto
 {
-    public EntryMetadata Meta { get; init; }
+    public required EntryMetadata Meta { get; init; }
 
     // Homographs are headwords with identical spellings but distinct meanings and origins.
     [JsonPropertyName("hom")]
@@ -22,7 +22,7 @@ public sealed record MerriamWebsterDefDto
     // Заглавное слово (Headword)
     // The headword is the word being defined or translated in a dictionary entry.
     [JsonPropertyName("hwi")]
-    public HeadwordInformation HeadwordInfo { get; init; }
+    public required HeadwordInformation HeadwordInfo { get; init; }
 
     // The definition section groups together all the sense sequences
     // and verb dividers for a headword or defined run-on phrase.

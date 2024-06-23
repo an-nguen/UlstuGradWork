@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
@@ -9,7 +10,12 @@ using Microsoft.Extensions.Options;
 
 namespace BookManager.Application.Services;
 
-public partial class MerriamWebsterDictionaryProvider(
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(MerriamWebsterDefDto))]
+[JsonSerializable(typeof(ICollection<MerriamWebsterDefDto>))]
+internal partial class MerriamWebsterContext : JsonSerializerContext;
+
+internal partial class MerriamWebsterDictionaryProvider(
     HttpClient httpClient,
     IOptions<MerriamWebsterOptions> options)
     : IThirdPartyDictionaryProvider
@@ -17,7 +23,6 @@ public partial class MerriamWebsterDictionaryProvider(
     private const string RequestUri = "https://www.dictionaryapi.com/api/v3/references/collegiate/json";
 
     private readonly MerriamWebsterOptions _options = options.Value;
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly Regex _wordIdRegex = WordIdRegex();
 
     public string ProviderName => "MerriamWebster";
@@ -41,9 +46,9 @@ public partial class MerriamWebsterDictionaryProvider(
         try
         {
             await using var contentStream = await responseMessage.Content.ReadAsStreamAsync();
-            var results = await JsonSerializer.DeserializeAsync<ICollection<MerriamWebsterDefDto>>(
+            var results = await JsonSerializer.DeserializeAsync(
                 contentStream,
-                _jsonSerializerOptions
+                MerriamWebsterContext.Default.ICollectionMerriamWebsterDefDto
             );
             if (results == null) return [];
 
@@ -90,7 +95,7 @@ public partial class MerriamWebsterDictionaryProvider(
         }
         catch (Exception)
         {
-            return new List<WordDto>();
+            return [];
         }
     }
 

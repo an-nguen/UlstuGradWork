@@ -42,7 +42,8 @@ export const CONSTANTS = {
     DICTIONARY_WORD: `^([\\p{L}-]*)( ?)([\\p{L}-]*)$`
   },
   DEFAULTS: {
-    DEFAULT_DEFINITION_PROVIDER: 'MerriamWebster'
+    DEFINITION_PROVIDER: 'MerriamWebster',
+    TICKET_ID_LOCAL_STORAGE_KEY: 'libmgr_device_ticket_id'
   },
   TOTAL_TIME_UPDATE_INTERVAL_IN_SEC: 60, // 1 minute
   TRANSLATION_TEXT_MAX_LENGTH: 1000,

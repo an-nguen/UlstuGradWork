@@ -4,7 +4,7 @@ using BookManager.Application.Common.Interfaces.Services;
 
 namespace BookManager.Application.Services;
 
-public class BookCollectionService(IAppDbContext dbContext) : IBookCollectionService
+internal class BookCollectionService(IAppDbContext dbContext) : IBookCollectionService
 {
     public async Task<IEnumerable<BookCollectionDto>> GetAllAsync()
     {

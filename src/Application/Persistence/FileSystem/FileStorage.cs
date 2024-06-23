@@ -56,9 +56,15 @@ public sealed class FileStorage : IFileStorage, IDisposable
         return new FileInfo(filepath);
     }
 
-    public void DeleteFile(string filename)
+    public void DeleteFile(string filename, string? thumbnailFilename)
     {
-        File.Delete(filename);
+        var bookFilepath = Path.Combine(_options.DirectoryPath, filename);
+        File.Delete(bookFilepath);
+        if (thumbnailFilename != null)
+        {
+            var thumbnailFilepath = Path.Combine(_options.DirectoryPath, thumbnailFilename);
+            File.Delete(thumbnailFilepath);
+        }
     }
 
     private void InitDirectory()

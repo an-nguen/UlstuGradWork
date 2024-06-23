@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BookManager.Application.Services;
 
-public sealed class UserService(
+internal sealed class UserService(
     IAppDbContext dbContext,
     IValidator<UserAddRequest> userAddRequestValidator,
     IValidator<UserUpdateRequest> userUpdRequestValidator,

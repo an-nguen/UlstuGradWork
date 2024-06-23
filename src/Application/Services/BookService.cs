@@ -9,7 +9,7 @@ using NodaTime;
 
 namespace BookManager.Application.Services;
 
-public sealed class BookService(
+internal sealed class BookService(
     IAppDbContext dbContext,
     IFileStorage fileStorage,
     IEnumerable<IBookFileHandler> bookFileHandlers,
@@ -36,7 +36,8 @@ public sealed class BookService(
         if (predicate != null)
             query = query.Where(predicate);
         if (user != null)
-            query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id));
+            query = query.Include(b => b.Stats.Where(u => u.UserId == user.Id))
+                .Include(b => b.TotalReadingTimes.Where(trt => trt.Ticket.UserId == user.Id));
 
         var totalItemCount = await query.CountAsync();
         var orderExpr = request.SortBy != null && BookAvailableSortOptions.TryGetValue(request.SortBy, out var expr)
@@ -57,7 +58,8 @@ public sealed class BookService(
         query = query.Skip((normalizedPageNumber - 1) * request.PageSize)
             .Take(request.PageSize);
         var pageCount = PageDto<BookDto>.CountPage(totalItemCount, request.PageSize);
-        var items = await query.Select(b => b.ToDto()).ToListAsync();
+        var items = await query.Select(b => b.ToDto())
+            .ToListAsync();
         return PageDto<BookDto>.Builder.Create()
             .SetPageNumber(normalizedPageNumber)
             .SetPageSize(items.Count)
@@ -72,7 +74,8 @@ public sealed class BookService(
         var query = dbContext.Books.AsQueryable();
         if (userId != null)
         {
-            query = query.Include(b => b.Stats.Where(s => s.UserId == userId));
+            query = query.Include(b => b.Stats.Where(s => s.UserId == userId))
+                .Include(b => b.TotalReadingTimes.Where(trt => trt.Ticket.UserId == userId)); ;
         }
 
         var book = await query.FirstOrDefaultAsync(b => b.Id == bookId);
@@ -85,12 +88,12 @@ public sealed class BookService(
         var filename = $"{id}-{bookMetadata.Filename}";
         var fileInfo = await fileStorage.SaveFileAsync(filename, fileStream);
         var fileType = DocumentFileTypeUtils.GetFileType(fileInfo.FullName);
-        var bookFileHandler = bookFileHandlers.FirstOrDefault(handler => handler.FileType == fileType) ??
-                              throw new Exception();
+        var bookFileHandler = bookFileHandlers.FirstOrDefault(handler => handler.FileType == fileType)
+            ?? throw new Exception();
 
         await using var bookFileStream = fileStorage.GetFileStream(filename);
         var extractedTitle = bookFileHandler.GetBookTitle(bookFileStream);
-        var thumbnailImage = await SaveThumbnailImage(bookFileHandler, bookFileStream, filename);
+        var thumbnailImage = await SaveThumbnailImageAsync(bookFileHandler, bookFileStream, filename);
         var book = new Book
         {
             Id = id,
@@ -132,21 +135,24 @@ public sealed class BookService(
         return updatedEntityEntry.Entity.ToDto();
     }
 
-    public async Task UpdateTotalTimeAsync(Guid bookId, Guid userId, long seconds)
+    public async Task UpdateTotalTimeAsync(Guid bookId, Guid ticketId, long seconds)
     {
-        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
+        if (!IsTicketExists(ticketId))
+            throw new ArgumentException("The ticket ID is not valid!", nameof(ticketId));
+        if (!IsBookExists(bookId))
+            throw new ArgumentException("The book ID is not valid!", nameof(bookId));
+        var found = await dbContext.TotalReadingTimes.FindAsync([bookId, ticketId]);
         if (found != null)
         {
-            found.TotalReadingTime = seconds;
+            found.TimeInSeconds = seconds;
         }
         else
         {
-            dbContext.BookUserStatsSet.Add(new BookUserStats
+            dbContext.TotalReadingTimes.Add(new TotalReadingTime
             {
                 BookId = bookId,
-                UserId = userId,
-                TotalReadingTime = seconds,
-                RecentAccess = SystemClock.Instance.GetCurrentInstant()
+                TicketId = ticketId,
+                TimeInSeconds = seconds,
             });
         }
 
@@ -156,7 +162,7 @@ public sealed class BookService(
     public async Task<FileStream> GetBookFileStreamAsync(Guid id, User user)
     {
         var book = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
-        await UpdateBookAccessTime(id, user.Id);
+        await UpdateBookAccessTimeAsync(id, user.Id);
         return fileStorage.GetFileStream(book.Filename);
     }
 
@@ -169,10 +175,23 @@ public sealed class BookService(
     public async Task DeleteBookAsync(Guid id)
     {
         var document = await dbContext.Books.FindAsync([id])
-                       ?? throw new EntityNotFoundException();
+            ?? throw new EntityNotFoundException();
         dbContext.Books.Remove(document);
         await dbContext.SaveChangesAsync();
+        fileStorage.DeleteFile(document.Filename, document.ThumbnailFilename);
         await IndexingTaskQueue.QueueAsync(new IndexingWorkItem(IndexingWorkItemOperationType.Deleted, id));
+    }
+
+    public async Task<TicketDto> CreateTicketAsync(Guid userId)
+    {
+        var ticket = new Ticket()
+        {
+            UserId = userId,
+            IssuedAt = SystemClock.Instance.GetCurrentInstant(),
+        };
+        var entry = dbContext.Tickets.Add(ticket);
+        await dbContext.SaveChangesAsync();
+        return entry.Entity.ToDto();
     }
 
     public async Task UpdateLastViewedPageAsync(int page, Guid userId, Guid bookId)
@@ -195,20 +214,14 @@ public sealed class BookService(
         await dbContext.SaveChangesAsync();
     }
 
-    private async Task UpdateBookAccessTime(Guid bookId, Guid userId)
+    private bool IsTicketExists(Guid ticketId)
     {
-        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
-        if (found != null)
-            found.RecentAccess = SystemClock.Instance.GetCurrentInstant();
-        else
-            dbContext.BookUserStatsSet.Add(new BookUserStats
-            {
-                BookId = bookId,
-                UserId = userId,
-                RecentAccess = SystemClock.Instance.GetCurrentInstant()
-            });
+        return dbContext.Tickets.Find(ticketId) != null;
+    }
 
-        await dbContext.SaveChangesAsync();
+    private bool IsBookExists(Guid bookId)
+    {
+        return dbContext.Books.Find(bookId) != null;
     }
 
     private int? CountNumberOfPages(string bookFilepath)
@@ -225,7 +238,23 @@ public sealed class BookService(
         return null;
     }
 
-    private async Task<string?> SaveThumbnailImage(
+    private async Task UpdateBookAccessTimeAsync(Guid bookId, Guid userId)
+    {
+        var found = await dbContext.BookUserStatsSet.FindAsync([bookId, userId]);
+        if (found != null)
+            found.RecentAccess = SystemClock.Instance.GetCurrentInstant();
+        else
+            dbContext.BookUserStatsSet.Add(new BookUserStats
+            {
+                BookId = bookId,
+                UserId = userId,
+                RecentAccess = SystemClock.Instance.GetCurrentInstant()
+            });
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private async Task<string?> SaveThumbnailImageAsync(
         IBookFileHandler bookFileHandler,
         FileStream bookFileStream,
         string imageFilenameWithoutExt)

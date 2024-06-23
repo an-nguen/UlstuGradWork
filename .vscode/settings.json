@@ -3,12 +3,21 @@
     "options": ["--proto_path=${workspaceRoot}/src/Protos"]
   },
   "eslint.workingDirectories": [
-    "web"    
+    "web"
   ],
   "js-beautify-for-vscode.html.templating": [
     "angular"
   ],
   "html.format.indentHandlebars": true,
   "html.format.wrapAttributes": "preserve-aligned",
-  "editor.fontFamily": "Fira Code, Fira Code Regular,'JetBrains Mono Regular'"
+  "editor.fontFamily": "Fira Code, Fira Code Regular,'JetBrains Mono Regular'",
+  "sqltools.connections": [{
+    "previewLimit": 50,
+    "server": "localhost",
+    "port": 5432,
+    "driver": "PostgreSQL",
+    "name": "libmgr",
+    "database": "libmgr",
+    "username": "an"
+  }]
 }

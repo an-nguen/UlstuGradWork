@@ -10,7 +10,5 @@ public sealed class BookUserStats
 
     public Instant? RecentAccess { get; set; }
 
-    public long TotalReadingTime { get; set; }
-
     public int? LastViewedPage { get; set; }
 }

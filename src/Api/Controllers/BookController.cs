@@ -1,6 +1,7 @@
 using BookManager.Application.Common.DTOs;
 using BookManager.Domain.Entities;
 using BrunoZell.ModelBinding;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,11 +26,12 @@ public class BookController(
     )
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
-        var page = await service.GetPageAsync(new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder), null, user);
-        foreach (var item in page.Items)
+        var pageRequest = new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder);
+        var page = await service.GetPageAsync(pageRequest, null, user);
+        page.Items.ForEach(p =>
         {
-            item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);
-        }
+            p.DocumentDetails.ThumbnailUrl = GetImageUrl(p.DocumentDetails.Id);
+        });
 
         return page;
     }
@@ -69,6 +71,7 @@ public class BookController(
     }
 
     [HttpPost]
+    [Authorize]
     [Route("search")]
     public async Task<PageDto<BookDto>> Search([FromBody] SearchRequestDto request)
     {
@@ -83,10 +86,12 @@ public class BookController(
     }
 
     [HttpPost]
+    [Authorize]
     [Route("full-text-search")]
-    public Task<PageDto<BookTextDto>> Search([FromBody] TextSearchRequestDto request)
+    public async Task<IActionResult> SearchByText([FromBody] TextSearchRequestDto request)
     {
-        return searchService.SearchByBookTexts(request);
+        var tree = await searchService.SearchByBookTextsAsync(request);
+        return Ok(tree);
     }
 
     [HttpPost]
@@ -100,23 +105,32 @@ public class BookController(
 
     [HttpPost]
     [Authorize]
-    [Route("{bookId:guid}/update-total-time")]
-    public async Task<IActionResult> UpdateTotalTime(Guid bookId, [FromBody] TotalTimeUpdateRequestDto updateRequest)
+    [Route("tickets")]
+    public async Task<IActionResult> CreateTicket()
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null) return BadRequest();
-        await service.UpdateTotalTimeAsync(bookId, user.Id, updateRequest.Seconds);
+        var ticket = await service.CreateTicketAsync(user.Id);
+        return Ok(ticket);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [Route("{bookId:guid}/update-total-time")]
+    public async Task<IActionResult> UpdateTotalTime(Guid bookId, [FromBody] TotalTimeUpdateRequestDto updateRequest)
+    {
+        await service.UpdateTotalTimeAsync(bookId, updateRequest.TicketId, updateRequest.Seconds);
         return Ok();
     }
 
     [HttpPost]
     [Authorize]
-    [Route("{id:guid}/last-viewed-page")]
-    public async Task<IActionResult> UpdateLastViewedPage(Guid id, [FromBody] LastViewedPageUpdateRequest request)
+    [Route("{bookId:guid}/last-viewed-page")]
+    public async Task<IActionResult> UpdateLastViewedPage(Guid bookId, [FromBody] LastViewedPageUpdateRequest request)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null) return BadRequest();
-        await service.UpdateLastViewedPageAsync(request.PageNumber, user.Id, id);
+        await service.UpdateLastViewedPageAsync(request.PageNumber, user.Id, bookId);
         return Ok();
     }
 

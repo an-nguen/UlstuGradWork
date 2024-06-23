@@ -6,7 +6,7 @@ using Yandex.Cloud.Ai.Translate.V2;
 
 namespace BookManager.Application.Services;
 
-public class YTranslationService(Sdk sdk) : ITranslationService
+internal class YTranslationService(Sdk sdk) : ITranslationService
 {
     private readonly TranslationService.TranslationServiceClient _client = sdk.Services.Ai.Translate.TranslationService;
 
@@ -15,16 +15,16 @@ public class YTranslationService(Sdk sdk) : ITranslationService
         var list = await _client.ListLanguagesAsync(new ListLanguagesRequest());
         return list.Languages.Select(l => new LanguageDto(l.Code, l.Name));
     }
-    
+
     public async Task<DetectLanguageResponseDto> DetectLanguageAsync(DetectLanguageRequestDto request)
     {
         var response = await _client.DetectLanguageAsync(new DetectLanguageRequest
         {
-            Text = request.Text 
+            Text = request.Text
         });
         return new DetectLanguageResponseDto(response.LanguageCode);
     }
-    
+
     public async Task<TranslationResponseDto> TranslateAsync(TranslationRequestDto request)
     {
         var translationRequest = new TranslateRequest

@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using BookManager.Application.Common.Config;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces.Services;
@@ -12,7 +13,13 @@ using Yandex.Cloud.Credentials;
 
 namespace BookManager.Application.Services;
 
-public class YAiDictionaryProvider(
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(CompletionResponseDto))]
+[JsonSerializable(typeof(CompletionRequest))]
+[JsonSerializable(typeof(WordDto))]
+internal partial class DictionaryContext : JsonSerializerContext;
+
+internal class YAiDictionaryProvider(
     ILogger<YAiDictionaryProvider> logger,
     HttpClient client,
     ICredentialsProvider credentialsProvider,
@@ -21,7 +28,6 @@ public class YAiDictionaryProvider(
 {
     public string ProviderName => "YandexAi";
     private readonly YandexCloudOptions _options = options.Value;
-    private readonly JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
     private const string RequestUri = "https://llm.api.cloud.yandex.net";
     private const string JsonDivider = "```";
 
@@ -48,20 +54,20 @@ public class YAiDictionaryProvider(
                 MaxTokens = 1000
             },
         };
-        var token = credentialsProvider.GetToken();
-        if (token == null) throw new Exception("Failed to get IAM token to Yandex Cloud");
+        var token = credentialsProvider.GetToken() ?? throw new Exception("Failed to get IAM token to Yandex Cloud");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var responseMessage =
             await client.PostAsync($"{RequestUri}/foundationModels/v1/completion",
-                JsonContent.Create(completionRequest));
+                JsonContent.Create(completionRequest, DictionaryContext.Default.CompletionRequest));
         if (responseMessage.StatusCode != HttpStatusCode.OK)
             throw new Exception(responseMessage.ReasonPhrase);
-
-        var response = JsonSerializer.Deserialize<CompletionResponse>(await responseMessage.Content.ReadAsStreamAsync(),
-            _serializerOptions);
-        if (response == null) throw new Exception("Failed to deserialize a response message");
-        if (!response.Result.Alternatives.Any()) return new List<WordDto>();
+        var contentStream = await responseMessage.Content.ReadAsStreamAsync();
+        var response = JsonSerializer.Deserialize(
+            contentStream,
+            DictionaryContext.Default.CompletionResponseDto
+        ) ?? throw new Exception("Failed to deserialize a response message");
+        if (!response.Result.Alternatives.Any()) return [];
 
         var resultText = response.Result
             .Alternatives
@@ -84,9 +90,9 @@ public class YAiDictionaryProvider(
                     startIndexOfJsonResult + JsonDivider.Length,
                     endIndexOfJsonResult - JsonDivider.Length
                 ).Trim();
-            var wordDto = JsonSerializer.Deserialize<WordDto>(
+            var wordDto = JsonSerializer.Deserialize(
                 jsonStringResult,
-                _serializerOptions
+                DictionaryContext.Default.WordDto
             );
             return wordDto != null ? [wordDto] : new List<WordDto>();
         }
@@ -95,7 +101,7 @@ public class YAiDictionaryProvider(
             logger.LogError("The response message parsing error: {}", e.Message);
         }
 
-        return new List<WordDto>();
+        return [];
     }
 
     private static bool ValidateWord(string word)

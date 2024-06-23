@@ -5,5 +5,6 @@ namespace BookManager.Application.Common.DTOs;
 [TranspilationSource]
 public class TotalTimeUpdateRequestDto
 {
-    public long Seconds { get; init; }
+    public required Guid TicketId { get; init; }
+    public required long Seconds { get; init; }
 }

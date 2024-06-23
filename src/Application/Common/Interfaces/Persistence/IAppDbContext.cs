@@ -14,5 +14,9 @@ public interface IAppDbContext
 
     DbSet<DictionaryWord> DictionaryWords { get; }
 
+    DbSet<Ticket> Tickets { get; }
+
+    DbSet<TotalReadingTime> TotalReadingTimes { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
