@@ -29,7 +29,8 @@ internal partial class MerriamWebsterDictionaryProvider(
 
     public async Task<IEnumerable<WordDto>> GetDefinitionAsync(string word)
     {
-        if (string.IsNullOrEmpty(_options.ApiKey.Trim()))
+        var apiKey = !string.IsNullOrEmpty(_options.ApiKeyFile) ? File.ReadAllText(_options.ApiKeyFile) : _options.ApiKey;
+        if (string.IsNullOrEmpty(apiKey?.Trim()))
             throw new NotAvailableException(
                 $"The API key is not defined for {nameof(MerriamWebsterDictionaryProvider)} service."
             );

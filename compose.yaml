@@ -1,12 +1,6 @@
 secrets:
   db_password:
     environment: "DbPassword"
-  ycloud_key_id:
-    environment: "YandexCloud__KeyId"
-  ycloud_service_account_id:
-    environment: "YandexCloud__ServiceAccountId"
-  ycloud_folder_path:
-    environment: "YandexCloud__FolderPath"
   merriam_webster_api_key:
     environment: "MerriamWebster__ApiKey"
 
@@ -18,23 +12,20 @@ services:
     volumes:
       - type: bind
         source: "${KeysPath}"
-        target: "/App/Keys"
+        target: "/app/Keys"
       - type: bind
         source: "${StoragePath}"
-        target: "/App/UploadedDocs"
+        target: "/app/UploadedDocs"
     environment:
-      - DbUser=${DbUser}
-      - DbPassword=/run/secrets/db_password
-      - Cors__AllowedOrigins=${CorsAllowedOrigins}
-      - YandexCloud__KeyId=/run/secrets/ycloud_key_id
-      - YandexCloud__ServiceAccountId=/run/secrets/ycloud_service_account_id
-      - YandexCloud__FolderPath=/run/secrets/ycloud_folder_path
-      - MerriamWebster__ApiKey=/run/secrets/merriam_webster_api_key
+      DbUser: ${DbUser}
+      DbPasswordFile: /run/secrets/db_password
+      Cors__AllowedOrigins: ${CorsAllowedOrigins}
+      YandexCloud__KeyId: ${YandexCloud__KeyId}
+      YandexCloud__ServiceAccountId: ${YandexCloud__ServiceAccountId}
+      YandexCloud__FolderPath: ${YandexCloud__FolderPath}
+      MerriamWebster__ApiKeyFile: /run/secrets/merriam_webster_api_key
     secrets:
       - db_password
-      - ycloud_key_id
-      - ycloud_service_account_id
-      - ycloud_folder_path
       - merriam_webster_api_key
     extra_hosts:
       - "host.docker.internal:host-gateway"

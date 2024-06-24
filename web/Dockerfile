@@ -2,11 +2,16 @@
 
 WORKDIR /usr/local/app
 
-COPY ./ /usr/local/app/
+COPY package.json .
+COPY .yarn .
+COPY yarn.lock .
+COPY .yarnrc.yml .
+RUN corepack enable && yarn
+COPY . .
 
 ARG BASE_URL
 ENV BASE_URL $BASE_URL
-RUN corepack enable && yarn && yarn build
+RUN yarn build
 
 FROM nginx:1.26.1
 

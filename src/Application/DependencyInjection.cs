@@ -24,10 +24,12 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var dbPasswordFile = configuration["DbPasswordFile"];
+        var dbPassword = !string.IsNullOrEmpty(dbPasswordFile) ? File.ReadAllText(dbPasswordFile) : configuration["DbPassword"];
         var conStrBuilder = new NpgsqlConnectionStringBuilder(configuration.GetConnectionString("Main"))
         {
             Username = configuration["DbUser"],
-            Password = configuration["DbPassword"]
+            Password = dbPassword
         };
         var connection = conStrBuilder.ConnectionString;
         services.AddDbContextFactory<AppDbContext>(options =>

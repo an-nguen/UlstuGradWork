@@ -4,5 +4,6 @@ public class MerriamWebsterOptions
 {
     public const string MerriamWebster = "MerriamWebster";
 
-    public string ApiKey { get; init; } = string.Empty;
+    public string? ApiKey { get; init; }
+    public string? ApiKeyFile { get; init; }
 }
