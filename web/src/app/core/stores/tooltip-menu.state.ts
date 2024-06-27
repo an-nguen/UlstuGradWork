@@ -28,7 +28,6 @@ export class TooltipMenuStateService {
     this.definitionEntriesSignal = this._definitionEntriesSignal.asReadonly();
     this.currentDefinitionProviderSignal = this._currentDefinitionProviderSignal.asReadonly();
     this.definitionProvidersSignal = this._definitionProvidersSignal.asReadonly();
-    console.log(this);
   }
 
   public set isDefinitionLoading(value: boolean) {

@@ -16,7 +16,7 @@ import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinn
 import { MatFormField } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef } from '@angular/cdk/overlay';
+import { FlexibleConnectedPositionStrategyOrigin, Overlay, OverlayModule, OverlayPositionBuilder, OverlayRef, PositionStrategy } from '@angular/cdk/overlay';
 import { CdkPortal, TemplatePortal } from '@angular/cdk/portal';
 import { debounceTime, fromEvent, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -47,10 +47,10 @@ import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
 })
 export class TooltipMenuComponent {
 
-  protected readonly WORD_BREAK_PATTERN = new RegExp(`(-)\n`, 'gm');
-  protected readonly NEW_LINE_PATTERN = new RegExp(`(\n|\r\n|\r)`, 'gm');
-  protected readonly DEFINITION_POPUP_HEIGHT = 240;
-  protected readonly TOOLTIP_CONTAINER_WIDTH = 320;
+  public readonly WORD_BREAK_PATTERN = new RegExp(`(-)\n`, 'gm');
+  public readonly NEW_LINE_PATTERN = new RegExp(`(\n|\r\n|\r)`, 'gm');
+  public readonly DEFINITION_POPUP_HEIGHT = 240;
+  public readonly TOOLTIP_CONTAINER_WIDTH = 320;
 
   public readonly definitionLoading = this._state.isDefinitionLoadingSignal;
   public readonly definitionProviders = this._state.definitionProvidersSignal;
@@ -67,7 +67,6 @@ export class TooltipMenuComponent {
 
   private _overlayRef: OverlayRef | null = null;
   private _selectedText?: string;
-  private _pointerPosition?: { x: number, y: number, offsetX: number, offsetY: number };
   private _isTouchscreen = false;
 
   constructor(
@@ -86,7 +85,7 @@ export class TooltipMenuComponent {
       )
       .subscribe(() => {
         if (this._isTouchscreen) {
-          this.showTooltipMenuOnMobile();
+          this.showTooltipMenu();
         }
       });
     this._breakpointObserver.observe('(pointer:coarse)')
@@ -107,11 +106,6 @@ export class TooltipMenuComponent {
     this._state.currentDefinitionProvider = value;
   }
 
-  @HostListener("pointermove", ['$event'])
-  public updatePointerPosition({ x, y, offsetX, offsetY }: PointerEvent): void {
-    this._pointerPosition = { x, y, offsetX, offsetY };
-  }
-
   @HostListener("pointerdown", ["$event"])
   public clearSelection(e: PointerEvent): void {
     if (e.button === 2) {
@@ -124,7 +118,7 @@ export class TooltipMenuComponent {
   }
 
   @HostListener("pointerup", ['$event'])
-  public showTooltipMenu(e: PointerEvent) {
+  public showTooltipMenu(e?: PointerEvent) {
     if (this._overlayRef) {
       this.closeContextMenu();
     }
@@ -135,28 +129,8 @@ export class TooltipMenuComponent {
       return;
     }
 
-    const origin = { x: e.x, y: e.y, height: e.height, width: e.width };
-    const willBeOffscreen = this._willBeOffscreenByHeight();
-    this._setDefMenuFlexDirection(willBeOffscreen);
-    const positionStrategy = willBeOffscreen || this._isTouchscreen
-      ? this._overlayPositionBuilder.flexibleConnectedTo(origin)
-        .withPositions([
-          {
-            originX: 'start',
-            originY: 'top',
-            overlayX: 'center',
-            overlayY: 'bottom',
-          },
-        ])
-      : this._overlayPositionBuilder.flexibleConnectedTo(origin)
-        .withPositions([
-          {
-            originX: 'start',
-            originY: 'bottom',
-            overlayX: 'center',
-            overlayY: 'top',
-          },
-        ]);
+    const origin = this._getOrigin(e, selection);
+    const positionStrategy = this._getPositionStrategy(origin, e);
     this._overlayRef = this._overlay.create({
       positionStrategy,
       scrollStrategy: this._overlay.scrollStrategies.close(),
@@ -171,37 +145,6 @@ export class TooltipMenuComponent {
   public closeContextMenu(): void {
     this._overlayRef?.dispose();
     this._overlayRef = null;
-  }
-
-  public showTooltipMenuOnMobile(): void {
-    const selection = window.getSelection();
-    if (this._overlayRef) {
-      this.closeContextMenu();
-    }
-    const selectedText = selection?.toString().trim();
-    this._eventService.emitSelectionEvent(selectedText ?? null);
-    if (!selection || !selectedText) return;
-
-    const rangeRect = selection.getRangeAt(0).getBoundingClientRect();
-    console.log('rangeRect', rangeRect);
-    const willBeOffscreen = this._willBeOffscreenByHeight();
-    this._setDefMenuFlexDirection(willBeOffscreen);
-    const positionStrategy = this._overlayPositionBuilder.flexibleConnectedTo(rangeRect)
-      .withPositions([
-        {
-          originX: 'center',
-          originY: 'top',
-          overlayX: 'center',
-          overlayY: 'bottom',
-        },
-      ]);
-    this._overlayRef = this._overlay.create({
-      positionStrategy,
-      scrollStrategy: this._overlay.scrollStrategies.reposition(),
-    });
-    const portal = new TemplatePortal(this.contextMenuTemplateRef()!, this._vcr);
-    this._selectedText = this._processText(selectedText);
-    this._overlayRef.attach(portal);
   }
 
   public isWordInDictionary(word: string): boolean {
@@ -251,8 +194,38 @@ export class TooltipMenuComponent {
     this.flexDirection = reverse ? 'column-reverse' : 'column';
   }
 
-  private _willBeOffscreenByHeight(): boolean {
-    return (this._pointerPosition?.y ?? 0) + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
+  private _willBeOffscreenByHeight(yPosition: number): boolean {
+    return yPosition + this.DEFINITION_POPUP_HEIGHT > window.innerHeight;
+  }
+
+  private _getOrigin(e?: PointerEvent, selection?: Selection): FlexibleConnectedPositionStrategyOrigin {
+    return this._isTouchscreen && selection
+      ? selection.getRangeAt(0).getBoundingClientRect()
+      : { x: e?.x ?? 0, y: e?.y ?? 0, height: e?.height ?? 0, width: e?.width ?? 0 };
+  }
+
+  private _getPositionStrategy(origin: FlexibleConnectedPositionStrategyOrigin, e?: PointerEvent): PositionStrategy {
+    const willBeOffscreen = e ? this._willBeOffscreenByHeight(e.y + e.height) : true;
+    this._setDefMenuFlexDirection(willBeOffscreen);
+    return willBeOffscreen || this._isTouchscreen
+      ? this._overlayPositionBuilder.flexibleConnectedTo(origin)
+        .withPositions([
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'center',
+            overlayY: 'bottom',
+          },
+        ])
+      : this._overlayPositionBuilder.flexibleConnectedTo(origin)
+        .withPositions([
+          {
+            originX: 'start',
+            originY: 'bottom',
+            overlayX: 'center',
+            overlayY: 'top',
+          },
+        ]);
   }
 
 }
