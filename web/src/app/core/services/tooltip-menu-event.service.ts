@@ -46,7 +46,7 @@ export class TooltipMenuEventService {
   }
 
   public emitTranslationEvent(value: string): void {
-    this._selectionEvent.next(value);
+    this._translationEvent.next(value);
   }
 
   public emitDefineEvent(value: string): void {

@@ -24,6 +24,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { TooltipMenuEventService } from '@core/services/tooltip-menu-event.service';
 import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
 
+type FlexDirection = 'column' | 'column-reverse';
+
 @Component({
   selector: '[app-tooltip-menu]',
   templateUrl: './tooltip-menu.component.html',
@@ -52,18 +54,14 @@ export class TooltipMenuComponent {
   public readonly DEFINITION_POPUP_HEIGHT = 240;
   public readonly TOOLTIP_CONTAINER_WIDTH = 320;
 
-  public readonly definitionLoading = this._state.isDefinitionLoadingSignal;
-  public readonly definitionProviders = this._state.definitionProvidersSignal;
-  public readonly isDefinitionPanelOpen = this._state.isDefinitionPanelOpenSignal;
-  public readonly foundWords = this._state.savedWordsSignal;
-  public readonly definitionEntries = this._state.definitionEntriesSignal;
+  public readonly state = this._state.stateSignal;
 
   public contextMenuTemplateRef = viewChild<TemplateRef<unknown>>('contextMenu');
   public haveDefinitions = computed(() => {
-    const entries = this._state.definitionEntriesSignal();
+    const entries = this._state.stateSignal().entries;
     return entries.length > 0;
   });
-  public flexDirection: 'column' | 'column-reverse' = 'column';
+  public flexDirection: FlexDirection = 'column';
 
   private _overlayRef: OverlayRef | null = null;
   private _selectedText?: string;
@@ -78,32 +76,16 @@ export class TooltipMenuComponent {
     private readonly _window: Window,
     private readonly _vcr: ViewContainerRef
   ) {
-    fromEvent(document, 'selectionchange')
-      .pipe(
-        debounceTime(400),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => {
-        if (this._isTouchscreen) {
-          this.showTooltipMenu();
-        }
-      });
-    this._breakpointObserver.observe('(pointer:coarse)')
-      .pipe(
-        map((state) => state.matches),
-        takeUntilDestroyed()
-      )
-      .subscribe((isMatch) => {
-        this._isTouchscreen = isMatch;
-      });
+    this._subscribeToSelectionChangeEvent();
+    this._initBreakpointObserver();
   }
 
   public get currentDefinitionProvider(): string | null {
-    return this._state.currentDefinitionProvider;
+    return this._state.state.currentProvider;
   }
 
   public set currentDefinitionProvider(value: string | null) {
-    this._state.currentDefinitionProvider = value;
+    this._state.set('currentProvider', value);
   }
 
   @HostListener("pointerdown", ["$event"])
@@ -148,7 +130,7 @@ export class TooltipMenuComponent {
   }
 
   public isWordInDictionary(word: string): boolean {
-    return this._state.savedWords.includes(word);
+    return this._state.state.savedWords.includes(word);
   }
 
   public emitTranslationBtnClickEvent(): void {
@@ -226,6 +208,30 @@ export class TooltipMenuComponent {
             overlayY: 'top',
           },
         ]);
+  }
+
+  private _subscribeToSelectionChangeEvent(): void {
+    fromEvent(document, 'selectionchange')
+      .pipe(
+        debounceTime(400),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (this._isTouchscreen) {
+          this.showTooltipMenu();
+        }
+      });
+  }
+
+  private _initBreakpointObserver(): void {
+    this._breakpointObserver.observe('(pointer:coarse)')
+      .pipe(
+        map((state) => state.matches),
+        takeUntilDestroyed()
+      )
+      .subscribe((isMatch) => {
+        this._isTouchscreen = isMatch;
+      });
   }
 
 }

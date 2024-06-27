@@ -22,7 +22,7 @@ import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, finalize, mergeMap, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, forkJoin, map, mergeMap, Observable, of, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
@@ -30,6 +30,9 @@ import { DictionaryService } from '@core/services/dictionary.service';
 import { FormsModule } from '@angular/forms';
 import { TooltipMenuEventService } from '@core/services/tooltip-menu-event.service';
 import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
+import { TranslationDialogService, TranslationFormChangeEvent } from '@core/services/translation-dialog.service';
+import { TextProcessingService } from '@core/services/text-processing.service';
+import { TextSumDialogStateService } from '@core/stores/text-sum-dialog.state';
 
 @Component({
   selector: 'app-book-viewer',
@@ -73,6 +76,9 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly _service: BookService,
     private readonly _tooltipMenuEventService: TooltipMenuEventService,
     private readonly _dictionaryService: DictionaryService,
+    private readonly _translationDialogService: TranslationDialogService,
+    private readonly _textProcessingService: TextProcessingService,
+    private readonly _textSumState: TextSumDialogStateService,
     private readonly _cdr: ChangeDetectorRef,
     private readonly _authState: AuthState,
     private readonly _route: ActivatedRoute,
@@ -93,6 +99,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this._loadDefinitionProviders();
     this._subscribeToTooltipMenuEvents();
+    this._subscribeToTranslationFormChangeEvent();
   }
 
   public ngAfterViewInit(): void {
@@ -136,7 +143,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this._snackBar.open('Текст скопирован', 'OK', { duration: 3000 });
   }
 
-  public openTranslationDialog(selectedText: string): void {
+  public openTranslationDialog(selectedText: string, sourceLanguage: string): void {
     if (!selectedText) return;
     if (selectedText.length > CONSTANTS.TRANSLATION_TEXT_MAX_LENGTH) {
       this._snackBar.open('Размер текста не должна превышать больше 1000 символов.');
@@ -147,9 +154,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
       minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
+        availableLanguages: this._textProcessingService.availableLanguages(),
         sourceText: selectedText,
-        targetLanguageCode: this.DEFAULT_TARGET_LANG_CODE,
-      },
+        sourceLanguage,
+        targetLanguage: this.DEFAULT_TARGET_LANG_CODE,
+      }
     });
   }
 
@@ -170,31 +179,42 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         inputText: selectedText,
       },
     });
+    this._textSumState.set('isLoading', true);
+    this._textProcessingService.summarizeText({ text: selectedText })
+      .pipe(
+        catchError(err => {
+          this._snackBar.open('Произошла ошибка :(', 'OK');
+          return throwError(() => err);
+        }),
+        finalize(() => this._textSumState.set('isLoading', false)),
+      )
+      .subscribe(response => {
+        this._textSumState.set('summarizedText', response.summarizedText);
+      });
   }
 
   public openDefinitionMenu(word: string): void {
-    this._tooltipMenuState.isDefinitionPanelOpen = true;
+    this._tooltipMenuState.set('isOpen', true);
     this._cdr.markForCheck();
     this.showDefinition(word);
   }
 
   public showDefinition(word: string): void {
-    const normalizedWord = word.trim()
-      .toLowerCase();
+    const normalizedWord = word.trim().toLowerCase();
     this.selectedWord = normalizedWord;
     if (!this._dictionaryWordRegex.test(normalizedWord)) return;
-    this._tooltipMenuState.isDefinitionLoading = true;
+    this._tooltipMenuState.set('isLoading', true);
     this._dictionaryService.find(normalizedWord)
       .pipe(
         mergeMap((savedWords) => {
-          const definitionProvider = this._tooltipMenuState.currentDefinitionProvider;
-          this._tooltipMenuState.savedWords = savedWords.map(w => w.word);
+          const definitionProvider = this._tooltipMenuState.state.currentProvider;
+          this._tooltipMenuState.set('savedWords', savedWords.map(w => w.word));
           return (!savedWords.length && !!definitionProvider)
             ? this._dictionaryService.findInExtDict(normalizedWord, definitionProvider)
             : of(savedWords);
         }),
         finalize(() => {
-          this._tooltipMenuState.isDefinitionLoading = false;
+          this._tooltipMenuState.set('isLoading', false);
           this._cdr.markForCheck();
         }),
       )
@@ -203,14 +223,13 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           this._snackBar.open('Нет результатов.', 'OK');
           return;
         }
-        this._tooltipMenuState.definitionEntries = foundWords;
+        this._tooltipMenuState.set('entries', foundWords);
         this._cdr.markForCheck();
       });
   }
 
   public clearWordEntries(): void {
-    this._tooltipMenuState.definitionEntries = [];
-    this._tooltipMenuState.isDefinitionPanelOpen = false;
+    this._tooltipMenuState.updateState({ entries: [], isOpen: false });
     this._cdr.markForCheck();
   }
 
@@ -224,7 +243,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public changeDefinitionProvider(providerName: string | null): void {
-    this._tooltipMenuState.currentDefinitionProvider = providerName;
+    this._tooltipMenuState.set('currentProvider', providerName);
     if (!providerName || !this.selectedWord) return;
     this.showDefinition(this.selectedWord);
   }
@@ -236,7 +255,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.foundWordsInDict.splice(index, 1);
         this.foundWordsInDict = [...this.foundWordsInDict];
         this._cdr.markForCheck();
-        this._snackBar.open(`Слово '${word.word}' успешно удалена из словаря.`, 'OK');
+        this._snackBar.open(`Слово '${word.word}' успешно удалено из словаря.`, 'OK');
       });
   }
 
@@ -263,7 +282,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _saveSettings(): void {
-    const selectedDefProvider = this._tooltipMenuState.currentDefinitionProviderSignal();
+    const selectedDefProvider = this._tooltipMenuState.state.currentProvider;
     if (selectedDefProvider) {
       sessionStorage.setItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY, selectedDefProvider);
     }
@@ -272,14 +291,14 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   private _loadSettings(): void {
     const selectedDefProvider = sessionStorage.getItem(this.SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY);
     if (selectedDefProvider) {
-      this._tooltipMenuState.currentDefinitionProvider = selectedDefProvider;
+      this._tooltipMenuState.set('currentProvider', selectedDefProvider);
     }
   }
 
   private _loadDefinitionProviders(): void {
     this._dictionaryService.listThirdPartyProviders()
       .subscribe((providers) => {
-        this._tooltipMenuState.definitionProviders = providers;
+        this._tooltipMenuState.set('providers', providers);
       });
   }
 
@@ -321,14 +340,51 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((selectedText) => this.copyText(selectedText));
     tmes.defineEvent$.pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((word) => this.openDefinitionMenu(word))
-    tmes.translationEvent$.pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((selectedText) => this.openTranslationDialog(selectedText));
     tmes.textSummarizationEvent$.pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((selectedText) => this.openTextSummarizationDialog(selectedText));
     tmes.addDefinitionEvent$.pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((wordDto) => this.saveDefinition(wordDto));
     tmes.deleteDefinitionEvent$.pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((wordDto) => this.deleteDefinition(wordDto));
+    tmes.translationEvent$.pipe(
+      mergeMap((selectedText) =>
+        forkJoin({
+          selectedText: of(selectedText),
+          detectedLanguageCode: this._textProcessingService.detectLanguage({ text: selectedText })
+            .pipe(
+              map((languageDto) => languageDto.detectedLanguageCode)
+            ),
+        }),
+      ),
+      takeUntilDestroyed(this._destroyRef)
+    ).subscribe(({ selectedText, detectedLanguageCode }) => {
+      this.openTranslationDialog(selectedText, detectedLanguageCode);
+    });
+  }
+
+  private _subscribeToTranslationFormChangeEvent(): void {
+    this._translationDialogService.translationFormChangeEvent
+      .pipe(
+        mergeMap((e) => {
+          this._translationDialogService.set('isLoading', true);
+          return this._getTranslationText(e);
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe((translatedText) => {
+        this._translationDialogService.updateState({
+          translatedText,
+          isLoading: false,
+        })
+      });
+  }
+
+  private _getTranslationText({ sourceLanguage, sourceText, targetLanguage }: TranslationFormChangeEvent): Observable<string | null> {
+    return sourceText && sourceLanguage && targetLanguage
+      ? this._textProcessingService.translate({ sourceText, sourceLanguage, targetLanguage }).pipe(
+        map(resp => resp.translatedText)
+      )
+      : of(null)
   }
 
 }

@@ -26,13 +26,12 @@
   </div>
   <div class="section">
     <textarea
-      class="text-container"
-      cdkTextareaAutosize
-      formControlName="sourceText"
-    ></textarea>
+              class="text-container"
+              cdkTextareaAutosize
+              formControlName="sourceText"></textarea>
     <div class="translated-text text-container">
-      {{ translatedText() }}
-      <app-loading-spinner-overlay [loading]="loading()">
+      {{ state().translatedText }}
+      <app-loading-spinner-overlay [loading]="state().isLoading">
       </app-loading-spinner-overlay>
     </div>
   </div>

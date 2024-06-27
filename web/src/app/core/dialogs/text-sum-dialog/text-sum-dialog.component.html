@@ -1,10 +1,10 @@
 <span mat-dialog-title>Результат обобщения текста</span>
 <div mat-dialog-content>
-  <span [innerText]="summarizedText()"></span>
-  <app-loading-spinner-overlay [loading]="loading()"></app-loading-spinner-overlay>
+  <span [innerText]="state().summarizedText"></span>
+  <app-loading-spinner-overlay [loading]="state().isLoading"></app-loading-spinner-overlay>
 </div>
 <div class="dialog-actions" mat-dialog-actions>
-  <div>Обобщение текста выполнена моделью нейроной сети от Яндекса. Текст может содержать неточности.</div>
+  <div>Обобщение текста выполнена моделью нейронной сети от Яндекса. Текст может содержать неточности.</div>
   <div class="spacer"></div>
   <button mat-flat-button color="warn" (click)="close()">
     Закрыть

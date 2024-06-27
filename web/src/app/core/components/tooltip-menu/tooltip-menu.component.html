@@ -16,7 +16,7 @@
       </button>
       <button matTooltip="Определение"
               matTooltipPosition="above"
-              [disabled]="definitionLoading()"
+              [disabled]="state().isLoading"
               (mouseup)="emitDefinitionBtnClickEvent()">
         <mat-icon>abc</mat-icon>
       </button>
@@ -26,15 +26,15 @@
         <mat-icon>functions</mat-icon>
       </button>
     </div>
-    @if (isDefinitionPanelOpen()) {
+    @if (state().isOpen) {
       <div class="word-definition-popup"
            [style.height]="DEFINITION_POPUP_HEIGHT + 'px'"
            [style.width]="TOOLTIP_CONTAINER_WIDTH + 'px'">
         <div class="word-definition-container">
-          @if (!foundWords().length) {
+          @if (!state().savedWords.length) {
             <mat-form-field>
               <mat-select [(ngModel)]="currentDefinitionProvider">
-                @for (provider of definitionProviders(); track $index) {
+                @for (provider of state().providers; track $index) {
                   <mat-option [value]="provider">{{ provider }}</mat-option>
                 }
               </mat-select>
@@ -43,7 +43,7 @@
           @if (!haveDefinitions()) {
             <span>Нет результатов для данного определения</span>
           }
-          @for (entry of definitionEntries(); track $index) {
+          @for (entry of state().entries; track $index) {
             <div class="word">{{ entry.word }}</div>
             <div class="transcription">{{ entry.transcription }}</div>
             <ul>
@@ -58,7 +58,7 @@
               @if (!isWordInDictionary(entry.word)) {
                 <button mat-flat-button
                         color="primary"
-                        [disabled]="definitionLoading() || !haveDefinitions()"
+                        [disabled]="state().isLoading || !haveDefinitions()"
                         (click)="emitWordAddBtnClickEvent(entry)">
                   <mat-icon>add</mat-icon>
                   Добавить в словарь
@@ -74,7 +74,7 @@
             </div>
           }
         </div>
-        <app-loading-spinner-overlay [loading]="definitionLoading()">
+        <app-loading-spinner-overlay [loading]="state().isLoading">
         </app-loading-spinner-overlay>
       </div>
     }
