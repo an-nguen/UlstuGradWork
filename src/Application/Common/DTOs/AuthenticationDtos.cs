@@ -4,10 +4,13 @@ using Tapper;
 namespace BookManager.Application.Common.DTOs;
 
 [TranspilationSource]
+public record AuthenticationRequestDto(string Name, string PinCode);
+
+[TranspilationSource]
 public class AuthenticationResponseDto
 {
     public AuthenticationStatus Status { get; set; } = AuthenticationStatus.Success;
-    public string? AccessToken { get; set; } 
+    public string? AccessToken { get; set; }
     [JsonIgnore]
     public string? RefreshToken { get; set; }
 }

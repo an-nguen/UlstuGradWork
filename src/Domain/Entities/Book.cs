@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using BookManager.Domain.Enums;
+using NodaTime;
 
 namespace BookManager.Domain.Entities;
 
@@ -29,9 +30,17 @@ public sealed class Book
 
     public string? ThumbnailFilename { get; init; }
 
+    public Guid? OwnerId { get; init; }
+
+    public User? Owner { get; init; }
+
     public IList<BookCollection> Collections { get; set; } = [];
 
     public IList<BookUserStats> Stats { get; } = [];
 
     public IList<TotalReadingTime> TotalReadingTimes { get; } = [];
+
+    public Instant CreatedAt { get; init; }
+
+    public Instant? UpdatedAt { get; set; }
 }

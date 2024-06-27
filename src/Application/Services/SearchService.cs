@@ -61,7 +61,7 @@ internal sealed class SearchService(IAppDbContext dbContext, IBookService bookSe
     {
         var parameterExpr = Expression.Parameter(typeof(T), "anything");
         // https://devblogs.microsoft.com/dotnet/creating-aot-compatible-libraries/
-        var propertyExpr = Expression.Property(parameterExpr, propertyInfo);
+        var propertyExpr = Expression.Property(parameterExpr, propertyInfo.Name);
         var method = typeof(string).GetMethod("Contains", [typeof(string)]);
         var someValue = Expression.Constant(propertyValue, typeof(string));
         var containsMethodExp = Expression.Call(propertyExpr, method!, someValue);

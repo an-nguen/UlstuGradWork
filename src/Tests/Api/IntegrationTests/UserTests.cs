@@ -10,7 +10,7 @@ namespace BookManager.Tests.Api.IntegrationTests;
 public class UserTests(ApiFixture apiFixture)
 {
     private readonly HttpClient _client = apiFixture.CreateClient();
-    private readonly HttpClient _authClient = apiFixture.CreateAuthenticatedClient();
+    private readonly HttpClient _authClient = apiFixture.CreateAuthenticatedClient(Constants.SomeUserName, Constants.SomeUserPinCode);
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]

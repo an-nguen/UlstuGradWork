@@ -16,7 +16,8 @@ public class ApiFixture : IDisposable
     public ApiFixture()
     {
         _factory = new WebTestAppFactory<Program>();
-        AddUser();
+        AddUser(Constants.SomeUserName, Constants.SomeUserPinCode);
+        AddUser(Constants.AnotherUserName, Constants.AnotherUserPinCode);
     }
 
     public void Dispose()
@@ -36,11 +37,11 @@ public class ApiFixture : IDisposable
         });
     }
 
-    public HttpClient CreateAuthenticatedClient()
+    public HttpClient CreateAuthenticatedClient(string username, string pinCode)
     {
         using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var authService = ServiceProviderServiceExtensions.GetRequiredService<IAuthenticationService>(scope.ServiceProvider);
-        var token = authService.SignIn(new AuthenticationRequestDto(Constants.UserName, Constants.UserPinCode))
+        var token = authService.SignIn(new AuthenticationRequestDto(username, pinCode))
             .Result
             .AccessToken!;
         var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -60,13 +61,14 @@ public class ApiFixture : IDisposable
         dbContext.DictionaryWords.ExecuteDelete();
     }
 
-    private void AddUser()
+    private UserDto? AddUser(string username, string pinCode)
     {
         using var scope = ServiceProviderServiceExtensions.CreateScope(_factory.Services);
         var userService = ServiceProviderServiceExtensions.GetRequiredService<IUserService>(scope.ServiceProvider);
-        if (userService.GetUserByNameAsync(Constants.UserName).Result != null) return;
-        var user = userService.CreateUserAsync(new UserAddRequest(Constants.UserName, Constants.UserPinCode)).Result;
-        Console.WriteLine($"The user ${user.Name} created.");
+        if (userService.GetUserByNameAsync(username).Result != null) return null;
+        var user = userService.CreateUserAsync(new UserAddRequest(username, pinCode)).Result;
+        Console.WriteLine($"The user {user.Name} added.");
+        return user;
     }
 }
 

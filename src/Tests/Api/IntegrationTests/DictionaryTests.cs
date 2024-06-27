@@ -9,7 +9,7 @@ namespace BookManager.Tests.Api.IntegrationTests;
 public class DictionaryTests(ApiFixture apiFixture)
 {
     private const string RequestUri = "word-dictionary";
-    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient();
+    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient(Constants.SomeUserName, Constants.SomeUserPinCode);
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

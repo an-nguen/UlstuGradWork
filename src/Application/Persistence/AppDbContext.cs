@@ -1,3 +1,4 @@
+using BookManager.Application.Persistence.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
@@ -37,13 +38,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Book>()
             .HasMany(b => b.Collections)
             .WithMany(bc => bc.Books);
+        modelBuilder.Entity<Book>()
+            .HasOne(b => b.Owner)
+            .WithMany(u => u.Books);
         modelBuilder.Entity<DictionaryWord>()
             .Navigation(w => w.Definitions)
             .AutoInclude();
-        modelBuilder.Entity<TotalReadingTime>()
-            .HasKey(trt => new { trt.BookId, trt.TicketId });
-        modelBuilder.Entity<TotalReadingTime>()
-            .Navigation(trt => trt.Ticket)
-            .AutoInclude();
+        modelBuilder.ApplyConfiguration(new TotalReadingTimeConfiguration());
     }
+
+
 }

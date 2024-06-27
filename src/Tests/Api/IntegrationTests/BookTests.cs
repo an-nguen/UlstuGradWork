@@ -12,7 +12,8 @@ namespace BookManager.Tests.Api.IntegrationTests;
 public class BookControllerTests(ApiFixture apiFixture)
 {
     private const string RequestUri = "books";
-    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient();
+    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient(Constants.SomeUserName, Constants.SomeUserPinCode);
+    private readonly HttpClient _anotherClient = apiFixture.CreateAuthenticatedClient(Constants.AnotherUserName, Constants.AnotherUserPinCode);
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -87,12 +88,33 @@ public class BookControllerTests(ApiFixture apiFixture)
     }
 
     [Fact]
+    public async Task UpdateBookDetailsByAnotherUser_ReturnsHttpForbidden()
+    {
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
+        Assert.NotNull(bookDto);
+        bookDto.DocumentDetails.Title = "RandomGarbageTitle";
+        var response = await _anotherClient.PutAsync($"books/{bookDto.DocumentDetails.Id}", JsonContent.Create(bookDto));
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        apiFixture.Cleanup();
+    }
+
+    [Fact]
     public async Task DeleteBook_ReturnsHttpOk()
     {
         var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
         Assert.NotNull(bookDto);
         var response = await _client.DeleteAsync($"books/{bookDto.DocumentDetails.Id}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteBookByAnotherUser_ReturnsHttpForbidden()
+    {
+        var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);
+        Assert.NotNull(bookDto);
+        var response = await _anotherClient.DeleteAsync($"books/{bookDto.DocumentDetails.Id}");
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        apiFixture.Cleanup();
     }
 
     [Fact]

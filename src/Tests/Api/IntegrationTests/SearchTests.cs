@@ -7,7 +7,7 @@ namespace BookManager.Tests.Api.IntegrationTests;
 [Collection("Api collection")]
 public class SearchTests(ApiFixture apiFixture)
 {
-    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient();
+    private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient(Constants.SomeUserName, Constants.SomeUserPinCode);
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]

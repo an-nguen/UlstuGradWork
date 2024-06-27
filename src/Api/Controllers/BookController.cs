@@ -1,4 +1,5 @@
 using BookManager.Application.Common.DTOs;
+using BookManager.Application.Common.Exceptions;
 using BookManager.Domain.Entities;
 using BrunoZell.ModelBinding;
 using LinqKit;
@@ -96,11 +97,13 @@ public class BookController(
 
     [HttpPost]
     [Authorize]
-    public async Task<BookDto> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata,
+    public async Task<IActionResult> AddBook([ModelBinder(BinderType = typeof(JsonModelBinder))] BookMetadataDto bookMetadata,
         IFormFile file)
     {
         await using var stream = file.OpenReadStream();
-        return await service.AddBookAsync(stream, bookMetadata);
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return Forbid();
+        return Ok(await service.AddBookAsync(stream, bookMetadata, user.Id));
     }
 
     [HttpPost]
@@ -109,7 +112,7 @@ public class BookController(
     public async Task<IActionResult> CreateTicket()
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
-        if (user == null) return BadRequest();
+        if (user == null) return Forbid();
         var ticket = await service.CreateTicketAsync(user.Id);
         return Ok(ticket);
     }
@@ -129,7 +132,7 @@ public class BookController(
     public async Task<IActionResult> UpdateLastViewedPage(Guid bookId, [FromBody] LastViewedPageUpdateRequest request)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
-        if (user == null) return BadRequest();
+        if (user == null) return Forbid();
         await service.UpdateLastViewedPageAsync(request.PageNumber, user.Id, bookId);
         return Ok();
     }
@@ -137,9 +140,21 @@ public class BookController(
     [HttpPut]
     [Authorize]
     [Route("{id:guid}")]
-    public async Task<BookDto> UpdateBookDetails(Guid id, [FromBody] BookDetailsUpdateDto details)
+    public async Task<IActionResult> UpdateBookDetails(Guid id, [FromBody] BookDetailsUpdateDto details)
     {
-        return await service.UpdateBookDetailsAsync(id, details);
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return Forbid();
+        IActionResult result;
+        try
+        {
+            var updatedBook = await service.UpdateBookDetailsAsync(id, details, user.Id);
+            result = Ok(updatedBook);
+        }
+        catch (ForbiddenException)
+        {
+            result = Forbid();
+        }
+        return result;
     }
 
     [HttpDelete]
@@ -147,8 +162,19 @@ public class BookController(
     [Route("{id:guid}")]
     public async Task<IActionResult> DeleteBook(Guid id)
     {
-        await service.DeleteBookAsync(id);
-        return Ok();
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return Forbid();
+        IActionResult result;
+        try
+        {
+            await service.DeleteBookAsync(id, user.Id);
+            result = Ok();
+        }
+        catch (ForbiddenException)
+        {
+            result = Forbid();
+        }
+        return result;
     }
 
     private string GetImageUrl(Guid id)

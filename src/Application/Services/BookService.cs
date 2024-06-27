@@ -82,7 +82,7 @@ internal sealed class BookService(
         return book?.ToDto();
     }
 
-    public async Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata)
+    public async Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata, Guid userId)
     {
         var id = Guid.NewGuid();
         var filename = $"{id}-{bookMetadata.Filename}";
@@ -106,7 +106,9 @@ internal sealed class BookService(
             PageCount = CountNumberOfPages(fileInfo.FullName),
             Authors = bookMetadata.Authors == null || !bookMetadata.Authors.Any()
                 ? bookFileHandler.GetAuthorList(bookFileStream).ToArray()
-                : bookMetadata.Authors.ToArray()
+                : bookMetadata.Authors.ToArray(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
+            OwnerId = userId,
         };
         var entry = dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
@@ -120,15 +122,19 @@ internal sealed class BookService(
         return document.ToDto();
     }
 
-    public async Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details)
+    public async Task<BookDto> UpdateBookDetailsAsync(Guid id, BookDetailsUpdateDto details, Guid userId)
     {
         var found = await dbContext.Books.FindAsync([id]) ?? throw new EntityNotFoundException();
+        if (found.OwnerId != userId)
+            throw new ForbiddenException();
+
         found.Description = details.Description;
         found.Title = details.Title;
         found.PublisherName = details.PublisherName;
         found.Isbn = details.Isbn;
         found.Authors = details.Authors?.ToArray();
         found.Tags = details.Tags?.ToArray();
+        found.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
         var updatedEntityEntry = dbContext.Books.Update(found);
         await dbContext.SaveChangesAsync();
@@ -172,10 +178,12 @@ internal sealed class BookService(
         return book.ThumbnailFilename == null ? null : fileStorage.GetFileStream(book.ThumbnailFilename);
     }
 
-    public async Task DeleteBookAsync(Guid id)
+    public async Task DeleteBookAsync(Guid id, Guid userId)
     {
         var document = await dbContext.Books.FindAsync([id])
             ?? throw new EntityNotFoundException();
+        if (document.OwnerId != userId)
+            throw new ForbiddenException();
         dbContext.Books.Remove(document);
         await dbContext.SaveChangesAsync();
         fileStorage.DeleteFile(document.Filename, document.ThumbnailFilename);
