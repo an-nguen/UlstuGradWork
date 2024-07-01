@@ -1,16 +1,9 @@
-using System.Linq.Expressions;
 using BookManager.Application.Common.DTOs;
 
 namespace BookManager.Application.Common.Interfaces.Services;
 
-public interface IBookService
+public interface IBookService : IPageableService<Book, BookDto>
 {
-    public Task<PageDto<BookDto>> GetPageAsync(
-        PageRequestDto request,
-        Expression<Func<Book, bool>>? predicate = null,
-        User? user = null
-        );
-
     public Task<BookDto?> GetByIdAsync(Guid bookId, Guid? userId = null);
 
     public Task<BookDto> AddBookAsync(Stream fileStream, BookMetadataDto bookMetadata, Guid userId);

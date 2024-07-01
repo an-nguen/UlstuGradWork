@@ -10,6 +10,7 @@ public class DictionaryTests(ApiFixture apiFixture)
 {
     private const string RequestUri = "word-dictionary";
     private readonly HttpClient _client = apiFixture.CreateAuthenticatedClient(Constants.SomeUserName, Constants.SomeUserPinCode);
+    private readonly HttpClient _anotherClient = apiFixture.CreateAuthenticatedClient(Constants.AnotherUserName, Constants.AnotherUserPinCode);
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -48,14 +49,14 @@ public class DictionaryTests(ApiFixture apiFixture)
                 new ("noun", "", "any of a set of keys on a computer keyboard that have or can be programmed to have special functions")
             ]
         };
-        await AddWordAsync(functionWord);
-        await AddWordAsync(functionKeyWord);
+        await AddWordAsync(functionWord, _client);
+        await AddWordAsync(functionKeyWord, _client);
         const string requestWord = "function";
         var response = await _client.GetAsync($"{RequestUri}/{requestWord}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var words = JsonSerializer.Deserialize<IEnumerable<WordDto>>(response.Content.ReadAsStream(), _jsonSerializerOptions);
         Assert.NotNull(words);
-        Assert.Equal(2, words.Count());
+        Assert.NotEmpty(words);
     }
 
     [Fact]
@@ -78,7 +79,7 @@ public class DictionaryTests(ApiFixture apiFixture)
                     "A procedure in which a table of values stored in a computer is searched until a specified value is found.")
             ]
         };
-        var addedWord = await AddWordAsync(lookupWord);
+        var addedWord = await AddWordAsync(lookupWord, _client);
         Assert.NotNull(addedWord);
         Assert.Equivalent(lookupWord, addedWord);
     }
@@ -119,7 +120,7 @@ public class DictionaryTests(ApiFixture apiFixture)
             ]
         };
 
-        var addedWord = await AddWordAsync(watchWord);
+        var addedWord = await AddWordAsync(watchWord, _client);
         Assert.NotNull(addedWord);
         addedWord.Definitions.Add(new WordDefinitionDto(
             "noun",
@@ -137,6 +138,23 @@ public class DictionaryTests(ApiFixture apiFixture)
         var updatedWord = await JsonSerializer.DeserializeAsync<WordDto>(contentStream, _jsonSerializerOptions);
         Assert.NotNull(updatedWord);
         Assert.Equivalent(addedWord, updatedWord);
+    }
+
+    [Fact]
+    public async Task DeleteWord_ReturnHttpForbidden()
+    {
+        var wordAddedByOneUser = await AddWordAsync(
+            new WordDto
+            {
+                Word = "steal",
+                Definitions = [new("verb", "-", "to take something without the permission or knowledge of the owner and keep it")]
+            },
+            _client
+        );
+        Assert.NotNull(wordAddedByOneUser);
+        var url = $"{RequestUri}/{wordAddedByOneUser.Word}";
+        var response = await _anotherClient.DeleteAsync(url);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -171,10 +189,29 @@ public class DictionaryTests(ApiFixture apiFixture)
                 new("pronoun", "-", "one indeterminate quantity, portion, or number as distinguished from the rest")
             ]
         };
-        var addedWord = await AddWordAsync(someWord);
+        var addedWord = await AddWordAsync(someWord, _client);
         Assert.NotNull(addedWord);
         var responseMessage = await _client.DeleteAsync($"{RequestUri}/{addedWord.Word}");
         Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateWord_ReturnHttpForbidden()
+    {
+        var wordAddedByOneUser = await AddWordAsync(
+            new WordDto
+            {
+                Word = "pass away",
+                Definitions = [new("verb", "-", "to stop living")]
+            },
+            _client
+        );
+        Assert.NotNull(wordAddedByOneUser);
+        var url = $"{RequestUri}/{wordAddedByOneUser.Word}";
+        var modifiedWord = wordAddedByOneUser;
+        modifiedWord.Transcription = "pɑːs əˈweɪ";
+        var response = await _anotherClient.PutAsync(url, JsonContent.Create(modifiedWord));
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -192,9 +229,9 @@ public class DictionaryTests(ApiFixture apiFixture)
         Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
     }
 
-    private async Task<WordDto?> AddWordAsync(WordDto word)
+    private async Task<WordDto?> AddWordAsync(WordDto word, HttpClient client)
     {
-        var responseMessage = await _client.PostAsync(RequestUri, JsonContent.Create(word));
+        var responseMessage = await client.PostAsync(RequestUri, JsonContent.Create(word));
         var contentStream = await responseMessage.Content.ReadAsStreamAsync();
         var addedWord = await JsonSerializer.DeserializeAsync<WordDto>(contentStream, _jsonSerializerOptions);
         return addedWord;

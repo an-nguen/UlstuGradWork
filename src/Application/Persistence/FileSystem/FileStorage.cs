@@ -19,6 +19,11 @@ public sealed class FileStorage : IFileStorage, IDisposable
         InitDirectory();
     }
 
+    public void Dispose()
+    {
+        _hasher.Dispose();
+    }
+
     public FileStream GetFileStream(string filename)
     {
         var filepath = Path.Combine(_options.DirectoryPath, filename);
@@ -70,10 +75,5 @@ public sealed class FileStorage : IFileStorage, IDisposable
     private void InitDirectory()
     {
         Directory.CreateDirectory(_options.DirectoryPath);
-    }
-
-    public void Dispose()
-    {
-        _hasher.Dispose();
     }
 }

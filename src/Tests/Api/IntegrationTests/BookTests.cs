@@ -155,7 +155,7 @@ public class BookControllerTests(ApiFixture apiFixture)
     }
 
     [Fact]
-    public async Task UpdateLastViewedPage()
+    public async Task UpdateLastViewedPage_ReturnsHttpOk()
     {
         // * Add book
         var bookDto = await AddBookAsync(_client, _jsonSerializerOptions, Constants.TestFilepath);

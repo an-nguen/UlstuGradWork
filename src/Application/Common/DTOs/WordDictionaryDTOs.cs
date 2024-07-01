@@ -1,4 +1,5 @@
-﻿using Tapper;
+﻿using NodaTime;
+using Tapper;
 
 namespace BookManager.Application.Common.DTOs;
 
@@ -34,6 +35,8 @@ public sealed class WordDto
             LanguageCode = LanguageCode,
             Stems = Stems,
             Definitions = Definitions.Select(d => d.ToEntity()).ToList(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
+            UpdatedAt = SystemClock.Instance.GetCurrentInstant(),
         };
     }
 }

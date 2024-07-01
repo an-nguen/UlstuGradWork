@@ -1,7 +1,9 @@
-﻿using BookManager.Application.Common.DTOs;
+﻿using System.Linq.Expressions;
+using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
 using BookManager.Application.Common.Interfaces.Services;
 using FluentValidation;
+using NodaTime;
 
 namespace BookManager.Application.Services;
 
@@ -11,6 +13,45 @@ internal sealed class DictionaryService(
     IValidator<WordDto> validator
 ) : IWordDictionaryService
 {
+    private static readonly Dictionary<string, Expression<Func<DictionaryWord, object>>> SortOptions = new()
+    {
+        ["word"] = b => b.Word,
+    };
+
+    public async Task<PageDto<WordDto>> GetPageAsync(
+        PageRequestDto request,
+        Expression<Func<DictionaryWord, bool>>? predicate = null,
+        User? user = null
+    )
+    {
+        int normalizedPageNumber = PageDto<WordDto>.GetNormalizedPageNumber(request.PageNumber);
+        var query = dbContext.DictionaryWords.AsQueryable();
+        var totalItemCount = await query.CountAsync();
+
+        if (predicate != null)
+            query = query.Where(predicate);
+        if (user != null)
+            query = query.Where(wordDefinition => wordDefinition.UserId == user.Id);
+
+        if (!string.IsNullOrEmpty(request.SortBy) && SortOptions.TryGetValue(request.SortBy, out var expr))
+        {
+            query = request.SortOrder == SortOrder.Asc ? query.OrderBy(expr) : query.OrderByDescending(expr);
+        }
+
+        query = query.Skip((normalizedPageNumber - 1) * request.PageSize)
+            .Take(request.PageSize);
+        var pageCount = PageDto<WordDto>.CountPage(totalItemCount, request.PageSize);
+        var items = await query.Select(entity => entity.ToDto())
+            .ToListAsync();
+        return PageDto<WordDto>.Builder.Create()
+            .SetPageNumber(normalizedPageNumber)
+            .SetPageSize(items.Count)
+            .SetTotalItemCount(totalItemCount)
+            .SetPageCount(pageCount)
+            .SetItems(items)
+            .Build();
+    }
+
     public IEnumerable<string> GetThirdPartyProviderNames()
     {
         return extDictProvider.Select(provider => provider.ProviderName).ToList();
@@ -31,21 +72,24 @@ internal sealed class DictionaryService(
         return await provider.GetDefinitionAsync(word);
     }
 
-    public async Task<WordDto> AddWordAsync(WordDto word)
+    public async Task<WordDto> AddWordAsync(WordDto word, User user)
     {
         var validationResult = await validator.ValidateAsync(word);
-        if (!validationResult.IsValid) throw new ArgumentException("Invalid word", nameof(word));
-        var entry = dbContext.DictionaryWords.Add(word.ToEntity());
+        if (!validationResult.IsValid) throw new ArgumentException("The word validation failed.", nameof(word));
+        var convertedDto = word.ToEntity();
+        convertedDto.UserId = user.Id;
+        var entry = dbContext.DictionaryWords.Add(convertedDto);
         await dbContext.SaveChangesAsync();
         return entry.Entity.ToDto();
     }
 
-    public async Task<WordDto> UpdateWordAsync(string wordId, WordDto word)
+    public async Task<WordDto> UpdateWordAsync(string wordId, WordDto word, User user)
     {
         var validationResult = await validator.ValidateAsync(word);
-        if (!validationResult.IsValid) throw new ArgumentException("Invalid word", nameof(word));
+        if (!validationResult.IsValid) throw new ArgumentException("The word validation failed.", nameof(word));
         var foundEntity = await dbContext.DictionaryWords.FindAsync(wordId)
                           ?? throw new EntityNotFoundException();
+        if (foundEntity.UserId != user.Id) throw new ForbiddenException();
         foundEntity.Transcription = word.Transcription;
         foundEntity.LanguageCode = word.LanguageCode;
         foundEntity.Definitions.Clear();
@@ -53,16 +97,17 @@ internal sealed class DictionaryService(
         {
             foundEntity.Definitions.Add(wordDef.ToEntity());
         }
+        foundEntity.UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
         var entry = dbContext.DictionaryWords.Update(foundEntity);
         await dbContext.SaveChangesAsync();
         return entry.Entity.ToDto();
     }
 
-    public async Task DeleteWordAsync(string word)
+    public async Task DeleteWordAsync(string word, User user)
     {
-        var foundEntity = await dbContext.DictionaryWords.FindAsync(word);
-        if (foundEntity == null) throw new EntityNotFoundException();
+        var foundEntity = await dbContext.DictionaryWords.FindAsync(word) ?? throw new EntityNotFoundException();
+        if (foundEntity.UserId != user.Id) throw new ForbiddenException();
         dbContext.DictionaryWords.Remove(foundEntity);
         await dbContext.SaveChangesAsync();
     }
