@@ -37,7 +37,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { BookGridViewComponent } from '@core/components/book-grid-view/book-grid-view.component';
 import { BookListViewComponent } from '@core/components/book-list-view/book-list-view.component';
@@ -58,7 +58,7 @@ enum ViewMode {
   styleUrl: './library-explorer.component.scss',
   standalone: true,
   imports: [
-    InfiniteScrollModule,
+    InfiniteScrollDirective,
     LoadingSpinnerOverlayComponent,
     MatFormField,
     MatIcon,
@@ -163,6 +163,10 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     return this._selectedSortOrder;
   }
 
+  public get loading(): boolean {
+    return this.isLoading();
+  }
+
   public set selectedSortOption(value: SortOption) {
     this._selectedSortOption = value;
     this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
@@ -171,6 +175,15 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   public set selectedSortOrder(value: SortOrder) {
     this._selectedSortOrder = value;
     this._loadPageOfBookList(1, this.pageSize() * this.currentPageNumber());
+  }
+
+  public set loading(value: boolean) {
+    this.isLoading.set(value);
+    if (!value) {
+      this.searchFormControl.disable();
+    } else {
+      this.searchFormControl.enable();
+    }
   }
 
   public onSearchInputFocus(): void {
@@ -226,7 +239,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(
         mergeMap((data: BookEditDialogData | undefined) => {
-          this.isLoading.set(true);
+          this.loading = true;
           if (!data) return of(null);
           const bookMetadata: BookMetadataDto = {
             ...data.bookDetails,
@@ -238,7 +251,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
         }),
         finalize(() => {
           this._resetFileInput();
-          this.isLoading.set(false);
+          this.loading = false;
         }),
         takeUntilDestroyed(this._destroyRef),
       )

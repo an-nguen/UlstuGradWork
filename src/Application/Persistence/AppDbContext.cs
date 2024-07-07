@@ -44,6 +44,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<DictionaryWord>()
             .Navigation(w => w.Definitions)
             .AutoInclude();
+        modelBuilder.Entity<DictionaryWord>()
+            .Navigation(w => w.User)
+            .AutoInclude();
         modelBuilder.ApplyConfiguration(new TotalReadingTimeConfiguration());
     }
 

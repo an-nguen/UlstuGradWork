@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
+import { PageDto, PageRequestDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -14,6 +14,15 @@ export class DictionaryService {
   constructor(
     private readonly _httpClient: HttpClient,
   ) {
+  }
+
+  public getPage(pageRequest: PageRequestDto): Observable<PageDto<WordDto>> {
+    const params = new HttpParams()
+      .set('pageNumber', pageRequest.pageNumber)
+      .set('pageSize', pageRequest.pageSize)
+      .set('sortBy', pageRequest.sortBy ?? '')
+      .set('sortOrder', pageRequest.sortOrder);
+    return this._httpClient.get<PageDto<WordDto>>(`${this._url}`, { params });
   }
 
   public listThirdPartyProviders(): Observable<string[]> {
@@ -35,12 +44,12 @@ export class DictionaryService {
     return this._httpClient.post<WordDto>(this._url, word);
   }
 
-  public updateWord(word: string, updateRequest: WordDto): Observable<WordDto> {
-    return this._httpClient.put<WordDto>(`${this._url}/${word}`, updateRequest);
+  public updateWord(id: string, updateRequest: WordDto): Observable<WordDto> {
+    return this._httpClient.put<WordDto>(`${this._url}/${id}`, updateRequest);
   }
 
-  public deleteWord(word: string): Observable<void> {
-    return this._httpClient.delete<void>(`${this._url}/${word}`);
+  public deleteWord(id: string): Observable<void> {
+    return this._httpClient.delete<void>(`${this._url}/${id}`);
   }
 
 }

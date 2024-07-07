@@ -13,6 +13,7 @@ import { debounceTime, fromEvent } from 'rxjs';
 import { MatActionList, MatListItem } from '@angular/material/list';
 import { MatTooltip } from '@angular/material/tooltip';
 import { BookListItemComponent } from '@core/components/book-list-item/book-list-item.component';
+import { countVisibleItems } from '@shared/utils';
 
 @Component({
   selector: 'app-book-list-view',
@@ -30,6 +31,10 @@ import { BookListItemComponent } from '@core/components/book-list-item/book-list
 })
 export class BookListViewComponent implements AfterViewInit {
 
+  public readonly RESIZE_DEBOUNCE_TIME = 200;
+  public readonly LIST_ITEM_HEIGHT_PX = 130;
+  public readonly LIST_ITEM_GAP_PX = 14;
+
   public showEditButton = input(true);
   public showDeleteButton = input(true);
   public books = input.required<BookDto[]>();
@@ -39,10 +44,6 @@ export class BookListViewComponent implements AfterViewInit {
   public editItemEvent = output<BookDto>();
   public deleteItemEvent = output<BookDto>();
   public numOfVisibleItemsChangeEvent = output<number>();
-
-  protected readonly RESIZE_DEBOUNCE_TIME = 200;
-  protected readonly LIST_ITEM_HEIGHT_PX = 130;
-  protected readonly LIST_ITEM_GAP_PX = 14;
 
   constructor(
     private readonly _hostElement: ElementRef,
@@ -57,20 +58,19 @@ export class BookListViewComponent implements AfterViewInit {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe(() =>
-        this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems()),
+        this._emitNumOfVisibleItems(),
       );
-    this.numOfVisibleItemsChangeEvent.emit(this._countVisibleItems());
-    console.log(this._countVisibleItems());
+    this._emitNumOfVisibleItems();
   }
 
   public handleOpenItemEvent(book: BookDto): void {
     this.openItemEvent.emit(book);
   }
-  
+
   public handleInfoItemEvent(book: BookDto): void {
     this.infoItemEvent.emit(book);
   }
-  
+
   public handleDeleteItemEvent(book: BookDto): void {
     this.deleteItemEvent.emit(book);
   }
@@ -79,12 +79,13 @@ export class BookListViewComponent implements AfterViewInit {
     this.editItemEvent.emit(book);
   }
 
-  private _countVisibleItems(): number {
-    const hostStyles = getComputedStyle(this._hostElement.nativeElement);
-    const height = parseInt(hostStyles.getPropertyValue('height'));
-    return Math.round(
-      height / (this.LIST_ITEM_HEIGHT_PX + this.LIST_ITEM_GAP_PX),
+  private _emitNumOfVisibleItems(): void {
+    const numberOfVisibleItems = countVisibleItems(
+      this._hostElement.nativeElement,
+      this.LIST_ITEM_HEIGHT_PX,
+      this.LIST_ITEM_GAP_PX
     );
+    this.numOfVisibleItemsChangeEvent.emit(numberOfVisibleItems);
   }
 
 }

@@ -12,7 +12,7 @@ public interface IWordDictionaryService : IPageableService<DictionaryWord, WordD
 
     public Task<WordDto> AddWordAsync(WordDto word, User user);
 
-    public Task<WordDto> UpdateWordAsync(string wordId, WordDto word, User user);
+    public Task<WordDto> UpdateWordAsync(Guid id, WordDto word, User user);
 
-    public Task DeleteWordAsync(string word, User user);
+    public Task DeleteWordAsync(Guid id, User user);
 }

@@ -1,0 +1,18 @@
+<mat-action-list id="word-list"
+                 infiniteScroll
+                 [infiniteScrollDistance]="1"
+                 (scrolled)="emitScrolledEvent()"
+                 [style.gap.px]="LIST_ITEM_GAP_PX">
+  @for (word of words(); track $index) {
+    <button mat-list-item
+            class="word-list-item"
+            [style.height.px]="LIST_ITEM_HEIGHT_PX"
+            (click)="emitWordClickEvent(word)">
+      <div class="content">
+        <span class="word">{{ word.word }}</span>
+        <span class="source">local</span>
+        <span class="username">{{ word.username }}</span>
+      </div>
+    </button>
+  }
+</mat-action-list>

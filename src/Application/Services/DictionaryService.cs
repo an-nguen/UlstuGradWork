@@ -83,15 +83,16 @@ internal sealed class DictionaryService(
         return entry.Entity.ToDto();
     }
 
-    public async Task<WordDto> UpdateWordAsync(string wordId, WordDto word, User user)
+    public async Task<WordDto> UpdateWordAsync(Guid id, WordDto word, User user)
     {
         var validationResult = await validator.ValidateAsync(word);
         if (!validationResult.IsValid) throw new ArgumentException("The word validation failed.", nameof(word));
-        var foundEntity = await dbContext.DictionaryWords.FindAsync(wordId)
+        var foundEntity = await dbContext.DictionaryWords.FindAsync(id)
                           ?? throw new EntityNotFoundException();
         if (foundEntity.UserId != user.Id) throw new ForbiddenException();
         foundEntity.Transcription = word.Transcription;
         foundEntity.LanguageCode = word.LanguageCode;
+        foundEntity.Stems = word.Stems;
         foundEntity.Definitions.Clear();
         foreach (var wordDef in word.Definitions)
         {
@@ -104,9 +105,9 @@ internal sealed class DictionaryService(
         return entry.Entity.ToDto();
     }
 
-    public async Task DeleteWordAsync(string word, User user)
+    public async Task DeleteWordAsync(Guid id, User user)
     {
-        var foundEntity = await dbContext.DictionaryWords.FindAsync(word) ?? throw new EntityNotFoundException();
+        var foundEntity = await dbContext.DictionaryWords.FindAsync(id) ?? throw new EntityNotFoundException();
         if (foundEntity.UserId != user.Id) throw new ForbiddenException();
         dbContext.DictionaryWords.Remove(foundEntity);
         await dbContext.SaveChangesAsync();

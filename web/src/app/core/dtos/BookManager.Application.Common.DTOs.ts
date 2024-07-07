@@ -291,6 +291,14 @@ export type TranslationResponseDto = {
     translatedText: string;
 }
 
+/** Transpiled from BookManager.Application.Common.DTOs.UserDto */
+export type UserDto = {
+    /** Transpiled from System.Guid */
+    id: string;
+    /** Transpiled from string */
+    name: string;
+}
+
 /** Transpiled from BookManager.Application.Common.DTOs.UserAddRequest */
 export type UserAddRequest = {
     /** Transpiled from string */
@@ -313,14 +321,6 @@ export type UserDeleteRequest = {
     currentPINCode: string;
 }
 
-/** Transpiled from BookManager.Application.Common.DTOs.UserDto */
-export type UserDto = {
-    /** Transpiled from System.Guid */
-    id: string;
-    /** Transpiled from string */
-    name: string;
-}
-
 /** Transpiled from BookManager.Application.Common.DTOs.WordDefinitionDto */
 export type WordDefinitionDto = {
     /** Transpiled from string */
@@ -333,6 +333,8 @@ export type WordDefinitionDto = {
 
 /** Transpiled from BookManager.Application.Common.DTOs.WordDto */
 export type WordDto = {
+    /** Transpiled from System.Guid */
+    id?: string;
     /** Transpiled from string */
     word: string;
     /** Transpiled from string? */
@@ -343,5 +345,11 @@ export type WordDto = {
     stems?: string[];
     /** Transpiled from System.Collections.Generic.ICollection<BookManager.Application.Common.DTOs.WordDefinitionDto> */
     definitions: WordDefinitionDto[];
+    /** Transpiled from string? */
+    username?: string;
+    /** Transpiled from System.DateTimeOffset */
+    createdAt?: (Date | string);
+    /** Transpiled from System.DateTimeOffset */
+    updatedAt?: (Date | string);
 }
 

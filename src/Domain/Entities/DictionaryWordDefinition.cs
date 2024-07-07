@@ -4,7 +4,8 @@ namespace BookManager.Domain.Entities;
 
 public sealed class DictionaryWordDefinition
 {
-    [Key] public Guid Id { get; init; }
+    [Key]
+    public Guid Id { get; init; }
 
     [MaxLength(1024)]
     public required string SubjectName { get; init; }
@@ -14,7 +15,7 @@ public sealed class DictionaryWordDefinition
 
     public string PartOfSpeech { get; init; } = null!;
 
-    public string DictionaryWordId { get; init; } = null!;
+    public Guid WordId { get; init; }
 
     public DictionaryWord Word { get; init; } = null!;
 }

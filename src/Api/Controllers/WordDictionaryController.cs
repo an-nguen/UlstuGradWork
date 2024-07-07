@@ -24,15 +24,11 @@ public class WordDictionaryController(
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> GetPage(
-        [FromQuery] int pageNumber,
-        [FromQuery] int pageSize,
-        [FromQuery] string sortBy = "word",
-        [FromQuery] SortOrder sortOrder = SortOrder.Asc,
+        [FromQuery] PageRequestDto pageRequest,
         [FromQuery] bool showFromOtherUsers = false
     )
     {
         var user = !showFromOtherUsers ? await userManager.GetUserAsync(HttpContext.User) : null;
-        var pageRequest = new PageRequestDto(pageNumber, pageSize, sortBy, sortOrder);
         var page = await service.GetPageAsync(pageRequest, null, user);
         return Ok(page);
     }
@@ -105,7 +101,7 @@ public class WordDictionaryController(
     [HttpPut]
     [Authorize]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateWordAsync(string id, [FromBody] WordDto word)
+    public async Task<IActionResult> UpdateWordAsync(Guid id, [FromBody] WordDto word)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null) return Forbid();
@@ -134,7 +130,7 @@ public class WordDictionaryController(
     [HttpDelete]
     [Authorize]
     [Route("{id}")]
-    public async Task<IActionResult> DeleteWordAsync(string id)
+    public async Task<IActionResult> DeleteWordAsync(Guid id)
     {
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user == null) return Forbid();

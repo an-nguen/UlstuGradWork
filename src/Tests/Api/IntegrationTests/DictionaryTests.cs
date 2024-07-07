@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using BookManager.Application.Common.DTOs;
+using FluentAssertions;
 
 namespace BookManager.Tests.Api.IntegrationTests;
 
@@ -19,6 +20,7 @@ public class DictionaryTests(ApiFixture apiFixture)
     [Fact]
     public async Task FindWord_ReturnList()
     {
+        // Arrange
         var functionWord = new WordDto
         {
             Word = "function",
@@ -49,20 +51,23 @@ public class DictionaryTests(ApiFixture apiFixture)
                 new ("noun", "", "any of a set of keys on a computer keyboard that have or can be programmed to have special functions")
             ]
         };
+        var expectedStatusCode = HttpStatusCode.OK;
+        // Act
         await AddWordAsync(functionWord, _client);
         await AddWordAsync(functionKeyWord, _client);
         const string requestWord = "function";
         var response = await _client.GetAsync($"{RequestUri}/{requestWord}");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var words = JsonSerializer.Deserialize<IEnumerable<WordDto>>(response.Content.ReadAsStream(), _jsonSerializerOptions);
-        Assert.NotNull(words);
-        Assert.NotEmpty(words);
+        // Assert
+        response.StatusCode.Should().Be(expectedStatusCode);
+        var actualAddedWords = JsonSerializer.Deserialize<IEnumerable<WordDto>>(response.Content.ReadAsStream(), _jsonSerializerOptions);
+        actualAddedWords.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
     public async Task AddWord_ReturnWord()
     {
-        var lookupWord = new WordDto
+        // Arrange
+        var expectedLookupWord = new WordDto
         {
             Word = "lookup",
             Transcription = "ˈlu\u0307k-ˌəp",
@@ -79,14 +84,23 @@ public class DictionaryTests(ApiFixture apiFixture)
                     "A procedure in which a table of values stored in a computer is searched until a specified value is found.")
             ]
         };
-        var addedWord = await AddWordAsync(lookupWord, _client);
-        Assert.NotNull(addedWord);
-        Assert.Equivalent(lookupWord, addedWord);
+        // Act
+        var actualAddedWord = await AddWordAsync(expectedLookupWord, _client);
+        // Assert
+        actualAddedWord.Should().NotBeNull()
+            .And
+            .BeEquivalentTo(expectedLookupWord, options => options
+                .Excluding(w => w.Id)
+                .Excluding(w => w.CreatedAt)
+                .Excluding(w => w.UpdatedAt)
+                .Excluding(w => w.Username)
+            );
     }
 
     [Fact]
     public async Task AddWord_ReturnHttpBadRequest()
     {
+        // Arrange
         var emptyWord = new WordDto
         {
             Word = "",
@@ -95,13 +109,17 @@ public class DictionaryTests(ApiFixture apiFixture)
             Stems = null,
             Definitions = []
         };
-        var responseMessage = await _client.PostAsync("word-dictionary", JsonContent.Create(emptyWord));
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        var expectedStatusCode = HttpStatusCode.BadRequest;
+        // Act
+        var actualResponseMessage = await _client.PostAsync("word-dictionary", JsonContent.Create(emptyWord));
+        // Assert
+        actualResponseMessage.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
     public async Task UpdateWord_ReturnWord()
     {
+        // Arrange
         var watchWord = new WordDto
         {
             Word = "watch",
@@ -119,30 +137,38 @@ public class DictionaryTests(ApiFixture apiFixture)
                 )
             ]
         };
-
+        // Act
         var addedWord = await AddWordAsync(watchWord, _client);
-        Assert.NotNull(addedWord);
-        addedWord.Definitions.Add(new WordDefinitionDto(
+        addedWord.Should().NotBeNull();
+        addedWord!.Definitions.Add(new WordDefinitionDto(
             "noun",
             "-",
             "the act of keeping awake to guard, protect, or attend"
         ));
-        addedWord.Definitions.Add(new WordDefinitionDto(
+        addedWord!.Definitions.Add(new WordDefinitionDto(
             "noun",
             "-",
             "any of the definite divisions of the night made by ancient peoples"
         ));
 
-        var responseMessage = await _client.PutAsync($"{RequestUri}/{addedWord.Word}", JsonContent.Create(addedWord));
+        var responseMessage = await _client.PutAsync($"{RequestUri}/{addedWord.Id}", JsonContent.Create(addedWord));
         var contentStream = await responseMessage.Content.ReadAsStreamAsync();
-        var updatedWord = await JsonSerializer.DeserializeAsync<WordDto>(contentStream, _jsonSerializerOptions);
-        Assert.NotNull(updatedWord);
-        Assert.Equivalent(addedWord, updatedWord);
+        var actualUpdatedWord = JsonSerializer.Deserialize<WordDto>(contentStream, _jsonSerializerOptions);
+        // Assert
+        actualUpdatedWord.Should().NotBeNull()
+            .And
+            .BeEquivalentTo(addedWord, options => options
+                .Excluding(w => w.Id)
+                .Excluding(w => w.CreatedAt)
+                .Excluding(w => w.UpdatedAt)
+                .Excluding(w => w.Username)
+            );
     }
 
     [Fact]
     public async Task DeleteWord_ReturnHttpForbidden()
     {
+        // Arrange
         var wordAddedByOneUser = await AddWordAsync(
             new WordDto
             {
@@ -151,15 +177,18 @@ public class DictionaryTests(ApiFixture apiFixture)
             },
             _client
         );
-        Assert.NotNull(wordAddedByOneUser);
-        var url = $"{RequestUri}/{wordAddedByOneUser.Word}";
+        var expectedStatusCode = HttpStatusCode.Forbidden;
+        // Act
+        var url = $"{RequestUri}/{wordAddedByOneUser!.Id}";
         var response = await _anotherClient.DeleteAsync(url);
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        // Assert
+        response.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
     public async Task UpdateWord_ReturnHttpNotFound()
     {
+        // Arrange
         var notExistentWord = new WordDto
         {
             Word = "come on",
@@ -168,16 +197,19 @@ public class DictionaryTests(ApiFixture apiFixture)
             Stems = null,
             Definitions = []
         };
+        var expectedStatusCode = HttpStatusCode.NotFound;
+        // Act
         var responseMessage = await _client.PutAsync(
-            $"{RequestUri}/{notExistentWord.Word}",
+            $"{RequestUri}/{notExistentWord.Id}",
             JsonContent.Create(notExistentWord)
         );
-        Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
+        responseMessage.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
     public async Task DeleteWord_ReturnHttpOk()
     {
+        // Arrange
         var someWord = new WordDto
         {
             Word = "some",
@@ -189,15 +221,18 @@ public class DictionaryTests(ApiFixture apiFixture)
                 new("pronoun", "-", "one indeterminate quantity, portion, or number as distinguished from the rest")
             ]
         };
+        var expectedStatusCode = HttpStatusCode.OK;
+        // Act
         var addedWord = await AddWordAsync(someWord, _client);
-        Assert.NotNull(addedWord);
-        var responseMessage = await _client.DeleteAsync($"{RequestUri}/{addedWord.Word}");
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        var responseMessage = await _client.DeleteAsync($"{RequestUri}/{addedWord!.Id}");
+        // Assert
+        responseMessage.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
     public async Task UpdateWord_ReturnHttpForbidden()
     {
+        // Arrange
         var wordAddedByOneUser = await AddWordAsync(
             new WordDto
             {
@@ -206,17 +241,20 @@ public class DictionaryTests(ApiFixture apiFixture)
             },
             _client
         );
-        Assert.NotNull(wordAddedByOneUser);
-        var url = $"{RequestUri}/{wordAddedByOneUser.Word}";
+        var expectedStatusCode = HttpStatusCode.Forbidden;
+        var url = $"{RequestUri}/{wordAddedByOneUser!.Id}";
         var modifiedWord = wordAddedByOneUser;
         modifiedWord.Transcription = "pɑːs əˈweɪ";
-        var response = await _anotherClient.PutAsync(url, JsonContent.Create(modifiedWord));
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        // Act
+        var actualResponse = await _anotherClient.PutAsync(url, JsonContent.Create(modifiedWord));
+        // Assert
+        actualResponse.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
     public async Task DeleteWord_ReturnHttpNotFound()
     {
+        // Arrange
         var anotherWord = new WordDto
         {
             Word = "another",
@@ -225,8 +263,11 @@ public class DictionaryTests(ApiFixture apiFixture)
             Stems = null,
             Definitions = []
         };
-        var responseMessage = await _client.DeleteAsync($"{RequestUri}/{anotherWord.Word}");
-        Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
+        var expectedStatusCode = HttpStatusCode.NotFound;
+        // Act
+        var actualResponse = await _client.DeleteAsync($"{RequestUri}/{anotherWord.Id}");
+        // Assert
+        actualResponse.StatusCode.Should().Be(expectedStatusCode);
     }
 
     private async Task<WordDto?> AddWordAsync(WordDto word, HttpClient client)

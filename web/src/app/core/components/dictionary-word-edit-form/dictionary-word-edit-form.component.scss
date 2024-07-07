@@ -1,0 +1,22 @@
+:host, .root, .general {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+#definition-table {
+  mat-form-field {
+    padding: 1em 0;
+    width: 100%;
+  }
+}
+
+.title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  h2 {
+    flex: 1;
+  }
+}

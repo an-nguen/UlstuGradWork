@@ -6,6 +6,8 @@ namespace BookManager.Domain.Entities;
 public sealed class DictionaryWord
 {
     [Key]
+    public Guid Id { get; init; }
+
     public string Word { get; init; } = null!;
 
     public string? Transcription { get; set; } = string.Empty;

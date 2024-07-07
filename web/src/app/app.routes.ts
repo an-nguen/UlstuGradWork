@@ -23,6 +23,12 @@ export const routes: Routes = [
       .then(m => m.BookCollectionsComponent)
   },
   {
+    path: CONSTANTS.ENDPOINTS.DICTIONARY,
+    canActivate: [authGuard],
+    loadComponent: () => import('@core/pages/dictionary-explorer/dictionary-explorer.component')
+      .then(m => m.DictionaryExplorerComponent)
+  },
+  {
     path: CONSTANTS.ENDPOINTS.VIEWER,
     canActivate: [authGuard],
     loadComponent: () => import('@core/pages/book-viewer/book-viewer.component')

@@ -33,6 +33,11 @@ export class MainLayoutComponent {
       name: 'Коллекции',
       link: CONSTANTS.ENDPOINTS.BOOK_COLLECTIONS,
     },
+    {
+      iconCode: 'abc',
+      name: 'Словарь',
+      link: CONSTANTS.ENDPOINTS.DICTIONARY
+    }
   ];
 
   public isExpanded = false;

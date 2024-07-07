@@ -20,16 +20,21 @@ public sealed record WordDefinitionDto(string PartOfSpeech, string SubjectName, 
 [TranspilationSource]
 public sealed class WordDto
 {
+    public Guid? Id { get; init; }
     public required string Word { get; set; }
     public string? Transcription { get; set; }
     public string? LanguageCode { get; set; }
     public string[]? Stems { get; set; }
     public ICollection<WordDefinitionDto> Definitions { get; set; } = [];
+    public string? Username { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     public DictionaryWord ToEntity()
     {
         return new DictionaryWord
         {
+            Id = Id != null ? Id.Value : Guid.Empty,
             Word = Word,
             Transcription = Transcription,
             LanguageCode = LanguageCode,
@@ -47,11 +52,15 @@ public static class DictionaryWordExtension
     {
         return new WordDto
         {
+            Id = word.Id,
             Word = word.Word,
             Transcription = word.Transcription,
             LanguageCode = word.LanguageCode,
             Stems = word.Stems,
-            Definitions = word.Definitions.Select(wordDef => wordDef.ToDto()).ToList()
+            Definitions = word.Definitions.Select(wordDef => wordDef.ToDto()).ToList(),
+            Username = word.User?.UserName,
+            CreatedAt = word.CreatedAt.ToDateTimeOffset(),
+            UpdatedAt = word.UpdatedAt?.ToDateTimeOffset(),
         };
     }
 

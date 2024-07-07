@@ -1,0 +1,69 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+
+    &.list-container {
+      min-width: 240px;
+      max-width: 360px;
+      flex: 1 0 auto;
+
+      .search-container {
+        flex-direction: row;
+        align-items: center;
+        gap: 1em;
+        flex: 0 1 auto;
+
+        mat-form-field {
+          flex: 1;
+        }
+      }
+    }
+    
+    &.word-info-container {
+      flex: 3 1 auto;
+      font: 1em;
+      line-height: 1.5em;
+
+      ul, li {
+        font: inherit;
+      }
+
+      .word-not-selected {
+        font-style: italic;
+        text-align: center;
+      }
+
+      .word-title-container {
+        display: flex;
+        flex-direction: row;
+
+        h2 {
+          flex: 1 1 auto;
+        }
+      }
+
+      .pronunciation {
+        font-style: italic;
+      }
+
+      .definition-entry {
+        display: flex;
+        flex: 1;
+        flex-direction: row;
+        gap: 1em;
+      }
+
+      .part-of-speech {
+        font-style: italic;
+        font-weight: 600;
+      }
+    }
+  }
+}
+

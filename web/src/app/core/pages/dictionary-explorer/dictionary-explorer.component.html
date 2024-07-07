@@ -1,0 +1,75 @@
+<div class="list-container">
+  <div class="search-container">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Поиск</mat-label>
+      <input matInput [formControl]="searchFormCtrl">
+    </mat-form-field>
+    @if (!isCreateFormOpened() && !selectedWord()) {
+      <button mat-icon-button
+              [matTooltip]="WORD_ADD_TOOLTIP_MESSAGE"
+              (click)="setDictWordEditFormVisibility(true)">
+        <mat-icon>add</mat-icon>
+      </button>
+    }
+  </div>
+  <app-dictionary-word-list [words]="wordList()"
+                            (wordClickEvent)="showWordDefinition($event)"
+                            (numOfVisibleItemsChangeEvent)="updatePageSize($event)">
+  </app-dictionary-word-list>
+</div>
+<div class="word-info-container">
+  @if (isCreateFormOpened()) {
+    <app-dictionary-word-edit-form [word]="selectedWord()"
+                                   (saveEvent)="saveWord($event)"
+                                   (closeEvent)="setDictWordEditFormVisibility(false)">
+    </app-dictionary-word-edit-form>
+  } @else {
+    @if (selectedWord(); as word) {
+      <div class="word-title-container">
+        <h2>
+          {{ word.word }}
+        </h2>
+        <button mat-icon-button
+                (click)="setDictWordEditFormVisibility(true, word)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button
+                (click)="deleteDictionaryWord(word)">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button
+                (click)="setDictWordEditFormVisibility(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <span class="pronunciation">{{ word.transcription ?? '-' }}</span>
+      <span class="languageCode">Код языка: {{ word.languageCode ?? '-' }}</span>
+      @if (word.stems && word.stems.length > 0) {
+        <h3>Основы слова</h3>
+        <ul>
+          @for (stem of word.stems; track $index) {
+            <li>
+              <span class="stem">{{ stem }}</span>
+            </li>
+          }
+        </ul>
+      }
+      @if (word.definitions && word.definitions.length > 0) {
+        <h3>Определения</h3>
+        <ul>
+          @for (definition of word.definitions; track $index) {
+            <li class="definition-entry">
+              <span class="part-of-speech">{{ definition.partOfSpeech }}</span>
+              <span class="subject">{{ definition.subjectName }}</span>
+              <span class="definition">{{ definition.definition }}</span>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <span class="word-not-selected">
+        {{ WORD_NOT_SELECTED_MESSAGE }}
+      </span>
+    }
+  }
+</div>

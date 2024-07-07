@@ -13,6 +13,7 @@ export const CONSTANTS = {
     },
     RECENT_BOOKS: '',
     BOOK_COLLECTIONS: 'collections',
+    DICTIONARY: 'dictionary',
     NO_CONNECTION: 'no-connection',
     VIEWER: 'viewer/:id',
     EDIT_DETAILS: 'edit/:id',

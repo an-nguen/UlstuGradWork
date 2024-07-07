@@ -29,12 +29,12 @@
     "@microsoft/signalr": "^7.0.14",
     "@ngneat/hotkeys": "^4.0.0",
     "jwt-decode": "^4.0.0",
-    "ngx-extended-pdf-viewer": "^20.5.0-alpha.2",
+    "ngx-extended-pdf-viewer": "^20.5.2",
     "ngx-infinite-scroll": "^17.0.1",
-    "pdfjs-dist": "^4.3.136",
+    "pdfjs-dist": "^4.4.168",
     "rxjs": "~7.8.1",
     "tslib": "^2.6.3",
-    "zone.js": "~0.14.6"
+    "zone.js": "~0.14.7"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.8",
@@ -47,25 +47,25 @@
     "@angular-eslint/template-parser": "17.5.2",
     "@angular/cli": "^17.3.8",
     "@angular/compiler-cli": "^17.3.11",
-    "@eslint/js": "^9.4.0",
+    "@eslint/js": "^9.6.0",
     "@types/jasmine": "~5.1.4",
-    "@typescript-eslint/eslint-plugin": "7.12.0",
-    "@typescript-eslint/parser": "7.12.0",
+    "@typescript-eslint/eslint-plugin": "7.15.0",
+    "@typescript-eslint/parser": "7.15.0",
     "@uiowa/digit-only": "^3.2.1",
     "date-fns": "^3.6.0",
-    "dprint": "^0.46.1",
+    "dprint": "^0.46.3",
     "eslint": "^8.57.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "globals": "^15.3.0",
+    "globals": "^15.8.0",
     "jasmine-core": "~5.1.2",
     "karma": "~6.4.3",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "prettier": "^3.3.1",
+    "prettier": "^3.3.2",
     "typescript": "~5.2.2",
-    "typescript-eslint": "^7.12.0"
+    "typescript-eslint": "^7.15.0"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.3.1"
 }

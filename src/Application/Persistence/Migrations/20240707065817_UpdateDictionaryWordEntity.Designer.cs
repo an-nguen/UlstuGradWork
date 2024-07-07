@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookManager.Application.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240701142910_UpdateDictionaryWordEntity")]
+    [Migration("20240707065817_UpdateDictionaryWordEntity")]
     partial class UpdateDictionaryWordEntity
     {
         /// <inheritdoc />
@@ -206,9 +206,10 @@ namespace BookManager.Application.Persistence.Migrations
 
             modelBuilder.Entity("BookManager.Domain.Entities.DictionaryWord", b =>
                 {
-                    b.Property<string>("Word")
-                        .HasColumnType("text")
-                        .HasColumnName("word");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -234,7 +235,12 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.HasKey("Word")
+                    b.Property<string>("Word")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("word");
+
+                    b.HasKey("Id")
                         .HasName("pk_dictionary_words");
 
                     b.HasIndex("UserId")
@@ -256,11 +262,6 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("character varying(8192)")
                         .HasColumnName("definition");
 
-                    b.Property<string>("DictionaryWordId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("dictionary_word_id");
-
                     b.Property<string>("PartOfSpeech")
                         .IsRequired()
                         .HasColumnType("text")
@@ -272,11 +273,15 @@ namespace BookManager.Application.Persistence.Migrations
                         .HasColumnType("character varying(1024)")
                         .HasColumnName("subject_name");
 
+                    b.Property<Guid>("WordId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("word_id");
+
                     b.HasKey("Id")
                         .HasName("pk_dictionary_word_definition");
 
-                    b.HasIndex("DictionaryWordId")
-                        .HasDatabaseName("ix_dictionary_word_definition_dictionary_word_id");
+                    b.HasIndex("WordId")
+                        .HasDatabaseName("ix_dictionary_word_definition_word_id");
 
                     b.ToTable("dictionary_word_definition", (string)null);
                 });
@@ -572,10 +577,10 @@ namespace BookManager.Application.Persistence.Migrations
                 {
                     b.HasOne("BookManager.Domain.Entities.DictionaryWord", "Word")
                         .WithMany("Definitions")
-                        .HasForeignKey("DictionaryWordId")
+                        .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_dictionary_word_definition_dictionary_words_dictionary_word");
+                        .HasConstraintName("fk_dictionary_word_definition_dictionary_words_word_id");
 
                     b.Navigation("Word");
                 });
