@@ -1,4 +1,4 @@
-﻿namespace BookManager.Application.Common.Interfaces.Services;
+namespace BookManager.Application.Common.Interfaces.Services;
 
 public interface IIndexingService
 {

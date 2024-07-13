@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Common.DTOs;
+using BookManager.Application.Common.DTOs;
 
 namespace BookManager.Application.Common.Interfaces;
 

@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Common;
+using BookManager.Application.Common;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;

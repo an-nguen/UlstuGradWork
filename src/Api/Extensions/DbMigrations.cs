@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Persistence;
+using BookManager.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookManager.Api.Extensions;

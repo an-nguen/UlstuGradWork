@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces.Services;

@@ -1,4 +1,4 @@
-﻿namespace BookManager.Application.Common.Config;
+namespace BookManager.Application.Common.Config;
 
 public class YandexCloudOptions
 {

@@ -1,4 +1,4 @@
-﻿using NodaTime;
+using NodaTime;
 using Tapper;
 
 namespace BookManager.Application.Common.DTOs;

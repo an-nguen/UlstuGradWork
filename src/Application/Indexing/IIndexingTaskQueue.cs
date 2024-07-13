@@ -1,4 +1,4 @@
-﻿namespace BookManager.Application.Indexing;
+namespace BookManager.Application.Indexing;
 
 public interface IIndexingTaskQueue
 {

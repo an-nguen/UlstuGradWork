@@ -1,4 +1,4 @@
-﻿namespace BookManager.Application.Common.DTOs;
+namespace BookManager.Application.Common.DTOs;
 
 public sealed record FileChunkDto
 {

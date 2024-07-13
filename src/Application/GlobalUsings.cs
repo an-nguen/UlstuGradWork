@@ -1,4 +1,4 @@
-﻿// Global using directives
+// Global using directives
 
 global using BookManager.Application.Common.Interfaces.Persistence;
 global using BookManager.Domain.Entities;

@@ -1,4 +1,4 @@
-﻿using BookManager.Domain.Enums;
+using BookManager.Domain.Enums;
 using Tapper;
 
 namespace BookManager.Application.Common.DTOs;

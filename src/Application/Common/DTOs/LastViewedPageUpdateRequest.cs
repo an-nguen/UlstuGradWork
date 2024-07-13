@@ -1,4 +1,4 @@
-﻿using Tapper;
+using Tapper;
 
 namespace BookManager.Application.Common.DTOs;
 

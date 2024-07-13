@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Common.DTOs;
+using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
 using Yandex.Cloud;

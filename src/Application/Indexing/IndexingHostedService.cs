@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Common.Interfaces.Services;
+using BookManager.Application.Common.Interfaces.Services;
 using BookManager.Application.Notification;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

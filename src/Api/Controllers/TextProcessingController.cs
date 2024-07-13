@@ -1,4 +1,4 @@
-﻿using BookManager.Application.Common.DTOs;
+using BookManager.Application.Common.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

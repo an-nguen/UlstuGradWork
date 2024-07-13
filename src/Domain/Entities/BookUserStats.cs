@@ -1,4 +1,4 @@
-﻿using NodaTime;
+using NodaTime;
 
 namespace BookManager.Domain.Entities;
 
