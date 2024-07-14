@@ -1,0 +1,44 @@
+variables:
+  DbUser: $DbUser
+  DbPassword: $DbPassword
+  CorsAllowedOrigins: $CorsAllowedOrigins
+  KeysPath: $KeysPath
+  StoragePath: $StoragePath
+  MerriamWebster__ApiKey: $MerriamWebster__ApiKey
+  YandexCloud__KeyId: $YandexCloud__KeyId
+  YandexCloud__FolderPath: $YandexCloud__FolderPath
+  YandexCloud__ServiceAccountId: $YandexCloud__ServiceAccountId
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+
+build:
+  image: docker:cli
+  services:
+    - docker:dind
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - unset DOCKER_HOST
+    - echo 'nameserver 1.1.1.1' >> /etc/resolv.conf
+    - cat /etc/resolv.conf
+    - printenv
+    - docker version
+    - docker compose version
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker compose build
+    - docker image ls
+    - docker compose push --ignore-push-failures
+
+deploy:
+  stage: deploy
+  tags:
+    - deploy
+  before_script:
+    - unset DOCKER_HOST
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker compose pull
+    - docker compose up -d
+  environment: production

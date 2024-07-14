@@ -5,10 +5,17 @@ secrets:
     environment: "MerriamWebster__ApiKey"
 
 services:
-  libmgr-server:
-    build: .
+  server:
+    container_name: libmgr-server
+    image: "registry.rpi5.lan/an/blibmgr/libmgr-server:latest"
+    build:
+      context: .
+      network: host
+      tags:
+        - "libmgr-server:latest"
+        - "registry.rpi5.lan/an/blibmgr/libmgr-server:latest"
     ports:
-      - 8080:8080
+      - "10080:8080"
     volumes:
       - type: bind
         source: "${KeysPath}"
@@ -30,9 +37,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  libmgr-client:
+  client:
+    container_name: libmgr-client
+    image: "registry.rpi5.lan/an/blibmgr/libmgr-client:latest"
     depends_on:
-      - libmgr-server
-    build: ./web
+      - server
+    build:
+      context: ./web
+      network: host
+      tags:
+        - "libmgr-client:latest"
+        - "registry.rpi5.lan/an/blibmgr/libmgr-client:latest"
     ports:
       - "4200:80"
