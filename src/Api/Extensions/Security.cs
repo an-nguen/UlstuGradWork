@@ -9,7 +9,7 @@ public static class SecurityExtensions
     {
         var jwtTokenOptionsSection = configuration.GetSection(JwtTokenOptions.Jwt);
         var jwtTokenOptions = jwtTokenOptionsSection.Get<JwtTokenOptions>() ?? new JwtTokenOptions();
-        var jsonWebKey = new JsonWebKey(File.ReadAllText("./jwk.json", Encoding.UTF8));
+        var jsonWebKey = new JsonWebKey(File.ReadAllText(jwtTokenOptions.JwkFilePath, Encoding.UTF8));
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = jwtTokenOptions.Issuer,
@@ -19,7 +19,7 @@ public static class SecurityExtensions
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = jsonWebKey,
-        }; 
+        };
         services.AddSingleton<SecurityKey, JsonWebKey>(_ => jsonWebKey);
         services.AddSingleton<TokenValidationParameters>(_ => tokenValidationParameters);
         services.Configure<JwtTokenOptions>(jwtTokenOptionsSection);
@@ -27,7 +27,7 @@ public static class SecurityExtensions
         {
             options.TokenValidationParameters = tokenValidationParameters;
         });
-        
+
         return services;
     }
 }

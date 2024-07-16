@@ -4,7 +4,7 @@ public static class Constants
 {
     public static class Default
     {
-        public const string DirectoryPath = "./";
+        public const string DirectoryPath = "./UploadedDocs";
 
         public const int IndexingQueueCapacity = 2;
 
@@ -16,6 +16,7 @@ public static class Constants
         public const string Audience = "http://localhost:4200";
         public const uint AccessTokenLifetimeInMinutes = 15;
         public const uint RefreshTokenLifetimeInMinutes = 1440;
+        public const string JwkFilePath = "./jwk.json";
 
         public static class Dictionary
         {

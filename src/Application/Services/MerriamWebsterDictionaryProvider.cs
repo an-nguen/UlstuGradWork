@@ -6,6 +6,7 @@ using BookManager.Application.Common.DTOs;
 using BookManager.Application.Common.Exceptions;
 using BookManager.Application.Common.Interfaces.Services;
 using Flurl;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BookManager.Application.Services;
@@ -17,6 +18,7 @@ internal partial class MerriamWebsterContext : JsonSerializerContext;
 
 internal partial class MerriamWebsterDictionaryProvider(
     HttpClient httpClient,
+    ILogger<MerriamWebsterDictionaryProvider> logger,
     IOptions<MerriamWebsterOptions> options)
     : IThirdPartyDictionaryProvider
 {
@@ -29,6 +31,10 @@ internal partial class MerriamWebsterDictionaryProvider(
 
     public async Task<IEnumerable<WordDto>> GetDefinitionAsync(string word)
     {
+        if (string.IsNullOrEmpty(_options.ApiKeyFile))
+        {
+            logger.LogInformation("ApiKeyFile is provided.");
+        }
         var apiKey = !string.IsNullOrEmpty(_options.ApiKeyFile) ? File.ReadAllText(_options.ApiKeyFile) : _options.ApiKey;
         if (string.IsNullOrEmpty(apiKey?.Trim()))
             throw new NotAvailableException(

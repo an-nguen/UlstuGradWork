@@ -8,15 +8,32 @@ using Yandex.Cloud.Credentials;
 
 namespace BookManager.Api.Extensions;
 
-public class JwtCredentialsProvider(string keyId, string serviceAccountId, string privateKeyFilePath): ICredentialsProvider
+public class JwtCredentialsProvider(string keyId, string serviceAccountId, string privateKeyFilePath) : ICredentialsProvider
 {
     private readonly HttpClient _httpClient = new();
     private const string TokensUrl = "https://iam.api.cloud.yandex.net/iam/v1/tokens";
 
     public string GetToken()
     {
+        var encodedToken = CreateJwtToken();
+        if (encodedToken == null) return string.Empty;
+        var content = new Dictionary<string, object?>()
+        {
+            ["jwt"] = encodedToken
+        };
+        var request = new HttpRequestMessage(HttpMethod.Post, TokensUrl)
+        {
+            Content = JsonContent.Create(content)
+        };
+        var response = _httpClient.Send(request);
+        var data = JsonSerializer.Deserialize<Data>(response.Content.ReadAsByteArrayAsync().Result);
+        return data?.IamToken ?? string.Empty;
+    }
+
+    private string CreateJwtToken()
+    {
         var now = DateTime.UtcNow;
-        
+
         var rsa = RSA.Create();
         rsa.ImportFromPem(File.ReadAllText(privateKeyFilePath).ToCharArray());
         var securityKey = new RsaSecurityKey(rsa)
@@ -34,19 +51,7 @@ public class JwtCredentialsProvider(string keyId, string serviceAccountId, strin
         };
 
         var jwtHandler = new JsonWebTokenHandler();
-        var encodedToken = jwtHandler.CreateToken(descriptor);
-        if (encodedToken == null) return string.Empty;
-        var content = new Dictionary<string, object?>()
-        {
-            ["jwt"] = encodedToken
-        };
-        var request = new HttpRequestMessage(HttpMethod.Post, TokensUrl)
-        {
-            Content = JsonContent.Create(content)
-        };
-        var response = _httpClient.Send(request);
-        var data = JsonSerializer.Deserialize<Data>(response.Content.ReadAsByteArrayAsync().Result);
-        return data?.IamToken ?? string.Empty;
+        return jwtHandler.CreateToken(descriptor);
     }
 
     private class Data
@@ -74,7 +79,7 @@ public static class YandexCloud
 
         services.AddScoped<ICredentialsProvider>(_ => credentialsProvider);
         services.AddScoped<Sdk>(_ => sdk);
-        
+
         return services;
     }
 }

@@ -15,7 +15,7 @@ services:
         - "libmgr-server:latest"
         - "registry.rpi5.lan/an/blibmgr/libmgr-server:latest"
     ports:
-      - "10080:8080"
+      - "10180:8080"
     volumes:
       - type: bind
         source: "${KeysPath}"
@@ -23,6 +23,9 @@ services:
       - type: bind
         source: "${StoragePath}"
         target: "/app/UploadedDocs"
+      - type: bind
+        source: "${Jwt__JwkFilePath}"
+        target: "/app/jwk.json"
     environment:
       DbUser: ${DbUser}
       DbPasswordFile: /run/secrets/db_password
