@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, ElementRef, Inject, NgZone, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, Inject, NgZone, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BookMetadataDto } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
-import { getVersionSuffix, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
+import { getVersionSuffix, pdfDefaultOptions, PDFScriptLoaderService } from 'ngx-extended-pdf-viewer';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 
 export interface BookEditDialogData {
@@ -79,6 +79,7 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     private readonly _ngZone: NgZone,
     private readonly _fb: FormBuilder,
     private readonly _dialogRef: MatDialogRef<BookEditDialogComponent>,
+    private readonly _cdr: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public dialogData: BookEditDialogData,
   ) {
     this._initForm();
@@ -157,15 +158,13 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
 
   // Code from https://github.com/stephanrauh/ngx-extended-pdf-viewer/blob/main/projects/ngx-extended-pdf-viewer/src/lib/ngx-extended-pdf-viewer.component.ts
   private _getPdfJsPath(artifact: 'pdf' | 'viewer') {
-    let suffix = 'min.js';
+    let suffix = pdfDefaultOptions._internalFilenameSuffix;
+    suffix += '.mjs';
     const assets = pdfDefaultOptions.assetsFolder;
     const versionSuffix = getVersionSuffix(assets);
-    if (versionSuffix.startsWith('4')) {
-      suffix = suffix.replace('.js', '.mjs');
-    }
     const artifactPath = `/${artifact}-`;
 
-    return assets + artifactPath + versionSuffix + '.' + suffix;
+    return assets + artifactPath + versionSuffix + suffix;
   }
 
   // Code from https://github.com/stephanrauh/ngx-extended-pdf-viewer/blob/main/projects/ngx-extended-pdf-viewer/src/lib/ngx-extended-pdf-viewer.component.ts
@@ -217,38 +216,46 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     if (pdfjsLib) {
       const fileReader = new FileReader();
       this.isPreviewLoading.set(true);
-      fileReader.addEventListener('load', async () => {
-        if (!this.previewCanvasElementRef()) return;
-        this._pdfLoadingTask = pdfjsLib.getDocument({ data: fileReader.result });
-        this._pdf = await this._pdfLoadingTask!.promise;
-        const previewPage = await this._pdf!.getPage(1);
-        const scale = 1;
-        const viewport = previewPage.getViewport({ scale });
-        const canvas = this.previewCanvasElementRef().nativeElement;
-        const context = canvas.getContext("2d");
-        if (!context) return;
-        const heightToWidthRatio = viewport.height / viewport.width;
-        const canvasWidth = this._clamp(viewport.width, this.PREVIEW_MAX_WIDTH, this.PREVIEW_MIN_WIDTH);
-        const canvasHeight = canvasWidth * heightToWidthRatio;
-        const transformScale = canvasWidth / viewport.width;
-        canvas.width = Math.floor(canvasWidth);
-        canvas.height = Math.floor(canvasHeight);
-        canvas.style.width = Math.floor(canvasWidth) + "px";
-        canvas.style.height = Math.floor(canvasHeight) + "px";
-
-        // 2D transform scale matrix (column-major)
-        const transform = [transformScale, 0, 0, transformScale, 0, 0]
-
-        const renderContext = {
-          canvasContext: context,
-          transform,
-          viewport,
-        };
-        previewPage.render(renderContext);
-        this.isPreviewLoading.set(false);
+      fileReader.addEventListener('load', () => {
+        this._renderPreview(pdfjsLib, fileReader).then(() => {
+          this._cdr.markForCheck();
+          this._cdr.detectChanges();
+        });
       });
       fileReader.readAsArrayBuffer(this.dialogData.bookFile);
     }
   }
 
+  private async _renderPreview(pdfjsLib: any, fileReader: FileReader): Promise<void> {
+    if (!this.previewCanvasElementRef()) return;
+    this._pdfLoadingTask = pdfjsLib.getDocument({ data: fileReader.result });
+    this._pdf = await this._pdfLoadingTask!.promise;
+    const previewPage = await this._pdf!.getPage(1);
+    const scale = 1;
+    const viewport = previewPage.getViewport({ scale });
+    const canvas = this.previewCanvasElementRef().nativeElement;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const heightToWidthRatio = viewport.height / viewport.width;
+    const canvasWidth = this._clamp(viewport.width, this.PREVIEW_MAX_WIDTH, this.PREVIEW_MIN_WIDTH);
+    const canvasHeight = canvasWidth * heightToWidthRatio;
+    const transformScale = canvasWidth / viewport.width;
+    canvas.width = Math.floor(canvasWidth);
+    canvas.height = Math.floor(canvasHeight);
+    canvas.style.width = Math.floor(canvasWidth) + "px";
+    canvas.style.height = Math.floor(canvasHeight) + "px";
+
+    // 2D transform scale matrix (column-major)
+    const transform = [transformScale, 0, 0, transformScale, 0, 0]
+
+    const renderContext = {
+      canvasContext: context,
+      transform,
+      viewport,
+    };
+    previewPage.render(renderContext);
+    this.isPreviewLoading.set(false);
+    this._cdr.markForCheck();
+    this._cdr.detectChanges();
+  }
 }

@@ -33,7 +33,7 @@ internal partial class MerriamWebsterDictionaryProvider(
     {
         if (string.IsNullOrEmpty(_options.ApiKeyFile))
         {
-            logger.LogInformation("ApiKeyFile is provided.");
+            logger.LogInformation("ApiKeyFile is not provided.");
         }
         var apiKey = !string.IsNullOrEmpty(_options.ApiKeyFile) ? File.ReadAllText(_options.ApiKeyFile) : _options.ApiKey;
         if (string.IsNullOrEmpty(apiKey?.Trim()))

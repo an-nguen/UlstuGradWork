@@ -52,7 +52,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddOptions<MerriamWebsterOptions>(MerriamWebsterOptions.MerriamWebster);
+        services.Configure<MerriamWebsterOptions>(configuration.GetSection(MerriamWebsterOptions.MerriamWebster));
 
         services.AddSingleton<IFileStorage, FileStorage>();
         services.AddSingleton<IIndexingTaskQueue>(_ => new IndexingTaskQueue(Constants.Default.IndexingQueueCapacity));
