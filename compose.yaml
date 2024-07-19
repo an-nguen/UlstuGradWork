@@ -7,13 +7,13 @@ secrets:
 services:
   server:
     container_name: libmgr-server
-    image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/libmgr-server:latest"
+    image: "${CI_REGISTRY_IMAGE}/libmgr-server:latest"
     build:
       context: .
       network: host
       tags:
         - "libmgr-server:latest"
-        - "${CI_REGISTRY}/${CI_PROJECT_PATH}/libmgr-server:latest"
+        - "${CI_REGISTRY_IMAGE}/libmgr-server:latest"
     ports:
       - "10180:8080"
     volumes:
@@ -42,7 +42,7 @@ services:
 
   client:
     container_name: libmgr-client
-    image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/libmgr-client:latest"
+    image: "${CI_REGISTRY_IMAGE}/libmgr-client:latest"
     depends_on:
       - server
     build:
@@ -50,6 +50,6 @@ services:
       network: host
       tags:
         - "libmgr-client:latest"
-        - "${CI_REGISTRY}/${CI_PROJECT_PATH}/libmgr-client:latest"
+        - "${CI_REGISTRY_IMAGE}/libmgr-client:latest"
     ports:
       - "4200:80"
