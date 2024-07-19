@@ -42,7 +42,7 @@ internal partial class MerriamWebsterDictionaryProvider(
             );
 
         var requestUri = RequestUri.AppendPathSegment(word.Trim('/'))
-            .AppendQueryParam("key", _options.ApiKey)
+            .AppendQueryParam("key", apiKey)
             .ToUri();
         var requestMessage = new HttpRequestMessage
         {
