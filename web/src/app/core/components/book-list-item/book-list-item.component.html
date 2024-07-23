@@ -1,5 +1,5 @@
 <div class="thumbnail-container">
-  <img [ngSrc]="image()" alt="No thumbnail" fill />
+  <img [src]="image()" alt="No thumbnail" fill />
   @if (showProgression && progressionValue()) {
     <mat-progress-bar [value]="progressionValue()"></mat-progress-bar>
   }
@@ -54,5 +54,5 @@
       }
     </div>
   }
-  
+
 </div>

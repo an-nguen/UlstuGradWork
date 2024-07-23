@@ -1,4 +1,4 @@
-<div class="login-form" [formGroup]="loginForm">
+<form class="login-form" [formGroup]="loginForm">
   <h2>Вход в персональную библиотеку</h2>
   <mat-form-field>
     <mat-label>Пользователь</mat-label>
@@ -11,21 +11,19 @@
   <mat-form-field>
     <mat-label>ПИН-код</mat-label>
     <input
-      matInput
-      type="password"
-      formControlName="pinCode"
-      inputmode="numeric"
-      minlength="4"
-      maxlength="16"
-      digitOnly
-    />
+           matInput
+           type="password"
+           formControlName="pinCode"
+           inputmode="numeric"
+           minlength="4"
+           maxlength="16"
+           digitOnly />
   </mat-form-field>
   <button
-    mat-flat-button
-    color="primary"
-    [disabled]="loginForm.invalid || loginForm.pristine"
-    (click)="login()"
-  >
+          mat-flat-button
+          color="primary"
+          [disabled]="loginForm.invalid || loginForm.pristine"
+          (click)="login()">
     <mat-icon>login</mat-icon>
     Войти
   </button>
@@ -33,4 +31,4 @@
     <mat-icon>add</mat-icon>
     Создать нового пользователя
   </button>
-</div>
+</form>
