@@ -3,14 +3,16 @@ import {
   Component,
   computed,
   DestroyRef,
-  ElementRef, HostListener,
+  ElementRef, EnvironmentInjector, HostListener,
+  InjectionToken,
   OnDestroy,
   OnInit,
+  runInInjectionContext,
   Signal,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,11 +29,13 @@ import {
   BookDetailsUpdateDto,
   BookDto,
   BookMetadataDto,
+  BookTextDto,
+  FullTextSearchTreeEntryDto,
   SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
-import { debounceTime, finalize, map, mergeMap, of, tap } from 'rxjs';
+import { combineLatest, concat, concatAll, debounceTime, finalize, map, merge, mergeMap, of, tap } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -46,6 +50,9 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe } from '@angular/common';
 import { BookInfoDialogComponent } from '@core/dialogs/book-info-dialog/book-info-dialog.component';
+import { SearchModeMenuComponent } from '@core/components/search-mode-menu/search-mode-menu.component';
+import { SearchMode } from '@core/types/search-mode';
+import { FullTextSearchListComponent } from '@core/components/full-text-search-list/full-text-search-list.component';
 
 enum ViewMode {
   List,
@@ -75,6 +82,8 @@ enum ViewMode {
     MatPrefix,
     MatSuffix,
     AsyncPipe,
+    SearchModeMenuComponent,
+    FullTextSearchListComponent,
   ],
   animations: [
     trigger('searchFocus', [
@@ -89,20 +98,22 @@ enum ViewMode {
 export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public ViewMode = ViewMode;
+  public SearchMode = SearchMode;
+
   public readonly SORT_OPTIONS: SortOption[] = [
     { value: 'title', name: 'По названию' },
     { value: 'isbn', name: 'По ISBN' },
     { value: 'recent_access', name: 'По посл. открытию' },
   ];
-  protected readonly DEFAULT_PAGE_SIZE = CONSTANTS.PAGE_SIZE;
-  protected readonly DEFAULT_SORT_OPTION = {
+  public readonly DEFAULT_PAGE_SIZE = CONSTANTS.PAGE_SIZE;
+  public readonly DEFAULT_SORT_OPTION = {
     value: 'recent_access',
     name: 'По посл. открытию',
   };
-  protected readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
-  protected readonly SORT_OPTION_KEY = 'library-explorer-sort-option';
-  protected readonly SORT_ORDER_KEY = 'library-explorer-sort-order';
-  protected readonly VIEW_MODE_KEY = 'library-explorer-view-mode';
+  public readonly DEFAULT_SORT_ORDER = SortOrder.Asc;
+  public readonly SORT_OPTION_KEY = 'library-explorer-sort-option';
+  public readonly SORT_ORDER_KEY = 'library-explorer-sort-order';
+  public readonly VIEW_MODE_KEY = 'library-explorer-view-mode';
 
   public fileInputElement = viewChild<ElementRef<HTMLInputElement>>('bookFileInput');
 
@@ -117,11 +128,14 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public isLoading = signal<boolean>(false);
 
+  public fullTextSearchResults = signal<FullTextSearchTreeEntryDto[]>([]);
+  public searchMode = signal<SearchMode>(SearchMode.Metadata);
   public searchFormControl = new FormControl<string | null>(null, [Validators.minLength(3)]);
   public isSearchInFocus = signal<boolean>(false);
   public isInSearchMode: Signal<boolean> = computed(() => {
     const isInFocus = this.isSearchInFocus();
-    return isInFocus || !!this.searchFormControl.value;
+    const isSearchModeMenuOpen = this._isSearchModeMenuOpen();
+    return isInFocus || !!this.searchFormControl.value || isSearchModeMenuOpen;
   });
 
   public isHandset = toSignal(this._breakpointObserver.observe([Breakpoints.Handset])
@@ -130,6 +144,8 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   private _selectedSortOption = this.DEFAULT_SORT_OPTION;
   private _selectedSortOrder = this.DEFAULT_SORT_ORDER;
   private _pageCount = 0;
+  private _isSearchModeMenuOpen = signal<boolean>(false);
+  private _searchMode$ = toObservable(this.searchMode);
 
   constructor(
     private readonly _bookService: BookService,
@@ -138,6 +154,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     private readonly _snackBar: MatSnackBar,
     private readonly _destroyRef: DestroyRef,
     private readonly _breakpointObserver: BreakpointObserver,
+    private readonly _environmentInjector: EnvironmentInjector
   ) {
   }
 
@@ -192,6 +209,10 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
 
   public onSearchInputBlur(): void {
     this.isSearchInFocus.set(false);
+  }
+
+  public setSearchModeMenuOpen(value: boolean): void {
+    this._isSearchModeMenuOpen.set(value);
   }
 
   public handleNumOfVisibleItemsChange(numOfVisibleItems: number) {
@@ -353,6 +374,15 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
     await this._router.navigate(['viewer', book.documentDetails.id]);
   }
 
+  public openBookByBookText(bookText: BookTextDto): void {
+    this._router.navigate(
+      ['viewer', bookText.bookDocumentId],
+      {
+        queryParams: { pageNumber: bookText.pageNumber }
+      }
+    );
+  }
+
   public loadNextPage(): void {
     if (this.currentPageNumber() > this._pageCount - 1) return;
     const nextPage = this.currentPageNumber() + 1;
@@ -390,7 +420,7 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
   }
 
   private _subscribeToSearchChanges(): void {
-    this.searchFormControl.valueChanges
+    combineLatest([this.searchFormControl.valueChanges, toObservable(this.searchMode, { injector: this._environmentInjector })])
       .pipe(
         tap(() => this.searchFormControl.markAsTouched()),
         debounceTime(500),
@@ -398,8 +428,24 @@ export class LibraryExplorerComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         if (this.searchFormControl.invalid) return;
-        this.currentPageNumber.set(1);
-        this._loadPageOfBookList(1, this.pageSize());
+        if (this.searchMode() === SearchMode.Metadata) {
+          this.currentPageNumber.set(1);
+          this._loadPageOfBookList(1, this.pageSize());
+        }
+        if (this.searchMode() === SearchMode.FullText) {
+          this._runFullTextSearch();
+        }
+      });
+  }
+
+  private _runFullTextSearch(): void {
+    this.isLoading.set(true);
+    this._bookService.searchByBookTexts({ pattern: this.searchFormControl.value! })
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((results) => {
+        this.fullTextSearchResults.set(results);
       });
   }
 

@@ -1,0 +1,18 @@
+<button mat-icon-button
+        matSuffix
+        [mat-menu-trigger-for]="searchCriteriaMenu"
+        (menuOpened)="setOpen(true)">
+  <mat-icon>settings</mat-icon>
+</button>
+<mat-menu #searchCriteriaMenu="matMenu"
+          (closed)="setOpen(false)">
+  <div (click)="$event.stopPropagation()">
+    @for (menuItem of menuItems; track $index) {
+      <button mat-menu-item
+              (click)="setSearchMode(menuItem.value)">
+        <mat-icon> @if (searchMode() === menuItem.value) { check } </mat-icon>
+        <span>{{ menuItem.name }}</span>
+      </button>
+    }
+  </div>
+</mat-menu>

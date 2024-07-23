@@ -1,0 +1,33 @@
+.entry-container {
+  display: flex;
+  flex-direction: column;
+  padding: 2em;
+}
+
+mat-action-list {
+  margin-left: 4em !important;
+}
+
+.list-item-button {
+  border-radius: 2em;
+
+  .list-item-inner-container {
+    min-height: 32px;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+
+    .page-number {
+      font-weight: 600;
+      font-size: 1.5em;
+    }
+
+    .excerpt {
+      color: rgb(160, 160, 160);
+      font-style: italic;
+      text-overflow: ellipsis;
+    }
+  }
+}

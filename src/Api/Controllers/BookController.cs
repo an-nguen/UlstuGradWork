@@ -31,7 +31,7 @@ public class BookController(
         var page = await service.GetPageAsync(pageRequest, null, user);
         page.Items.ForEach(p =>
         {
-            p.DocumentDetails.ThumbnailUrl = GetImageUrl(p.DocumentDetails.Id);
+            p.SetThumbnailUrl(GetImageUrl(p.DocumentDetails.Id));
         });
 
         return page;
@@ -80,7 +80,7 @@ public class BookController(
         var page = await searchService.SearchByBookDetailsAsync(request, user);
         foreach (var item in page.Items)
         {
-            item.DocumentDetails.ThumbnailUrl = GetImageUrl(item.DocumentDetails.Id);
+            item.SetThumbnailUrl(GetImageUrl(item.DocumentDetails.Id));
         }
 
         return page;
@@ -91,8 +91,12 @@ public class BookController(
     [Route("full-text-search")]
     public async Task<IActionResult> SearchByText([FromBody] TextSearchRequestDto request)
     {
-        var tree = await searchService.SearchByBookTextsAsync(request);
-        return Ok(tree);
+        var entries = await searchService.SearchByBookTextsAsync(request);
+        foreach (var entry in entries)
+        {
+            entry.Book.SetThumbnailUrl(GetImageUrl(entry.Book.DocumentDetails.Id));
+        }
+        return Ok(entries);
     }
 
     [HttpPost]

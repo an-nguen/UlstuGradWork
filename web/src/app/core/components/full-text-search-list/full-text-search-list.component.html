@@ -1,0 +1,7 @@
+<div class="suitable-book-list-container">
+  @for (entry of entries(); track $index) {
+    <app-full-text-search-list-item [entry]="entry"
+                                    (selectedEvent)="emitSelectedEvent($event)">
+    </app-full-text-search-list-item>
+  }
+</div>

@@ -7,7 +7,7 @@ public class FullTextSearchTreeEntryDto
 {
     public Guid BookId { get; set; }
 
-    public BookDto.Details? BookDetails { get; set; }
+    public BookDto Book { get; set; }
 
     public IEnumerable<BookTextDto> Texts { get; set; } = [];
 }

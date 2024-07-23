@@ -159,8 +159,8 @@ export type DetectLanguageResponseDto = {
 export type FullTextSearchTreeEntryDto = {
     /** Transpiled from System.Guid */
     bookId: string;
-    /** Transpiled from BookManager.Application.Common.DTOs.BookDto.Details? */
-    bookDetails?: Details;
+    /** Transpiled from BookManager.Application.Common.DTOs.BookDto */
+    book: BookDto;
     /** Transpiled from System.Collections.Generic.IEnumerable<BookManager.Application.Common.DTOs.BookTextDto> */
     texts: BookTextDto[];
 }

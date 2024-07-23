@@ -16,13 +16,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/translation-dialog.component';
 import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
-import { catchError, finalize, forkJoin, map, mergeMap, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, combineLatest, finalize, forkJoin, map, mergeMap, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
 import { CONSTANTS } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
@@ -49,11 +49,8 @@ import { TextSumDialogStateService } from '@core/stores/text-sum-dialog.state';
 })
 export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  protected readonly DEFAULT_TARGET_LANG_CODE = 'ru';
-  private readonly SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY = 'selected_definition_provider';
-
-  @ViewChild(NgxExtendedPdfViewerComponent)
-  public pdfViewer!: NgxExtendedPdfViewerComponent;
+  public readonly DEFAULT_TARGET_LANG_CODE = 'ru';
+  public readonly SELECTED_DEFINITION_PROVIDER_SESSION_STORAGE_KEY = 'selected_definition_provider';
 
   public documentSource = signal<ArrayBuffer | Uint8Array | URL>(
     new ArrayBuffer(0),
@@ -93,7 +90,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public ngOnInit(): void {
     pdfDefaultOptions.externalLinkTarget = 2;
     pdfDefaultOptions.enableScripting = false;
-    this._subscribeToParamMap();
+    this._subscribeToRouteParams();
     if (this._authState.accessToken) {
       this.bearerToken = `Bearer ${this._authState.accessToken}`;
     }
@@ -302,34 +299,47 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private _subscribeToParamMap(): void {
-    this._route.paramMap
-      .pipe(
-        mergeMap((params) => {
-          const id = params.get('id');
-          if (!id)
-            return throwError(() => new Error('The book ID is not provided.'));
-          this.documentSource.set(this._service.getBookDownloadUrl(id));
-          return this._service.getBookById(id);
-        }),
-        tap((book) => {
-          this._currentBook = book;
-          if (book.documentDetails.title)
-            this._title.setTitle(book.documentDetails.title);
-          if (book.stats?.lastViewedPage) this.page = book.stats.lastViewedPage;
-          if (book.stats?.totalReadingTime) this._totalTimeInSec = book.stats.totalReadingTime;
-        }),
-        catchError((error: Error) => {
-          console.error(error);
-          this._snackBar.open(
-            `Failed to open book or fetch book details: ${error}`,
-            'OK',
-          );
-          return of(new Uint8Array());
-        }),
-        takeUntilDestroyed(this._destroyRef),
-      )
+  private _subscribeToRouteParams(): void {
+    combineLatest({
+      book: this._route.paramMap.pipe(
+        mergeMap((pm) => this._parseParamMap(pm))
+      ),
+      pageNumber: this._route.queryParamMap.pipe(
+        map((qpm) => this._getPageNumber(qpm))
+      ),
+    }).pipe(
+      tap(({ book, pageNumber }) => {
+        this._currentBook = book;
+        if (book.documentDetails.title)
+          this._title.setTitle(book.documentDetails.title);
+        if (book.stats?.totalReadingTime) this._totalTimeInSec = book.stats.totalReadingTime;
+        this.page = !!pageNumber ? pageNumber : book.stats?.lastViewedPage;
+      }),
+      catchError((error: Error) => {
+        console.error(error);
+        this._snackBar.open(
+          `Failed to open book or fetch book details: ${error}`,
+          'OK',
+        );
+        return of(new Uint8Array());
+      }),
+      takeUntilDestroyed(this._destroyRef),
+    )
       .subscribe();
+  }
+
+  private _parseParamMap(paramMap: ParamMap): Observable<BookDto | never> {
+    const id = paramMap.get('id');
+    if (!id) {
+      return throwError(() => new Error('The book ID is not provided.'));
+    }
+    this.documentSource.set(this._service.getBookDownloadUrl(id));
+    return this._service.getBookById(id);
+  }
+
+  private _getPageNumber(queryParamMap: ParamMap): number | null {
+    const pageNumber = queryParamMap.get('pageNumber');
+    return !pageNumber ? null : parseInt(pageNumber);
   }
 
   private _subscribeToTooltipMenuEvents(): void {

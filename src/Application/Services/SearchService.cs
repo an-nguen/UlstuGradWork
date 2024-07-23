@@ -49,10 +49,9 @@ internal sealed class SearchService(IAppDbContext dbContext, IBookService bookSe
             .Select(grouping => new FullTextSearchTreeEntryDto
             {
                 BookId = grouping.Key,
-                BookDetails = dbContext.Books
-                                       .FirstOrDefault(b => b.Id == grouping.Key)!
-                                       .ToDto()
-                                       .DocumentDetails,
+                Book = dbContext.Books
+                                .FirstOrDefault(b => b.Id == grouping.Key)!
+                                .ToDto(),
                 Texts = grouping.Select(bt =>
                     bt.ToDto(
                         EF.Functions.ToTsQuery("english", request.Pattern)

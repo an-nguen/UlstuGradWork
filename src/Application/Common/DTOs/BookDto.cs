@@ -41,6 +41,11 @@ public sealed record BookDto
         };
     }
 
+    public void SetThumbnailUrl(string url)
+    {
+        DocumentDetails.ThumbnailUrl = url;
+    }
+
     [TranspilationSource]
     public class Details
     {

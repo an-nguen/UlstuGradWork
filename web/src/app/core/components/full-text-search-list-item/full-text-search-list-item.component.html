@@ -1,0 +1,20 @@
+<div class="entry-container">
+  <app-book-list-item [bookItem]="entry().book">
+  </app-book-list-item>
+  <mat-action-list>
+    @for (bookText of texts(); track $index) {
+      <button mat-list-item
+              class="list-item-button"
+              (click)="emitSelectedEvent(bookText)">
+        <div class="list-item-inner-container">
+          <span class="page-number">
+            {{ bookText.pageNumber }}
+          </span>
+          <span class="excerpt"
+                [innerHTML]="getSanitizedHtml(bookText.excerpt)">
+          </span>
+        </div>
+      </button>
+    }
+  </mat-action-list>
+</div>
