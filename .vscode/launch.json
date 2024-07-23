@@ -26,7 +26,7 @@
                 "start"
             ],
             "cwd": "${workspaceFolder}/web",
-            "runtimeExecutable": "yarn",
+            "runtimeExecutable": "${env:FNM_DIR}/aliases/default/yarn",
             "skipFiles": [
                 "<node_internals>/**"
             ],

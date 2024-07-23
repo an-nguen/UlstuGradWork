@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
-import { getVersionSuffix, pdfDefaultOptions, PDFScriptLoaderService } from 'ngx-extended-pdf-viewer';
+import { getVersionSuffix, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 
 export interface BookEditDialogData {
@@ -45,10 +45,10 @@ export interface BookEditDialogData {
 })
 export class BookEditDialogComponent implements OnInit, OnDestroy {
 
-  protected readonly CREATION_DIALOG_TITLE = 'Добавление новой книги';
-  protected readonly EDIT_DIALOG_TITLE = 'Обновление информации о книге';
-  protected readonly PREVIEW_MAX_WIDTH = 320;
-  protected readonly PREVIEW_MIN_WIDTH = 240;
+  public readonly CREATION_DIALOG_TITLE = 'Добавление новой книги';
+  public readonly EDIT_DIALOG_TITLE = 'Обновление информации о книге';
+  public readonly PREVIEW_MAX_WIDTH = 320;
+  public readonly PREVIEW_MIN_WIDTH = 240;
 
   public previewCanvasElementRef = viewChild.required<ElementRef<HTMLCanvasElement>>("previewCanvas");
 
@@ -246,7 +246,10 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     canvas.style.height = Math.floor(canvasHeight) + "px";
 
     // 2D transform scale matrix (column-major)
-    const transform = [transformScale, 0, 0, transformScale, 0, 0]
+    const transform = [
+      transformScale, 0, 0,
+      transformScale, 0, 0
+    ];
 
     const renderContext = {
       canvasContext: context,

@@ -21,3 +21,6 @@ Backup of *.doc*
 *.~vsd*
 
 .env
+
+# User specific settings
+*.sln.DotSettings.user

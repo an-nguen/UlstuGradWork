@@ -41,7 +41,10 @@ internal sealed class SearchService(IAppDbContext dbContext, IBookService bookSe
     {
         if (string.IsNullOrEmpty(request.Pattern)) throw new ArgumentException("Invalid pattern", nameof(request));
         return await dbContext.BookTexts
-            .Where(t => EF.Functions.ToTsVector("english", t.Text).Matches(request.Pattern))
+            .Where(t =>
+                EF.Functions.ToTsVector("english", t.Text)
+                            .Matches(request.Pattern)
+            )
             .GroupBy(bt => bt.BookDocumentId)
             .Select(grouping => new FullTextSearchTreeEntryDto
             {
@@ -50,7 +53,12 @@ internal sealed class SearchService(IAppDbContext dbContext, IBookService bookSe
                                        .FirstOrDefault(b => b.Id == grouping.Key)!
                                        .ToDto()
                                        .DocumentDetails,
-                Texts = grouping.Select(bt => bt.ToDto())
+                Texts = grouping.Select(bt =>
+                    bt.ToDto(
+                        EF.Functions.ToTsQuery("english", request.Pattern)
+                                    .GetResultHeadline(bt.Text)
+                        )
+                )
             })
             .ToListAsync();
     }

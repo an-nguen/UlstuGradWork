@@ -138,7 +138,7 @@ export type BookTextDto = {
     /** Transpiled from System.Guid */
     bookDocumentId: string;
     /** Transpiled from string */
-    text: string;
+    excerpt: string;
     /** Transpiled from int */
     pageNumber?: number;
 }
@@ -231,6 +231,12 @@ export type SearchRequestDto = {
     publisherName?: string;
     /** Transpiled from string[]? */
     authors?: string[];
+}
+
+/** Transpiled from BookManager.Application.Common.DTOs.TextSearchRequestDto */
+export type TextSearchRequestDto = {
+    /** Transpiled from string */
+    pattern: string;
 }
 
 /** Transpiled from BookManager.Application.Common.DTOs.TextSummarizationRequestDto */

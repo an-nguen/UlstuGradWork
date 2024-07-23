@@ -17,4 +17,5 @@ public sealed class SearchRequestDto
     public string[]? Authors { get; set; }
 }
 
+[TranspilationSource]
 public record TextSearchRequestDto(string Pattern);

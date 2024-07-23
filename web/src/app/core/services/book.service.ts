@@ -4,10 +4,12 @@ import {
   BookDetailsUpdateDto,
   BookDto,
   BookMetadataDto,
+  FullTextSearchTreeEntryDto,
   LastViewedPageUpdateRequest,
   PageDto,
   SearchRequestDto,
   SortOrder,
+  TextSearchRequestDto,
   TicketDto,
   TotalTimeUpdateRequestDto,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
@@ -96,6 +98,10 @@ export class BookService {
 
   public searchByBookDetails(request: SearchRequestDto): Observable<PageDto<BookDto>> {
     return this._httpClient.post<PageDto<BookDto>>(`${this._url}/search`, request);
+  }
+
+  public searchByBookTexts(request: TextSearchRequestDto): Observable<FullTextSearchTreeEntryDto[]> {
+    return this._httpClient.post<FullTextSearchTreeEntryDto[]>(`${this._url}/full-text-search`, request);
   }
 
   public createTicket(): Observable<TicketDto> {

@@ -68,6 +68,9 @@
      [infiniteScrollThrottle]="50"
      [scrollWindow]="false"
      (scrolled)="loadNextPage()">
+  @if (isSearchInFocus()) {
+
+  }
   @if (isBooksEmpty()) {
     <div class="no-items">Здесь пусто :(</div>
   }
