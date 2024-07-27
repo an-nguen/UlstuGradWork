@@ -1,5 +1,7 @@
 <div class="entry-container">
-  <app-book-list-item [bookItem]="entry().book">
+  <app-book-list-item [bookItem]="entry().book"
+                      [showEditButton]="false"
+                      [showDeleteButton]="false">
   </app-book-list-item>
   <mat-action-list>
     @for (bookText of texts(); track $index) {

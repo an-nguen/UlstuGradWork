@@ -9,7 +9,7 @@ import {
 import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CONSTANTS } from '@core/constants';
+import { CONSTANTS, RoutePaths } from '@core/constants';
 import { AuthService } from '@core/services/auth.service';
 import { AuthState } from '@core/stores/auth.state';
 import {
@@ -55,10 +55,7 @@ const handleUnauthorizedError = (
 };
 
 const routeToSignInPage = (router: Router) => {
-  router.navigate([
-    CONSTANTS.ENDPOINTS.AUTH.PATH,
-    CONSTANTS.ENDPOINTS.AUTH.SIGN_IN,
-  ]);
+  router.navigate([RoutePaths.SIGN_IN]);
 };
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -84,7 +81,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 0) {
-          router.navigate([CONSTANTS.ENDPOINTS.NO_CONNECTION]);
+          router.navigate([RoutePaths.NO_CONNECTION]);
         } else {
           if (
             err.status === HttpStatusCode.Accepted ||

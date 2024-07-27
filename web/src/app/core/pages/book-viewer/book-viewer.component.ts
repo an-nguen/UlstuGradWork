@@ -24,7 +24,7 @@ import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { catchError, combineLatest, finalize, forkJoin, map, mergeMap, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
-import { CONSTANTS } from '@core/constants';
+import { CONSTANTS, DICTIONARY_WORD_REGEX, Dimensions, TEXT_SUM_MAX_SIZE, TRANSLATION_TEXT_MAX_LENGTH } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/dictionary.service';
 import { FormsModule } from '@angular/forms';
@@ -61,7 +61,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedWord?: string;
   public foundWordsInDict: string[] = [];
 
-  private _dictionaryWordRegex = new RegExp(CONSTANTS.REGEX_PATTERN.DICTIONARY_WORD, 'u');
+  private _dictionaryWordRegex = new RegExp(DICTIONARY_WORD_REGEX, 'u');
   private _currentBook?: BookDto;
   private _page?: number;
   private _totalTimeInSec = 0;
@@ -142,14 +142,14 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openTranslationDialog(selectedText: string, sourceLanguage: string): void {
     if (!selectedText) return;
-    if (selectedText.length > CONSTANTS.TRANSLATION_TEXT_MAX_LENGTH) {
+    if (selectedText.length > TRANSLATION_TEXT_MAX_LENGTH) {
       this._snackBar.open('Размер текста не должна превышать больше 1000 символов.');
       return;
     }
 
     this._dialog.open(TranslationDialogComponent, {
-      minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
-      minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
+      minWidth: Dimensions.TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: Dimensions.TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
         availableLanguages: this._textProcessingService.availableLanguages(),
         sourceText: selectedText,
@@ -161,17 +161,17 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openTextSummarizationDialog(selectedText: string): void {
     if (!selectedText) return;
-    if (selectedText.length > CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE) {
+    if (selectedText.length > TEXT_SUM_MAX_SIZE) {
       this._snackBar.open(
-        `Максимальная длина текста для обобщения (больше ${CONSTANTS.SIZE.TEXT_SUM_MAX_SIZE})`,
+        `Максимальная длина текста для обобщения (больше ${TEXT_SUM_MAX_SIZE})`,
         'OK',
       );
       return;
     }
 
     this._dialog.open(TextSumDialogComponent, {
-      minWidth: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_WIDTH,
-      minHeight: CONSTANTS.SIZE.TRANSLATION_DIALOG_MIN_HEIGHT,
+      minWidth: Dimensions.TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: Dimensions.TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
         inputText: selectedText,
       },

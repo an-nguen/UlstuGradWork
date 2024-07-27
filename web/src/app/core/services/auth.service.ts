@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { CONSTANTS } from '@core/constants';
+import { ServerPaths } from '@core/constants';
 import {
   AuthenticationResponseDto,
   AuthenticationStatus,
@@ -14,9 +14,9 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
-  
+
   private static readonly URL =
-    environment.BASE_URL + '/' + CONSTANTS.SERVER_URL.AUTH.PATH;
+    environment.BASE_URL + '/' + ServerPaths.AUTH.PATH;
 
   public isSignedIn$ = new BehaviorSubject<boolean>(false);
 
@@ -24,12 +24,12 @@ export class AuthService {
     private readonly _state: AuthState,
     private readonly _httpClient: HttpClient,
     @Inject(AUTH_HTTP_CLIENT) private readonly _authHttpClient: HttpClient
-  ) {}
+  ) { }
 
   public signIn(name: string, pinCode: string): Observable<void> {
     return this._authHttpClient
       .post<AuthenticationResponseDto>(
-        AuthService.URL + '/' + CONSTANTS.SERVER_URL.AUTH.SIGN_IN,
+        AuthService.URL + '/' + ServerPaths.AUTH.SIGN_IN,
         {
           name,
           pinCode,
@@ -49,7 +49,7 @@ export class AuthService {
   public refreshToken(): Observable<boolean> {
     return this._authHttpClient
       .post<AuthenticationResponseDto>(
-        AuthService.URL + '/' + CONSTANTS.SERVER_URL.AUTH.REFRESH_TOKEN,
+        AuthService.URL + '/' + ServerPaths.AUTH.REFRESH_TOKEN,
         undefined,
         {
           // A refreshToken is stored in http only cookie
@@ -79,7 +79,7 @@ export class AuthService {
   public signOut(): Observable<void> {
     return this._httpClient
       .post<void>(
-        AuthService.URL + '/' + CONSTANTS.SERVER_URL.AUTH.SIGN_OUT,
+        AuthService.URL + '/' + ServerPaths.AUTH.SIGN_OUT,
         undefined,
         {
           withCredentials: true,
@@ -95,5 +95,5 @@ export class AuthService {
   public clearAccessToken(): void {
     this._state.accessToken = null;
   }
-  
+
 }

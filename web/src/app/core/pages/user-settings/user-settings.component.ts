@@ -29,8 +29,8 @@ export class UserSettingsComponent {
   protected readonly INVALID_PIN_ERR_MSG = "Неверный ПИН-код";
 
   public passwordFormGroup = this._fb.group({
-    currentPINCode: this._fb.control<string | null>(null, Validators.pattern(CONSTANTS.REGEX_PATTERN.PIN_CODE)),
-    newPINCode: this._fb.control<string | null>(null, Validators.pattern(CONSTANTS.REGEX_PATTERN.PIN_CODE)),
+    currentPINCode: this._fb.control<string | null>(null, Validators.pattern(PIN_CODE_REGEX)),
+    newPINCode: this._fb.control<string | null>(null, Validators.pattern(PIN_CODE_REGEX)),
   });
 
   constructor(

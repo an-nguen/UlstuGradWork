@@ -29,6 +29,6 @@ public static class Constants
 
     public const string RefreshTokenCookieKey = "refresh_token";
 
-    public const int ThumbnailPreviewWidth = 600;
-    public const int ThumbnailPreviewHeight = 800;
+    public const int ThumbnailPreviewWidth = 240;
+    public const int ThumbnailPreviewHeight = 320;
 }

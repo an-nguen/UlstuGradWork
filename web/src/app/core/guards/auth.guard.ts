@@ -18,7 +18,7 @@ export const authGuard: CanActivateFn = (_, state) => {
         map((isSignedIn) =>
           router.parseUrl(
             !isSignedIn
-              ? `/${CONSTANTS.ENDPOINTS.AUTH.PATH}/${CONSTANTS.ENDPOINTS.AUTH.SIGN_IN}`
+              ? `/${RoutePaths.AUTH.PATH}/${RoutePaths.AUTH.SIGN_IN}`
               : state.url,
           )),
       );

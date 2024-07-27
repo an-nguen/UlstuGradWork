@@ -5,7 +5,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CONSTANTS } from '@core/constants';
+import { PIN_CODE_REGEX, RoutePaths } from '@core/constants';
 import { UserRegistrationDialogComponent } from '@core/dialogs/user-registration-dialog/user-registration-dialog.component';
 import { UserAddRequest, UserDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit {
     selectedUser: this._fb.control<UserDto | null>(null, [Validators.required]),
     pinCode: this._fb.control<string | null>(null, [
       Validators.required,
-      Validators.pattern(CONSTANTS.REGEX_PATTERN.PIN_CODE),
+      Validators.pattern(PIN_CODE_REGEX),
     ]),
   });
 
@@ -131,7 +131,7 @@ export class LoginComponent implements OnInit {
   }
 
   private _routeToMainPage() {
-    this._router.navigate([CONSTANTS.ENDPOINTS.RECENT_BOOKS]);
+    this._router.navigate([RoutePaths.RECENT_BOOKS]);
   }
 
   private _handleSignInError(err: unknown): Observable<never> {

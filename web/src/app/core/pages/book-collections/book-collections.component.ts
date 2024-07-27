@@ -5,7 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { BookCollectionEditDialogComponent } from '@core/dialogs/book-collection-edit-dialog/book-collection-edit-dialog.component';
-import { CONSTANTS } from '@core/constants';
+import { CONSTANTS, Dimensions, Strings } from '@core/constants';
 import { BookCollectionListComponent } from '@core/components/book-collection-list/book-collection-list.component';
 import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -52,7 +52,7 @@ export class BookCollectionsComponent implements OnInit {
 
   public openBookCollectionEditDialog(collection?: BookCollectionDto): void {
     const dialogRef = this._dialog.open(BookCollectionEditDialogComponent, {
-      minWidth: CONSTANTS.SIZE.DIALOG_MIN_WIDTH,
+      minWidth: Dimensions.DIALOG_MIN_WIDTH,
       data: {
         mode: !collection ? 'create' : 'update',
         allBookCollections: this.bookCollections(),
@@ -77,7 +77,7 @@ export class BookCollectionsComponent implements OnInit {
       DeleteConfirmationDialogComponent,
       {
         data: {
-          message: CONSTANTS.TEXTS.BOOK_COLLECTION_DEL_CONFIRM_MESSAGE,
+          message: Strings.BOOK_COLLECTION_DEL_CONFIRM,
         },
       },
     );
@@ -141,5 +141,5 @@ export class BookCollectionsComponent implements OnInit {
       },
     });
   }
-  
+
 }

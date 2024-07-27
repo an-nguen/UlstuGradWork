@@ -15,14 +15,14 @@ import {
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CONSTANTS } from '@core/constants';
+import { ServerPaths, StorageKeyStrings } from '@core/constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
 
-  private readonly _url: string = `${environment.BASE_URL}/books`;
+  private readonly _url: string = `${environment.BASE_URL}/${ServerPaths.BOOKS}`;
   private _ticketIdSubject = new BehaviorSubject<string | null>(null);
 
   constructor(
@@ -109,12 +109,12 @@ export class BookService {
   }
 
   private _loadTicket(): void {
-    const ticketId = localStorage.getItem(CONSTANTS.DEFAULTS.TICKET_ID_LOCAL_STORAGE_KEY);
+    const ticketId = localStorage.getItem(StorageKeyStrings.TICKET_ID);
     if (!ticketId) {
       this.createTicket()
         .subscribe((ticket) => {
           this._ticketIdSubject.next(ticket.id);
-          localStorage.setItem(CONSTANTS.DEFAULTS.TICKET_ID_LOCAL_STORAGE_KEY, ticket.id);
+          localStorage.setItem(StorageKeyStrings.TICKET_ID, ticket.id);
         });
     } else {
       this._ticketIdSubject.next(ticketId);

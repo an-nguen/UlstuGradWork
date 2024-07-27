@@ -91,12 +91,19 @@ public class BookController(
     [Route("full-text-search")]
     public async Task<IActionResult> SearchByText([FromBody] TextSearchRequestDto request)
     {
-        var entries = await searchService.SearchByBookTextsAsync(request);
-        foreach (var entry in entries)
+        try
         {
-            entry.Book.SetThumbnailUrl(GetImageUrl(entry.Book.DocumentDetails.Id));
+            var entries = await searchService.SearchByBookTextsAsync(request);
+            foreach (var entry in entries)
+            {
+                entry.Book.SetThumbnailUrl(GetImageUrl(entry.Book.DocumentDetails.Id));
+            }
+            return Ok(entries);
         }
-        return Ok(entries);
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
     [HttpPost]

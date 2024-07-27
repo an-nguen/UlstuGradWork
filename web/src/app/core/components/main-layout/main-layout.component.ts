@@ -15,28 +15,28 @@ import { map } from 'rxjs';
 })
 export class MainLayoutComponent {
 
-  protected readonly USER_SETTINGS_ROUTER_LINK = CONSTANTS.ENDPOINTS.USER_SETTINGS;
+  protected readonly USER_SETTINGS_ROUTER_LINK = RoutePaths.USER_SETTINGS;
 
   public routeLinks = [
     {
       iconCode: 'schedule',
       name: 'Недавние',
-      link: CONSTANTS.ENDPOINTS.RECENT_BOOKS,
+      link: RoutePaths.RECENT_BOOKS,
     },
     {
       iconCode: 'library_books',
       name: 'Все книги',
-      link: CONSTANTS.ENDPOINTS.EXPLORER,
+      link: RoutePaths.EXPLORER,
     },
     {
       iconCode: 'category',
       name: 'Коллекции',
-      link: CONSTANTS.ENDPOINTS.BOOK_COLLECTIONS,
+      link: RoutePaths.BOOK_COLLECTIONS,
     },
     {
       iconCode: 'abc',
       name: 'Словарь',
-      link: CONSTANTS.ENDPOINTS.DICTIONARY
+      link: RoutePaths.DICTIONARY
     }
   ];
 
@@ -64,8 +64,8 @@ export class MainLayoutComponent {
       .subscribe(() => {
         this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
         this._router.navigate([
-          CONSTANTS.ENDPOINTS.AUTH.PATH,
-          CONSTANTS.ENDPOINTS.AUTH.SIGN_IN,
+          RoutePaths.AUTH.PATH,
+          RoutePaths.AUTH.SIGN_IN,
         ]);
       });
   }

@@ -27,7 +27,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CONSTANTS } from '@core/constants';
+import { CONSTANTS, Strings } from '@core/constants';
 
 interface DialogData {
   mode?: 'create' | 'update';
@@ -185,7 +185,7 @@ export class BookCollectionEditDialogComponent implements OnInit, AfterViewInit 
     if (this.nameFormControl.hasError('isNotUnique')) {
       this.errorMessage = this.UNIQUENESS_ERROR_MESSAGE;
     } else if (this.nameFormControl.hasError('required')) {
-      this.errorMessage = CONSTANTS.TEXTS.FORM_REQUIRED_ERROR_MESSAGE;
+      this.errorMessage = Strings.FORM_REQUIRED_ERROR;
     } else {
       this.errorMessage = '';
     }
