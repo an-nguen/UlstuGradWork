@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from '@angular/material/button';
@@ -9,10 +9,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DictionaryWordEditFormComponent } from '@core/components/dictionary-word-edit-form/dictionary-word-edit-form.component';
 import { DictionaryWordListComponent } from "@core/components/dictionary-word-list/dictionary-word-list.component";
-import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent } from '@shared/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { PageRequestDto, SortOrder, WordDto } from "@core/dtos/BookManager.Application.Common.DTOs";
 import { DictionaryService } from "@core/services/api/dictionary.service";
-import { finalize, map, mergeMap, NEVER, switchMap } from 'rxjs';
+import { finalize, NEVER, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dictionary-explorer',

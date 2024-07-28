@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { SearchMode } from '@core/types/search-mode';
+import { SearchMode } from '@core/enums/search-mode';
 
 @Component({
   selector: 'app-search-mode-menu',

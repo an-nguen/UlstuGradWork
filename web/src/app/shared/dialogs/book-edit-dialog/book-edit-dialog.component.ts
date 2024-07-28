@@ -190,7 +190,9 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
         this._script = this._createScriptElement(pdfJsPath);
         this._script.onload = () => {
           if (!(globalThis as any).webViewerLoad) {
-            (globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
+            if ((globalThis as any).pdfjsLib && (globalThis as any).pdfjsLib.GlobalWorkerOptions) {
+              (globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
+            }
             this._loadPreview();
           }
         };

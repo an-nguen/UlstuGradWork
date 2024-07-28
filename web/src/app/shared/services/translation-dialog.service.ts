@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LanguageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { BaseStateService } from '@core/types/base-state-service';
+import { BaseStateService } from '@core/services/base-state-service';
 import { Observable, Subject } from 'rxjs';
 
 export interface TranslationFormChangeEvent {

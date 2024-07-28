@@ -5,7 +5,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { UserRegistrationDialogComponent } from '@core/dialogs/user-registration-dialog/user-registration-dialog.component';
+import { UserRegistrationDialogComponent } from '@shared/dialogs/user-registration-dialog/user-registration-dialog.component';
 import { UserAddRequest, UserDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/api/auth.service';
 import { UserService } from '@core/services/api/user.service';

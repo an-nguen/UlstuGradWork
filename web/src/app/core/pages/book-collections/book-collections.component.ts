@@ -4,14 +4,14 @@ import { BookCollectionDto, BookDto } from '@core/dtos/BookManager.Application.C
 import { MatButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { BookCollectionEditDialogComponent } from '@core/dialogs/book-collection-edit-dialog/book-collection-edit-dialog.component';
+import { BookCollectionEditDialogComponent } from '@shared/dialogs/book-collection-edit-dialog/book-collection-edit-dialog.component';
 import { BookCollectionListComponent } from '@core/components/book-collection-list/book-collection-list.component';
-import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { DeleteConfirmationDialogComponent } from '@shared/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, mergeMap, NEVER, of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { BookInfoDialogComponent } from '@core/dialogs/book-info-dialog/book-info-dialog.component';
+import { BookInfoDialogComponent } from '@shared/dialogs/book-info-dialog/book-info-dialog.component';
 import { MESSAGE_TEXTS } from '@core/constants/message-texts.constant';
 import { MessageType } from '@core/enums/message-type.enum';
 import { DIALOG_MIN_WIDTH } from '@core/constants/dimensions.constant';

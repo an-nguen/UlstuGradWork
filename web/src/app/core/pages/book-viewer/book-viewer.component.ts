@@ -10,26 +10,25 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/translation-dialog.component';
+import { TranslationDialogComponent } from '@shared/dialogs/translation-dialog/translation-dialog.component';
 import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/api/book.service';
 import { AuthState } from '@core/stores/auth.state';
 import { NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { catchError, combineLatest, finalize, forkJoin, map, mergeMap, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
-import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
+import { TextSumDialogComponent } from '@shared/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/api/dictionary.service';
 import { FormsModule } from '@angular/forms';
 import { TooltipMenuEventService } from '@core/services/tooltip-menu-event.service';
 import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
-import { TranslationDialogService, TranslationFormChangeEvent } from '@core/services/api/translation-dialog.service';
+import { TranslationDialogService, TranslationFormChangeEvent } from '@shared/services/translation-dialog.service';
 import { TextProcessingService } from '@core/services/api/text-processing.service';
 import { TextSumDialogStateService } from '@core/stores/text-sum-dialog.state';
 import * as Regex from '@core/constants/regex.constant';

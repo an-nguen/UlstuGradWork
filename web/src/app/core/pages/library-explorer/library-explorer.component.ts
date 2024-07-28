@@ -21,8 +21,8 @@ import { STORAGE_KEY_STRINGS } from '@core/constants/storage-keys-strings.consta
 import {
   BookEditDialogComponent,
   BookEditDialogData,
-} from '@core/dialogs/book-edit-dialog/book-edit-dialog.component';
-import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
+} from '@shared/dialogs/book-edit-dialog/book-edit-dialog.component';
+import { DeleteConfirmationDialogComponent } from '@shared/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import {
   BookDetailsUpdateDto,
   BookDto,
@@ -47,7 +47,7 @@ import { MatLabel } from '@angular/material/select';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe } from '@angular/common';
-import { BookInfoDialogComponent } from '@core/dialogs/book-info-dialog/book-info-dialog.component';
+import { BookInfoDialogComponent } from '@shared/dialogs/book-info-dialog/book-info-dialog.component';
 import { SearchModeMenuComponent } from '@core/components/search-mode-menu/search-mode-menu.component';
 import { SearchMode } from '@core/enums/search-mode';
 import { FullTextSearchListComponent } from '@core/components/full-text-search-list/full-text-search-list.component';

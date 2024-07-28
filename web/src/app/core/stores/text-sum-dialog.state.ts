@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseStateService } from '@core/types/base-state-service';
+import { BaseStateService } from '@core/services/base-state-service';
 
 export interface TextSumDialogState {
   isLoading: boolean;

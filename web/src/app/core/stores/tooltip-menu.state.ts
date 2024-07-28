@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { DEFAULT_DEFINITION_PROVIDER } from "@core/constants/defaults.constant";
 import { WordDto } from "@core/dtos/BookManager.Application.Common.DTOs";
-import { BaseStateService } from "@core/types/base-state-service";
+import { BaseStateService } from "@core/services/base-state-service";
 
 export interface DefinitionMenuState {
   isLoading: boolean;
