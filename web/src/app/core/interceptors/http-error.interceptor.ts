@@ -9,21 +9,18 @@ import {
 import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CONSTANTS, RoutePaths } from '@core/constants';
+import * as RoutePaths from '@core/constants/route-paths.constant';
 import { AuthService } from '@core/services/auth.service';
 import { AuthState } from '@core/stores/auth.state';
 import {
   catchError,
   delay,
-  map,
   mergeMap,
   NEVER,
   Observable,
   retry,
-  retryWhen,
   switchMap,
   throwError,
-  timer,
 } from 'rxjs';
 
 
@@ -67,7 +64,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       retry({
         count: retryCount,
         delay: (error: HttpErrorResponse) => {
-          console.log('retry request');
+          console.log('retrying request');
           if (error.status === HttpStatusCode.Unauthorized) {
             return handleUnauthorizedError(req, next, error, environmentInjector)
               .pipe(

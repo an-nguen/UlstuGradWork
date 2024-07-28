@@ -1,0 +1,10 @@
+export const EXPLORER = 'all-books';
+export const AUTH = 'auth';
+export const SIGN_IN = 'auth/sign-in';
+export const RECENT_BOOKS = '';
+export const BOOK_COLLECTIONS = 'collections';
+export const DICTIONARY = 'dictionary';
+export const NO_CONNECTION = 'no-connection';
+export const VIEWER = 'viewer/:id';
+export const EDIT_DETAILS = 'edit/:id';
+export const USER_SETTINGS = 'settings';

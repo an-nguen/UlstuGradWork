@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
-import { CONSTANTS } from '@core/constants';
+import * as Regex from '@core/constants/regex.constant';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { DigitOnlyModule } from '@uiowa/digit-only';
@@ -31,7 +31,7 @@ export class UserRegistrationDialogComponent {
     name: this._fb.control('', [Validators.required]),
     pinCode: this._fb.control('', [
       Validators.required,
-      Validators.pattern(PIN_CODE_REGEX),
+      Validators.pattern(Regex.PIN_CODE_REGEX),
     ]),
   });
 

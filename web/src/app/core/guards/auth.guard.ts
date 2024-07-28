@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { CONSTANTS } from '@core/constants';
 import { AuthState } from '@core/stores/auth.state';
 import { AuthService } from '@core/services/auth.service';
 import { map } from 'rxjs';
+import { SIGN_IN } from '@core/constants/route-paths.constant';
 
 export const authGuard: CanActivateFn = (_, state) => {
   const authState = inject(AuthState);
@@ -18,7 +18,7 @@ export const authGuard: CanActivateFn = (_, state) => {
         map((isSignedIn) =>
           router.parseUrl(
             !isSignedIn
-              ? `/${RoutePaths.AUTH.PATH}/${RoutePaths.AUTH.SIGN_IN}`
+              ? SIGN_IN
               : state.url,
           )),
       );

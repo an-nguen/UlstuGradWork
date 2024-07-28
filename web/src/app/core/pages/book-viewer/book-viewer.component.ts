@@ -21,10 +21,9 @@ import { TranslationDialogComponent } from '@core/dialogs/translation-dialog/tra
 import { BookDto, WordDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BookService } from '@core/services/book.service';
 import { AuthState } from '@core/stores/auth.state';
-import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
+import { NgxExtendedPdfViewerModule, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { catchError, combineLatest, finalize, forkJoin, map, mergeMap, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { TooltipMenuComponent } from '@core/components/tooltip-menu/tooltip-menu.component';
-import { CONSTANTS, DICTIONARY_WORD_REGEX, Dimensions, TEXT_SUM_MAX_SIZE, TRANSLATION_TEXT_MAX_LENGTH } from '@core/constants';
 import { TextSumDialogComponent } from '@core/dialogs/text-sum-dialog/text-sum-dialog.component';
 import { DictionaryService } from '@core/services/dictionary.service';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +32,9 @@ import { TooltipMenuStateService } from '@core/stores/tooltip-menu.state';
 import { TranslationDialogService, TranslationFormChangeEvent } from '@core/services/translation-dialog.service';
 import { TextProcessingService } from '@core/services/text-processing.service';
 import { TextSumDialogStateService } from '@core/stores/text-sum-dialog.state';
+import * as Regex from '@core/constants/regex.constant';
+import { DEFAULT_TEXT_SUM_MAX_SIZE, DEFAULT_TRANSLATION_TEXT_MAX_LENGTH } from '@core/constants/defaults.constant';
+import { TRANSLATION_DIALOG_MIN_HEIGHT, TRANSLATION_DIALOG_MIN_WIDTH } from '@core/constants/dimensions.constant';
 
 @Component({
   selector: 'app-book-viewer',
@@ -61,7 +63,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedWord?: string;
   public foundWordsInDict: string[] = [];
 
-  private _dictionaryWordRegex = new RegExp(DICTIONARY_WORD_REGEX, 'u');
+  private _dictionaryWordRegex = new RegExp(Regex.DICTIONARY_WORD_REGEX, 'u');
   private _currentBook?: BookDto;
   private _page?: number;
   private _totalTimeInSec = 0;
@@ -142,14 +144,14 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openTranslationDialog(selectedText: string, sourceLanguage: string): void {
     if (!selectedText) return;
-    if (selectedText.length > TRANSLATION_TEXT_MAX_LENGTH) {
+    if (selectedText.length > DEFAULT_TRANSLATION_TEXT_MAX_LENGTH) {
       this._snackBar.open('Размер текста не должна превышать больше 1000 символов.');
       return;
     }
 
     this._dialog.open(TranslationDialogComponent, {
-      minWidth: Dimensions.TRANSLATION_DIALOG_MIN_WIDTH,
-      minHeight: Dimensions.TRANSLATION_DIALOG_MIN_HEIGHT,
+      minWidth: TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
         availableLanguages: this._textProcessingService.availableLanguages(),
         sourceText: selectedText,
@@ -161,17 +163,17 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openTextSummarizationDialog(selectedText: string): void {
     if (!selectedText) return;
-    if (selectedText.length > TEXT_SUM_MAX_SIZE) {
+    if (selectedText.length > DEFAULT_TEXT_SUM_MAX_SIZE) {
       this._snackBar.open(
-        `Максимальная длина текста для обобщения (больше ${TEXT_SUM_MAX_SIZE})`,
+        `Максимальная длина текста для обобщения (больше ${DEFAULT_TEXT_SUM_MAX_SIZE})`,
         'OK',
       );
       return;
     }
 
     this._dialog.open(TextSumDialogComponent, {
-      minWidth: Dimensions.TRANSLATION_DIALOG_MIN_WIDTH,
-      minHeight: Dimensions.TRANSLATION_DIALOG_MIN_HEIGHT,
+      minWidth: TRANSLATION_DIALOG_MIN_WIDTH,
+      minHeight: TRANSLATION_DIALOG_MIN_HEIGHT,
       data: {
         inputText: selectedText,
       },

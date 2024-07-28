@@ -1,6 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { ServerPaths } from '@core/constants';
 import {
   AuthenticationResponseDto,
   AuthenticationStatus,
@@ -9,6 +8,7 @@ import { AUTH_HTTP_CLIENT } from '@core/providers/auth-http-client';
 import { AuthState } from '@core/stores/auth.state';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import * as ServerPaths from '@core/constants/server-paths.constant';
 
 @Injectable({
   providedIn: 'root',

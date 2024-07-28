@@ -27,7 +27,8 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CONSTANTS, Strings } from '@core/constants';
+import { ERROR_LABELS } from '@core/constants/error-labels.constant';
+import { Errors } from '@core/enums/error.enum';
 
 interface DialogData {
   mode?: 'create' | 'update';
@@ -61,9 +62,9 @@ interface DialogData {
 })
 export class BookCollectionEditDialogComponent implements OnInit, AfterViewInit {
 
-  protected readonly CREATION_DIALOG_TITLE = 'Добавление новой коллекции книг';
-  protected readonly EDIT_DIALOG_TITLE = 'Изменить коллекцию книг';
-  protected readonly UNIQUENESS_ERROR_MESSAGE = 'Коллекция с данным названием уже существует!';
+  public readonly CREATION_DIALOG_TITLE = 'Добавление новой коллекции книг';
+  public readonly EDIT_DIALOG_TITLE = 'Изменить коллекцию книг';
+  public readonly UNIQUENESS_ERROR_MESSAGE = 'Коллекция с данным названием уже существует!';
 
   @ViewChild(MatPaginator)
   public paginator!: MatPaginator;
@@ -185,7 +186,7 @@ export class BookCollectionEditDialogComponent implements OnInit, AfterViewInit 
     if (this.nameFormControl.hasError('isNotUnique')) {
       this.errorMessage = this.UNIQUENESS_ERROR_MESSAGE;
     } else if (this.nameFormControl.hasError('required')) {
-      this.errorMessage = Strings.FORM_REQUIRED_ERROR;
+      this.errorMessage = ERROR_LABELS[Errors.FormRequired];
     } else {
       this.errorMessage = '';
     }

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Defaults } from "@core/constants";
+import { DEFAULT_DEFINITION_PROVIDER } from "@core/constants/defaults.constant";
 import { WordDto } from "@core/dtos/BookManager.Application.Common.DTOs";
 import { BaseStateService } from "@core/types/base-state-service";
 
@@ -23,7 +23,7 @@ export class TooltipMenuStateService extends BaseStateService<DefinitionMenuStat
       isOpen: false,
       savedWords: [],
       entries: [],
-      currentProvider: Defaults.DEFINITION_PROVIDER,
+      currentProvider: DEFAULT_DEFINITION_PROVIDER,
       providers: [],
     });
   }

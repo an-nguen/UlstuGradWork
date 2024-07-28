@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import type { PDFDocumentLoadingTask, PDFDocumentProxy } from 'pdfjs-dist';
+import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderParameters } from 'ngx-extended-pdf-viewer';
 import { getVersionSuffix, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 
@@ -162,9 +162,9 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     suffix += '.mjs';
     const assets = pdfDefaultOptions.assetsFolder;
     const versionSuffix = getVersionSuffix(assets);
-    const artifactPath = `/${artifact}-`;
+    const artifactPath = `/${artifact}`;
 
-    return assets + artifactPath + versionSuffix + suffix;
+    return assets + artifactPath + suffix;
   }
 
   // Code from https://github.com/stephanrauh/ngx-extended-pdf-viewer/blob/main/projects/ngx-extended-pdf-viewer/src/lib/ngx-extended-pdf-viewer.component.ts
@@ -172,6 +172,7 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     const script = document.createElement('script');
     script.async = true;
     script.type = sourcePath.endsWith('.mjs') ? 'module' : 'text/javascript';
+    script.id = 'book-edit-dialog-pdfjs-script';
     script.className = 'ngx-extended-pdf-viewer-script';
     script.src = sourcePath;
     return script;
@@ -182,31 +183,21 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
     (globalThis as any)['ngxZone'] = this._ngZone;
 
     this._ngZone.runOutsideAngular(() => {
-      let src = pdfDefaultOptions.workerSrc();
-      if (!src.endsWith('.min.mjs')) {
-        src = src.replace('.mjs', '.min.mjs');
-      }
-      const pdfJsPath = this._getPdfJsPath('pdf');
-      if (pdfJsPath.endsWith('.mjs')) {
-        if (src.endsWith('.js')) {
-          src = src.substring(0, src.length - 3) + '.mjs';
-        }
-      }
-      src = src.replace('/assets', '');
-      this._script = this._createScriptElement(pdfJsPath);
       const head = document.querySelector('head');
-      if ((globalThis as any).pdfjsLib) {
-        (globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = src;
-        this._loadPreview();
-      } else {
+      const pdfjsScript = head?.querySelector('book-edit-dialog-pdfjs-script');
+      if (!pdfjsScript) {
+        const pdfJsPath = 'assets/pdf.min.mjs';
+        this._script = this._createScriptElement(pdfJsPath);
         this._script.onload = () => {
           if (!(globalThis as any).webViewerLoad) {
-            (globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = src;
+            (globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.mjs';
             this._loadPreview();
           }
         };
+        head?.appendChild(this._script);
+      } else {
+        this._loadPreview();
       }
-      head?.appendChild(this._script);
     });
   }
 
@@ -227,15 +218,21 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
   }
 
   private async _renderPreview(pdfjsLib: any, fileReader: FileReader): Promise<void> {
-    if (!this.previewCanvasElementRef()) return;
+
+    if (!this.previewCanvasElementRef()) {
+      return;
+    }
     this._pdfLoadingTask = pdfjsLib.getDocument({ data: fileReader.result });
     this._pdf = await this._pdfLoadingTask!.promise;
     const previewPage = await this._pdf!.getPage(1);
-    const scale = 1;
-    const viewport = previewPage.getViewport({ scale });
     const canvas = this.previewCanvasElementRef().nativeElement;
     const context = canvas.getContext("2d");
-    if (!context) return;
+
+    if (!context) {
+      return;
+    }
+
+    const viewport = previewPage.getViewport({ scale: 1 });
     const heightToWidthRatio = viewport.height / viewport.width;
     const canvasWidth = this._clamp(viewport.width, this.PREVIEW_MAX_WIDTH, this.PREVIEW_MIN_WIDTH);
     const canvasHeight = canvasWidth * heightToWidthRatio;
@@ -251,14 +248,23 @@ export class BookEditDialogComponent implements OnInit, OnDestroy {
       transformScale, 0, 0
     ];
 
-    const renderContext = {
+    const renderContext: RenderParameters = {
       canvasContext: context,
       transform,
       viewport,
+      intent: undefined,
+      annotationMode: undefined,
+      canvasFactory: undefined,
+      background: undefined,
+      pageColors: undefined,
+      annotationCanvasMap: undefined,
+      printAnnotationStorage: undefined,
+      backgroundColorToReplace: undefined,
+      optionalContentConfigPromise: undefined
     };
     previewPage.render(renderContext);
     this.isPreviewLoading.set(false);
     this._cdr.markForCheck();
-    this._cdr.detectChanges();
+    // this._cdr.detectChanges();
   }
 }

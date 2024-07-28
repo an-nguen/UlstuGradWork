@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CONSTANTS } from '@core/constants';
+import { PIN_CODE_REGEX } from '@core/constants/regex.constant';
 import { UserService } from '@core/services/user.service';
 import { AuthState } from '@core/stores/auth.state';
 import { DigitOnlyModule } from '@uiowa/digit-only';

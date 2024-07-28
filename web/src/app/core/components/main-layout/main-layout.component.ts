@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CONSTANTS } from '@core/constants';
 import { AuthService } from '@core/services/auth.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map } from 'rxjs';
+import { BOOK_COLLECTIONS, DICTIONARY, EXPLORER, RECENT_BOOKS, SIGN_IN, USER_SETTINGS } from '@core/constants/route-paths.constant';
 
 @Component({
   selector: 'app-main-layout',
@@ -15,28 +15,28 @@ import { map } from 'rxjs';
 })
 export class MainLayoutComponent {
 
-  protected readonly USER_SETTINGS_ROUTER_LINK = RoutePaths.USER_SETTINGS;
+  protected readonly USER_SETTINGS_ROUTER_LINK = USER_SETTINGS;
 
   public routeLinks = [
     {
       iconCode: 'schedule',
       name: 'Недавние',
-      link: RoutePaths.RECENT_BOOKS,
+      link: RECENT_BOOKS,
     },
     {
       iconCode: 'library_books',
       name: 'Все книги',
-      link: RoutePaths.EXPLORER,
+      link: EXPLORER,
     },
     {
       iconCode: 'category',
       name: 'Коллекции',
-      link: RoutePaths.BOOK_COLLECTIONS,
+      link: BOOK_COLLECTIONS,
     },
     {
       iconCode: 'abc',
       name: 'Словарь',
-      link: RoutePaths.DICTIONARY
+      link: DICTIONARY
     }
   ];
 
@@ -63,10 +63,7 @@ export class MainLayoutComponent {
     this._authService.signOut()
       .subscribe(() => {
         this._snackBar.open('Вы вышли из системы.', 'OK', { duration: 1500 });
-        this._router.navigate([
-          RoutePaths.AUTH.PATH,
-          RoutePaths.AUTH.SIGN_IN,
-        ]);
+        this._router.navigate([SIGN_IN]);
       });
   }
 

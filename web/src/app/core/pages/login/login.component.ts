@@ -5,7 +5,6 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { PIN_CODE_REGEX, RoutePaths } from '@core/constants';
 import { UserRegistrationDialogComponent } from '@core/dialogs/user-registration-dialog/user-registration-dialog.component';
 import { UserAddRequest, UserDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { AuthService } from '@core/services/auth.service';
@@ -18,6 +17,8 @@ import { MatFormField, MatLabel, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import * as RoutePaths from '@core/constants/route-paths.constant';
+import * as Regex from '@core/constants/regex.constant';
 
 @Component({
   selector: 'app-login',
@@ -47,7 +48,7 @@ export class LoginComponent implements OnInit {
     selectedUser: this._fb.control<UserDto | null>(null, [Validators.required]),
     pinCode: this._fb.control<string | null>(null, [
       Validators.required,
-      Validators.pattern(PIN_CODE_REGEX),
+      Validators.pattern(Regex.PIN_CODE_REGEX),
     ]),
   });
 
