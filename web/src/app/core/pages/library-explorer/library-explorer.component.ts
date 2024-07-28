@@ -49,7 +49,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe } from '@angular/common';
 import { BookInfoDialogComponent } from '@core/dialogs/book-info-dialog/book-info-dialog.component';
 import { SearchModeMenuComponent } from '@core/components/search-mode-menu/search-mode-menu.component';
-import { SearchMode } from '@core/types/search-mode';
+import { SearchMode } from '@core/enums/search-mode';
 import { FullTextSearchListComponent } from '@core/components/full-text-search-list/full-text-search-list.component';
 import { DEFAULT_PAGE_SIZE, DEFAULT_SORT_OPTION, DEFAULT_SORT_ORDER } from '@core/constants/defaults.constant';
 import { MessageType } from '@core/enums/message-type.enum';
