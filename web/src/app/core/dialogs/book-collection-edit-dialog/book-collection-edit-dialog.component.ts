@@ -18,7 +18,7 @@ import { DigitOnlyModule } from '@uiowa/digit-only';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { BookService } from '@core/services/book.service';
+import { BookService } from '@core/services/api/book.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { startWith, switchMap } from 'rxjs';

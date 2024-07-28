@@ -32,7 +32,7 @@ import {
   SearchRequestDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { BookService } from '@core/services/book.service';
+import { BookService } from '@core/services/api/book.service';
 import { combineLatest, debounceTime, finalize, map, mergeMap, of, tap } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatIcon } from '@angular/material/icon';

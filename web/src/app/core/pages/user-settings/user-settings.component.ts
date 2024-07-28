@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PIN_CODE_REGEX } from '@core/constants/regex.constant';
-import { UserService } from '@core/services/user.service';
+import { UserService } from '@core/services/api/user.service';
 import { AuthState } from '@core/stores/auth.state';
 import { DigitOnlyModule } from '@uiowa/digit-only';
 import { jwtDecode } from 'jwt-decode';

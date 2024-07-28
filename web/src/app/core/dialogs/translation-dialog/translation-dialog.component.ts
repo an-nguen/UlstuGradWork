@@ -8,7 +8,7 @@ import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { LoadingSpinnerOverlayComponent } from '@shared/components/loading-spinner-overlay/loading-spinner-overlay.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { TranslationFormChangeEvent, TranslationDialogComponentData, TranslationDialogService } from '@core/services/translation-dialog.service';
+import { TranslationFormChangeEvent, TranslationDialogComponentData, TranslationDialogService } from '@core/services/api/translation-dialog.service';
 import { LanguageDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 
 @Component({

@@ -11,7 +11,7 @@ import { DictionaryWordEditFormComponent } from '@core/components/dictionary-wor
 import { DictionaryWordListComponent } from "@core/components/dictionary-word-list/dictionary-word-list.component";
 import { DeleteConfirmationDialogComponent } from '@core/dialogs/delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { PageRequestDto, SortOrder, WordDto } from "@core/dtos/BookManager.Application.Common.DTOs";
-import { DictionaryService } from "@core/services/dictionary.service";
+import { DictionaryService } from "@core/services/api/dictionary.service";
 import { finalize, map, mergeMap, NEVER, switchMap } from 'rxjs';
 
 @Component({

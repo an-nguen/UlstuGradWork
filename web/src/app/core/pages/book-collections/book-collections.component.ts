@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from '@angular/core';
-import { BookCollectionService } from '@core/services/book-collection.service';
+import { BookCollectionService } from '@core/services/api/book-collection.service';
 import { BookCollectionDto, BookDto } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { MatButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';

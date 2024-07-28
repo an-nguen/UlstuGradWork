@@ -14,7 +14,7 @@ import {
   TotalTimeUpdateRequestDto,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { STORAGE_KEY_STRINGS } from '@core/constants/storage-keys-strings.constant';
 import { StorageKeys } from '@core/enums/storage-key.enum';
 

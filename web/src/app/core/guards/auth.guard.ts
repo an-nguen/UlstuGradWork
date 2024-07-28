@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthState } from '@core/stores/auth.state';
-import { AuthService } from '@core/services/auth.service';
+import { AuthService } from '@core/services/api/auth.service';
 import { map } from 'rxjs';
 import { SIGN_IN } from '@core/constants/route-paths.constant';
 

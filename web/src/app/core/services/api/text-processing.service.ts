@@ -8,13 +8,13 @@ import {
   TranslationResponseDto,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TextProcessingService {
-  
+
   private readonly _url: string = `${environment.BASE_URL}/text-processing`;
 
   public availableLanguages = signal<LanguageDto[]>([]);
@@ -44,7 +44,7 @@ export class TextProcessingService {
       request
     );
   }
-  
+
   public summarizeText(request: TextSummarizationRequestDto): Observable<TextSummarizationResponseDto> {
     return this._client.post<TextSummarizationResponseDto>(`${this._url}/summarize-text`, request);
   }
@@ -54,5 +54,5 @@ export class TextProcessingService {
       this.availableLanguages.set(languages);
     });
   }
-  
+
 }

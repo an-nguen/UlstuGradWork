@@ -10,7 +10,7 @@ import {
   BookDto,
   SortOrder,
 } from '@core/dtos/BookManager.Application.Common.DTOs';
-import { BookService } from '@core/services/book.service';
+import { BookService } from '@core/services/api/book.service';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { NgOptimizedImage } from '@angular/common';
@@ -30,7 +30,7 @@ import { BookListViewComponent } from '@core/components/book-list-view/book-list
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecentBooksComponent implements OnInit {
-  
+
   public otherBooks = signal<BookDto[]>([]);
   public mostRecentBook = signal<BookDto | null>(null);
   public isBooksEmpty = computed(() => {
@@ -53,7 +53,7 @@ export class RecentBooksComponent implements OnInit {
   constructor(
     private readonly _service: BookService,
     private readonly _router: Router
-  ) {}
+  ) { }
 
   public ngOnInit(): void {
     this._loadBooks();
@@ -76,5 +76,5 @@ export class RecentBooksComponent implements OnInit {
         this.mostRecentBook.set(page.items[0]);
       });
   }
-  
+
 }

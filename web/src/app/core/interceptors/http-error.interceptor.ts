@@ -10,7 +10,7 @@ import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/cor
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import * as RoutePaths from '@core/constants/route-paths.constant';
-import { AuthService } from '@core/services/auth.service';
+import { AuthService } from '@core/services/api/auth.service';
 import { AuthState } from '@core/stores/auth.state';
 import {
   catchError,
